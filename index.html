@@ -73,7 +73,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    user-select: none;
   }
+  .card-header:hover { background: #1e4878; }
   .card-header .badge {
     background: rgba(255,255,255,.22);
     border-radius: 12px;
@@ -81,7 +84,32 @@
     font-size: 11px;
     font-weight: 500;
   }
-  .card-body { padding: 18px; }
+  .card-header .collapse-arrow {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    flex-shrink: 0;
+    transition: transform .22s ease, background .15s;
+    font-size: 11px;
+    line-height: 1;
+  }
+  .card-header.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .card-header:hover .collapse-arrow { background: rgba(255,255,255,.28); }
+  .card-body {
+    padding: 18px;
+    transition: padding .18s;
+  }
+  .card-body.collapsed { display: none; }
+  @media print {
+    .card-header { cursor: default; }
+    .collapse-arrow { display: none !important; }
+    .card-body.collapsed { display: block !important; }
+  }
 
   /* ── FORM ── */
   .form-group { margin-bottom: 14px; }
@@ -314,61 +342,33 @@
   .cmp-table .sub-head .sh-mod { background: #d1fae5; color: var(--green); }
   .cmp-table .sub-head .sh-inc { background: #ede9fe; color: #4c1d95; }
 
-  /* data cells */
+  /* ── cmp-table data cells ── */
   .cmp-table td {
-    padding: 0;
+    padding: 7px 10px;
     border-bottom: 1px solid #e9edf3;
     text-align: center;
     vertical-align: middle;
+    font-size: 12px;
   }
-  .cmp-table td .cell-inner {
-    padding: 8px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    height: 100%;
-  }
-  /* column-group background stripes */
   .cmp-table td.td-db  { background: #f8fafc; }
   .cmp-table td.td-bu  { background: #eef4ff; }
   .cmp-table td.td-vli { background: #fff9f0; }
   .cmp-table td.td-li  { background: #f0f5ff; }
   .cmp-table td.td-mod { background: #f0fdf4; }
-  .cmp-table td.td-inc { background: #faf5ff; }
-  /* na cell */
-  .cmp-table td.td-na  { color: #c4c9d1; font-size: 11px; font-style: italic; background: #f9fafb; }
-
-  /* active / highlighted row */
-  .cmp-table tr.active-row td { outline: none; }
-  .cmp-table tr.active-row td.td-db  { background: #fffbeb; border-left: 3px solid var(--gold); }
   .cmp-table tr.active-row td { background: #fffbeb !important; }
-
-  /* bonus units big number */
-  .bu-big  { font-size: 22px; font-weight: 800; color: #1e4d8c; line-height: 1; }
-  .bu-label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+  .cmp-table tr.active-row td.td-db { border-left: 3px solid var(--gold); }
+  .cmp-table td[colspan="3"] { color: #c4c9d1; font-style: italic; background: #f9fafb; }
 
   /* DB% pill */
   .db-pill {
     display: inline-block;
     padding: 3px 9px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     color: #fff;
     line-height: 1;
   }
-
-  /* affordable cell */
-  .aff-req  { font-size: 11px; font-weight: 700; }
-  .aff-units { font-size: 18px; font-weight: 800; line-height: 1; }
-  .aff-cov  { font-size: 9px; color: #9ca3af; }
-
-  /* bar strip at bottom of bonus-units cell */
-  .bu-bar-wrap { display: flex; gap: 2px; height: 5px; width: 100%; border-radius: 3px; overflow: hidden; margin-top: 4px; }
-  .bu-bar-aff  { background: var(--green); }
-  .bu-bar-bon  { background: var(--blue-mid); }
-  .bu-bar-mkt  { background: #d1d5db; }
 
   .active-tag {
     display: inline-block;
@@ -378,7 +378,7 @@
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 6px;
-    margin-top: 2px;
+    margin-left: 4px;
   }
   .matrix-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #6b7280; margin-top: 10px; }
   .matrix-legend span { display: flex; align-items: center; gap: 5px; }
@@ -490,7 +490,7 @@
   <div class="section-title"><div class="num">1</div> Project Information</div>
 
   <div class="card">
-    <div class="card-header">📋 Project Details</div>
+    <div class="card-header" onclick="toggleCard(this)">📋 Project Details<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -537,7 +537,7 @@
   <div class="section-title"><div class="num">2</div> Base Density Parameters</div>
 
   <div class="card">
-    <div class="card-header">🏗️ Existing Zoning Entitlement</div>
+    <div class="card-header" onclick="toggleCard(this)">🏗️ Existing Zoning Entitlement<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -599,7 +599,7 @@
 
   <!-- VLI TAB -->
   <div id="tab-vli" class="card">
-    <div class="card-header">🔴 Very Low-Income Units <div class="badge">§65915(f)(1)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">🔴 Very Low-Income Units <div class="badge">§65915(f)(1)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -621,7 +621,7 @@
 
   <!-- LI TAB -->
   <div id="tab-li" class="card" style="display:none">
-    <div class="card-header">🔵 Lower-Income Units <div class="badge">§65915(f)(2)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">🔵 Lower-Income Units <div class="badge">§65915(f)(2)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -643,7 +643,7 @@
 
   <!-- MOD TAB -->
   <div id="tab-mod" class="card" style="display:none">
-    <div class="card-header">🟢 Moderate-Income (For-Sale) Units <div class="badge">§65915(f)(3)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">🟢 Moderate-Income (For-Sale) Units <div class="badge">§65915(f)(3)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -665,7 +665,7 @@
 
   <!-- SENIOR TAB -->
   <div id="tab-senior" class="card" style="display:none">
-    <div class="card-header">🟣 Senior Citizen Housing <div class="badge">§65915(b)(3)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">🟣 Senior Citizen Housing <div class="badge">§65915(b)(3)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -684,7 +684,7 @@
 
   <!-- SPECIAL TAB -->
   <div id="tab-special" class="card" style="display:none">
-    <div class="card-header">⭐ Special Categories <div class="badge">§65915(b)(4)–(6)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">⭐ Special Categories <div class="badge">§65915(b)(4)–(6)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="grid-2">
         <div>
@@ -762,7 +762,7 @@
 
     <!-- CALCULATION STEPS -->
     <div class="card">
-      <div class="card-header">🔢 Step-by-Step Calculation <div class="badge">Per §65915(f) & rounding rules</div></div>
+      <div class="card-header" onclick="toggleCard(this)">🔢 Step-by-Step Calculation <div class="badge">Per §65915(f) & rounding rules<span class="collapse-arrow">▼</span></div></div>
       <div class="card-body">
         <div class="calc-steps" id="calc-steps-container"></div>
       </div>
@@ -770,7 +770,7 @@
 
     <!-- INCENTIVES & CONCESSIONS -->
     <div class="card">
-      <div class="card-header">🏛️ Incentives &amp; Concessions <div class="badge">§65915(d)</div></div>
+      <div class="card-header" onclick="toggleCard(this)">🏛️ Incentives &amp; Concessions <div class="badge">§65915(d)<span class="collapse-arrow">▼</span></div></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:14px">
           <span>ℹ️</span>
@@ -798,7 +798,7 @@
 
     <!-- PARKING STANDARDS -->
     <div class="card">
-      <div class="card-header">🚗 Maximum Parking Standards <div class="badge">§65915(p)</div></div>
+      <div class="card-header" onclick="toggleCard(this)">🚗 Maximum Parking Standards <div class="badge">§65915(p)<span class="collapse-arrow">▼</span></div></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:14px">
           <span>ℹ️</span>
@@ -836,7 +836,7 @@
 
     <!-- WAIVER / REDUCTION -->
     <div class="card">
-      <div class="card-header">📏 Development Standard Waivers <div class="badge">§65915(e)</div></div>
+      <div class="card-header" onclick="toggleCard(this)">📏 Development Standard Waivers <div class="badge">§65915(e)<span class="collapse-arrow">▼</span></div></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:12px">
           <span>ℹ️</span>
@@ -863,7 +863,7 @@
   <div class="section-title"><div class="num">5</div> Scenario Comparison Matrix</div>
 
   <div class="card">
-    <div class="card-header">📊 Bonus Units vs. Affordable Unit Requirements — All Income Tiers <div class="badge">§65915(f)</div></div>
+    <div class="card-header" onclick="toggleCard(this)">📊 Bonus Units vs. Affordable Unit Requirements — All Income Tiers <div class="badge">§65915(f)<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -873,24 +873,26 @@
         <table class="cmp-table" id="comparison-matrix">
           <thead>
             <tr class="grp-head">
-              <th class="th-db" colspan="2">Density Bonus Level</th>
-              <th class="th-bu" colspan="1">Bonus Units</th>
-              <th class="th-vli" colspan="2">🔴 Very Low Income (≤50% AMI)</th>
-              <th class="th-li"  colspan="2">🔵 Lower Income (≤80% AMI)</th>
-              <th class="th-mod" colspan="2">🟢 Moderate Income (≤120% AMI)*</th>
-              <th class="th-inc" colspan="1">Incentives</th>
+              <th class="th-db"  colspan="2">Density Bonus Level</th>
+              <th class="th-bu"  colspan="2">Bonus Units</th>
+              <th class="th-vli" colspan="3">🔴 Very Low Income (≤50% AMI)</th>
+              <th class="th-li"  colspan="3">🔵 Lower Income (≤80% AMI)</th>
+              <th class="th-mod" colspan="3">🟢 Moderate Income (≤120% AMI)*</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">DB%</th>
               <th class="sh-db">Total Units</th>
-              <th class="sh-bu">Added (rounded↑)</th>
+              <th class="sh-bu">Added</th>
+              <th class="sh-bu">Market-Rate</th>
               <th class="sh-vli">Min % req'd</th>
-              <th class="sh-vli">Aff. Units (rounded↑)</th>
+              <th class="sh-vli">Aff. Units</th>
+              <th class="sh-vli">Incentives</th>
               <th class="sh-li">Min % req'd</th>
-              <th class="sh-li">Aff. Units (rounded↑)</th>
+              <th class="sh-li">Aff. Units</th>
+              <th class="sh-li">Incentives</th>
               <th class="sh-mod">Min % req'd</th>
-              <th class="sh-mod">Aff. Units (rounded↑)</th>
-              <th class="sh-inc">§65915(d)</th>
+              <th class="sh-mod">Aff. Units</th>
+              <th class="sh-mod">Incentives</th>
             </tr>
           </thead>
           <tbody id="matrix-body"></tbody>
@@ -899,9 +901,9 @@
       <div class="matrix-legend" style="margin-top:12px">
         <span><span class="dot" style="background:var(--blue-mid)"></span> Bonus units added</span>
         <span><span class="dot" style="background:var(--green)"></span> Affordable units required</span>
-        <span><span class="dot" style="background:#d1d5db"></span> Market-rate units</span>
-        <span><span style="background:var(--gold);color:#fff;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700">CURRENT</span> Matches your active selection</span>
-        <span style="color:#9ca3af">* Moderate income applies to for-sale units only (§65915(f)(3))</span>
+        <span><span style="background:var(--gold);color:#fff;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700">CURRENT</span> Active selection</span>
+        <span style="color:#9ca3af">* Moderate income — for-sale units only (§65915(f)(3))</span>
+        <span style="color:#9ca3af">All units rounded up per §65915(f)(4)</span>
       </div>
     </div>
   </div>
@@ -910,7 +912,7 @@
   <div class="section-title"><div class="num">6</div> Project Location Map</div>
 
   <div class="card">
-    <div class="card-header">📍 Location Map <div class="badge">Google Maps</div></div>
+    <div class="card-header" onclick="toggleCard(this)">📍 Location Map <div class="badge">Google Maps<span class="collapse-arrow">▼</span></div></div>
     <div class="card-body">
       <div class="form-group">
         <label>Search / Update Address</label>
@@ -940,7 +942,7 @@
   <div class="section-title no-print"><div class="num">7</div> Generate Report</div>
 
   <div class="card no-print">
-    <div class="card-header">📄 Printable Report</div>
+    <div class="card-header" onclick="toggleCard(this)">📄 Printable Report<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report summarizing all density bonus calculations, applicable incentives, parking standards, and project information for inclusion in planning submittals.</p>
       <div class="action-row">
@@ -1021,24 +1023,26 @@
         <table class="cmp-table" id="rpt-matrix-table" style="min-width:680px;font-size:10px">
           <thead>
             <tr class="grp-head">
-              <th class="th-db" colspan="2">Density Bonus Level</th>
-              <th class="th-bu">Bonus Units</th>
-              <th class="th-vli" colspan="2">VLI (≤50% AMI)</th>
-              <th class="th-li"  colspan="2">LI (≤80% AMI)</th>
-              <th class="th-mod" colspan="2">Moderate (≤120% AMI)*</th>
-              <th class="th-inc">Incentives</th>
+              <th class="th-db"  colspan="2">Density Bonus Level</th>
+              <th class="th-bu"  colspan="2">Bonus Units</th>
+              <th class="th-vli" colspan="3">🔴 VLI (≤50% AMI)</th>
+              <th class="th-li"  colspan="3">🔵 LI (≤80% AMI)</th>
+              <th class="th-mod" colspan="3">🟢 Moderate (≤120% AMI)*</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">DB%</th>
-              <th class="sh-db">Total Units</th>
-              <th class="sh-bu">Added (↑)</th>
-              <th class="sh-vli">Min % req'd</th>
+              <th class="sh-db">Total</th>
+              <th class="sh-bu">Added</th>
+              <th class="sh-bu">Mkt-Rate</th>
+              <th class="sh-vli">Min %</th>
               <th class="sh-vli">Aff. Units</th>
-              <th class="sh-li">Min % req'd</th>
+              <th class="sh-vli">Incentives</th>
+              <th class="sh-li">Min %</th>
               <th class="sh-li">Aff. Units</th>
-              <th class="sh-mod">Min % req'd</th>
+              <th class="sh-li">Incentives</th>
+              <th class="sh-mod">Min %</th>
               <th class="sh-mod">Aff. Units</th>
-              <th class="sh-inc">§65915(d)</th>
+              <th class="sh-mod">Incentives</th>
             </tr>
           </thead>
           <tbody id="rpt-matrix-body"></tbody>
@@ -1601,8 +1605,9 @@ function syncReportAffordability() {
 }
 
 // ── COMPARISON MATRIX ────────────────────────────────
-// Rows = density bonus levels 20%→50% (VLI 2.5-pt steps = 13 rows)
-// Columns = Bonus Units (spine) | VLI req'd | LI req'd | Mod req'd
+// Rows  = DB levels 20%→50% in 2.5-pt steps (13 rows)
+// Left  = DB% | Total Units | Bonus Units Added | Market-Rate Units
+// Right = Per income tier: Min % req'd | Aff. Units | Incentives (×3 tiers)
 
 function buildMatrix() {
   var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
@@ -1611,176 +1616,105 @@ function buildMatrix() {
   var modSel    = parseInt(document.getElementById('mod-pct').value) || 0;
   var seniorSel = document.getElementById('senior-flag').value;
 
-  // Determine the currently active DB% from the main calculator
+  // Active DB% from main calculator
   var activeBonusPct = 0;
   if (seniorSel === 'yes') activeBonusPct = 20;
-  var bonuses = [calcVLIBonus(vliSel), calcLIBonus(liSel), calcModBonus(modSel)];
-  bonuses.forEach(function(b) { if (b > activeBonusPct) activeBonusPct = b; });
+  [calcVLIBonus(vliSel), calcLIBonus(liSel), calcModBonus(modSel)].forEach(function(b) {
+    if (b > activeBonusPct) activeBonusPct = b;
+  });
 
-  // For a given DB%, return the min integer % for each category to achieve it
-  // VLI:  pct = 5  + (db - 20) / 2.5  (exact, always integer at 2.5-pt steps)
-  // LI:   pct = ceil(10 + (db - 20) / 1.5)
-  // Mod:  pct = db + 5               (exact integer: 5+(mod-10)=db → mod=db+5)
+  // Min % for each category to reach a given DB level
   function vliReq(db) { return db >= 20 ? Math.round(5 + (db - 20) / 2.5) : null; }
   function liReq(db)  { return db >= 20 ? Math.ceil(10 + (db - 20) / 1.5) : null; }
   function modReq(db) {
-    var pct = db + 5; // derived: 5 + (pct-10) = db → pct = db+5
-    return (pct <= 44 && db >= 5) ? pct : null; // cap at 44% (gives 39% max DB from Mod)
+    var pct = db + 5;               // 5+(pct-10)*1=db → pct=db+5
+    return (pct <= 44) ? pct : null; // Mod tops out at 44% → 39% DB
   }
 
-  // DB level rows: every 2.5% from 20 to 50 (13 rows)
+  // DB levels every 2.5% from 20 to 50
   var dbLevels = [];
   for (var db = 20; db <= 50; db += 2.5) dbLevels.push(parseFloat(db.toFixed(1)));
 
-  // DB pill colour: interpolate blue → green over 20→50
+  // Colour pill: blue (#1a3a5c) → green (#166534) across 20→50
   function dbColor(db) {
-    var t = (db - 20) / 30; // 0→1
+    var t = (db - 20) / 30;
     var r = Math.round(26  + t * (22  - 26));
-    var g = Math.round(58  + t * (163 - 58));
+    var g = Math.round(58  + t * (101 - 58));
     var b = Math.round(92  + t * (52  - 92));
     return 'rgb(' + r + ',' + g + ',' + b + ')';
   }
 
-  function affCell(pct, db, base, selPct, isReport) {
+  // Tier cell helper: outputs 3 <td> (min%, aff units, incentives)
+  function tierCells(pct, incCount, selPct, bgCls, isReport) {
     if (pct === null) {
-      return isReport
-        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
-        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">—</div></td>';
+      if (isReport) return '<td style="color:#9ca3af;text-align:center" colspan="3">—</td>';
+      return '<td class="' + bgCls + '" style="color:#9ca3af;font-style:italic" colspan="3">N/A</td>';
     }
-    var units = base > 0 ? roundUp(base * pct / 100) : '—';
-    var isSel = (selPct === pct) && base > 0;
-    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
+    var units = baseUnits > 0 ? roundUp(baseUnits * pct / 100) : '—';
+    var isSel = selPct === pct && baseUnits > 0;
+    var hl = isSel ? 'font-weight:800;color:var(--gold)' : '';
+    var cur = isSel ? ' <span class="active-tag">▶</span>' : '';
     if (isReport) {
-      return '<td style="' + selStyle + '">' + pct + '%</td>'
-           + '<td style="' + selStyle + '">' + units + '</td>';
+      return '<td style="' + hl + '">' + pct + '%</td>'
+           + '<td style="' + hl + '">' + units + '</td>'
+           + '<td style="' + hl + '">' + incCount + '</td>';
     }
-    return '<td class="td-vli" style="' + (pct !== null && pct === vliReq(db) ? '' : '') + '">'
-         + '<div class="cell-inner">'
-         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
-         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
-         + '<span class="aff-cov" style="font-size:9px">units</span>'
-         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
-         + '</div></td>';
-  }
-
-  function liCellHtml(pct, db, base, selPct, isReport) {
-    if (pct === null) {
-      return isReport
-        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
-        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">—</div></td>';
-    }
-    var units = base > 0 ? roundUp(base * pct / 100) : '—';
-    var isSel = (selPct === pct) && base > 0;
-    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
-    if (isReport) {
-      return '<td style="' + selStyle + '">' + pct + '%</td>'
-           + '<td style="' + selStyle + '">' + units + '</td>';
-    }
-    return '<td class="td-li">'
-         + '<div class="cell-inner">'
-         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
-         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
-         + '<span class="aff-cov">units</span>'
-         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
-         + '</div></td>';
-  }
-
-  function modCellHtml(pct, db, base, selPct, isReport) {
-    if (pct === null) {
-      return isReport
-        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
-        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">N/A for-sale only</div></td>';
-    }
-    var units = base > 0 ? roundUp(base * pct / 100) : '—';
-    var isSel = (selPct === pct) && base > 0;
-    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
-    if (isReport) {
-      return '<td style="' + selStyle + '">' + pct + '%</td>'
-           + '<td style="' + selStyle + '">' + units + '</td>';
-    }
-    return '<td class="td-mod">'
-         + '<div class="cell-inner">'
-         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
-         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
-         + '<span class="aff-cov">units (for-sale)</span>'
-         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
-         + '</div></td>';
+    return '<td class="' + bgCls + '" style="' + hl + '">' + pct + '% of base' + cur + '</td>'
+         + '<td class="' + bgCls + '" style="' + hl + '">' + units + '</td>'
+         + '<td class="' + bgCls + '" style="' + hl + '">' + incCount + '</td>';
   }
 
   function makeRows(isReport) {
-    // Pick the best VLI sel match for highlighting
-    var activeVLI = vliSel >= 5  ? vliSel : 0;
-    var activeLI  = liSel  >= 10 ? liSel  : 0;
-    var activeMod = modSel >= 10 ? modSel : 0;
+    var selVLI = vliSel >= 5  ? vliSel : 0;
+    var selLI  = liSel  >= 10 ? liSel  : 0;
+    var selMod = modSel >= 10 ? modSel : 0;
 
     return dbLevels.map(function(db) {
-      var bonusUnitsR = baseUnits > 0 ? roundUp(baseUnits * db / 100) : '—';
-      var totalUnitsR = baseUnits > 0 ? baseUnits + roundUp(baseUnits * db / 100) : '—';
+      var bu  = baseUnits > 0 ? roundUp(baseUnits * db / 100) : '—';
+      var tot = baseUnits > 0 ? baseUnits + roundUp(baseUnits * db / 100) : '—';
 
-      var vp = vliReq(db);
-      var lp = liReq(db);
-      var mp = modReq(db);
+      var vp = vliReq(db), lp = liReq(db), mp = modReq(db);
+      var vInc = vp !== null ? calcIncentives(vp, 0,  0,  'no', 0, baseUnits) : 0;
+      var lInc = lp !== null ? calcIncentives(0,  lp, 0,  'no', 0, baseUnits) : 0;
+      var mInc = mp !== null ? calcIncentives(0,  0,  mp, 'no', 0, baseUnits) : 0;
 
-      // Is this the active row?
-      var isActive = baseUnits > 0 && Math.abs(db - activeBonusPct) < 0.01;
-
-      // Incentives for this DB level (use whichever category achieves it with min commitment)
-      var incForLevel = 0;
-      if (vp !== null) incForLevel = Math.max(incForLevel, calcIncentives(vp,0,0,'no',0,baseUnits));
-      if (lp !== null) incForLevel = Math.max(incForLevel, calcIncentives(0,lp,0,'no',0,baseUnits));
-      if (mp !== null) incForLevel = Math.max(incForLevel, calcIncentives(0,0,mp,'no',0,baseUnits));
-
-      // Bar strip proportions for bonus units cell
-      var barHtml = '';
-      if (!isReport && baseUnits > 0) {
-        var bu = roundUp(baseUnits * db / 100);
-        var tu = baseUnits + bu;
-        // use smallest aff commitment (VLI is cheapest per bonus point above 20%)
-        var cheapestAff = vp !== null ? roundUp(baseUnits * vp / 100) : (lp !== null ? roundUp(baseUnits * lp / 100) : 0);
-        var mkt = tu - cheapestAff;
-        var bonPct  = bu / tu;
-        var affPct  = cheapestAff / tu;
-        var mktPct  = mkt / tu;
-        barHtml = '<div class="bu-bar-wrap">'
-          + '<div class="bu-bar-aff" style="flex:' + affPct + '"></div>'
-          + '<div class="bu-bar-bon" style="flex:' + bonPct + '"></div>'
-          + '<div class="bu-bar-mkt" style="flex:' + mktPct + '"></div>'
-          + '</div>';
+      // Market-rate = total − smallest-affordable-commitment (VLI)
+      var mkt = '—';
+      if (baseUnits > 0) {
+        var cheapestAff = vp !== null ? roundUp(baseUnits * vp / 100)
+                        : lp !== null ? roundUp(baseUnits * lp / 100)
+                        : 0;
+        mkt = (baseUnits + roundUp(baseUnits * db / 100)) - cheapestAff;
       }
 
+      var isActive  = baseUnits > 0 && Math.abs(db - activeBonusPct) < 0.01;
       var activeCls = isActive ? ' active-row' : '';
-      var dbPillStyle = 'background:' + dbColor(db) + ';';
 
-      // Build cell content
-      var dbCell, buCell, incCell;
+      var dbCell, buCells, vliTds, liTds, modTds;
       if (isReport) {
-        dbCell = '<td style="font-weight:700">' + db.toFixed(1) + '%</td>'
-               + '<td>' + totalUnitsR + '</td>';
-        buCell = '<td style="font-size:14px;font-weight:800;color:#1e4d8c">' + bonusUnitsR + '</td>';
-        incCell= '<td>' + (incForLevel > 0 ? incForLevel : '—') + '</td>';
+        var selStyle = isActive ? 'font-weight:800;background:#fffbeb' : '';
+        dbCell  = '<td style="font-weight:700;' + selStyle + '">' + db.toFixed(1) + '%</td>'
+                + '<td style="' + selStyle + '">' + tot + '</td>';
+        buCells = '<td style="font-weight:800;color:#1e4d8c;' + selStyle + '">' + bu + '</td>'
+                + '<td style="' + selStyle + '">' + mkt + '</td>';
+        vliTds  = tierCells(vp, vInc, selVLI, '', true);
+        liTds   = tierCells(lp, lInc, selLI,  '', true);
+        modTds  = tierCells(mp, mInc, selMod, '', true);
       } else {
-        dbCell = '<td class="td-db">'
-               + '<div class="cell-inner">'
-               + '<span class="db-pill" style="' + dbPillStyle + '">' + db.toFixed(1) + '%</span>'
-               + (isActive ? '<span class="active-tag" style="margin-top:3px">SELECTED</span>' : '')
-               + '</div></td>'
-               + '<td class="td-db"><div class="cell-inner"><span style="font-size:13px;font-weight:700">' + totalUnitsR + '</span><span style="font-size:9px;color:#9ca3af">total units</span></div></td>';
-        buCell = '<td class="td-bu">'
-               + '<div class="cell-inner">'
-               + '<span class="bu-big">' + bonusUnitsR + '</span>'
-               + '<span class="bu-label">bonus units</span>'
-               + barHtml
-               + '</div></td>';
-        incCell= '<td class="td-inc"><div class="cell-inner"><span style="font-size:18px;font-weight:800;color:#4c1d95">' + (incForLevel > 0 ? incForLevel : '<span style=\'color:#c4c9d1\'>—</span>') + '</span></div></td>';
+        var col = dbColor(db);
+        dbCell  = '<td class="td-db" style="text-align:center">'
+                + '<span class="db-pill" style="background:' + col + '">' + db.toFixed(1) + '%</span>'
+                + (isActive ? '<br><span class="active-tag" style="margin-top:3px">SELECTED</span>' : '')
+                + '</td>'
+                + '<td class="td-db" style="font-weight:700;text-align:center">' + tot + '</td>';
+        buCells = '<td class="td-bu" style="font-size:20px;font-weight:800;color:#1e4d8c;text-align:center">' + bu + '</td>'
+                + '<td class="td-bu" style="text-align:center">' + mkt + '</td>';
+        vliTds  = tierCells(vp, vInc, selVLI, 'td-vli', false);
+        liTds   = tierCells(lp, lInc, selLI,  'td-li',  false);
+        modTds  = tierCells(mp, mInc, selMod, 'td-mod', false);
       }
 
-      var vliHtml = isReport
-        ? affCell(vp, db, baseUnits, activeVLI, true)
-        : affCell(vp, db, baseUnits, activeVLI, false).replace(/class="td-vli"/g, 'class="td-vli"');
-      var liHtml  = liCellHtml(lp,  db, baseUnits, activeLI,  isReport);
-      var modHtml = modCellHtml(mp, db, baseUnits, activeMod, isReport);
-
-      return '<tr' + activeCls + '>' + dbCell + buCell + vliHtml + liHtml + modHtml + incCell + '</tr>';
+      return '<tr' + activeCls + '>' + dbCell + buCells + vliTds + liTds + modTds + '</tr>';
     }).join('');
   }
 
@@ -1819,6 +1753,14 @@ function resetForm() {
   document.getElementById('transit-check').checked = false;
   document.getElementById('base-units').value = 50;
   calculate();
+}
+
+// ── COLLAPSE CARDS ───────────────────────────────────
+function toggleCard(header) {
+  var body = header.nextElementSibling;
+  if (!body || !body.classList.contains('card-body')) return;
+  var collapsed = body.classList.toggle('collapsed');
+  header.classList.toggle('collapsed', collapsed);
 }
 
 // ── INIT ─────────────────────────────────────────────
