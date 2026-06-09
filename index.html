@@ -278,6 +278,69 @@
     flex-shrink: 0;
   }
 
+  /* ── COMPARISON MATRIX ── */
+  .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .matrix-table { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 12px; }
+  .matrix-table th {
+    background: var(--blue);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+  .matrix-table th.col-left { text-align: left; }
+  .matrix-table td { padding: 7px 10px; border-bottom: 1px solid #f0f4f8; text-align: center; }
+  .matrix-table td.col-left { text-align: left; font-weight: 600; }
+  .matrix-table tr.active-row td { background: #fffbeb !important; }
+  .matrix-table tr.active-row td.col-left { border-left: 3px solid var(--gold); }
+  .matrix-table tr.group-vli td { background: #fff7f0; }
+  .matrix-table tr.group-li  td { background: #f0f5ff; }
+  .matrix-table tr.group-mod td { background: #f0fdf4; }
+  .matrix-table tr.group-sr  td { background: #faf5ff; }
+  .matrix-table tr.active-row.group-vli td,
+  .matrix-table tr.active-row.group-li  td,
+  .matrix-table tr.active-row.group-mod td,
+  .matrix-table tr.active-row.group-sr  td { background: #fffbeb !important; }
+  .matrix-table .cat-header td {
+    background: #e8edf5;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--blue);
+    text-align: left;
+    padding: 5px 10px;
+    letter-spacing: .3px;
+  }
+  .matrix-table .cat-header.vli td { background: #fff0e0; color: #92400e; }
+  .matrix-table .cat-header.li  td { background: #dbeafe; color: #1e40af; }
+  .matrix-table .cat-header.mod td { background: #d1fae5; color: var(--green); }
+  .matrix-table .cat-header.sr  td { background: #ede9fe; color: #5b21b6; }
+  .bar-cell { display: flex; align-items: center; gap: 6px; justify-content: center; }
+  .bar { height: 10px; border-radius: 5px; min-width: 2px; transition: width .3s; }
+  .bar-total  { background: var(--blue-mid); }
+  .bar-aff    { background: var(--green); }
+  .bar-market { background: #d1d5db; }
+  .matrix-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #6b7280; margin-top: 10px; }
+  .matrix-legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .active-marker { display: inline-block; background: var(--gold); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin-left: 4px; }
+  .matrix-view-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+  .mtoggle {
+    padding: 5px 14px;
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray);
+    transition: all .15s;
+  }
+  .mtoggle.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
   /* ── PARKING TABLE ── */
   .parking-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .parking-box {
@@ -753,8 +816,54 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════ 5. PROJECT MAP -->
-  <div class="section-title"><div class="num">5</div> Project Location Map</div>
+  <!-- ═══════════════════════════════════════ 5. COMPARISON MATRIX -->
+  <div class="section-title"><div class="num">5</div> Scenario Comparison Matrix</div>
+
+  <div class="card">
+    <div class="card-header">📊 Unit Yield &amp; Affordability Comparison — All Thresholds <div class="badge">§65915(f)</div></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>Shows unit yield for every statutory threshold across all income categories based on your base unit count. <strong>Highlighted rows</strong> match your current calculator selections. Each component is rounded up per §65915(f)(4).</span>
+      </div>
+      <div class="matrix-view-toggle">
+        <button class="mtoggle active" onclick="setMatrixView('all',this)">All Categories</button>
+        <button class="mtoggle" onclick="setMatrixView('vli',this)">Very Low Income</button>
+        <button class="mtoggle" onclick="setMatrixView('li',this)">Lower Income</button>
+        <button class="mtoggle" onclick="setMatrixView('mod',this)">Moderate</button>
+        <button class="mtoggle" onclick="setMatrixView('sr',this)">Senior / Special</button>
+      </div>
+      <div class="matrix-wrap">
+        <table class="matrix-table" id="comparison-matrix">
+          <thead>
+            <tr>
+              <th class="col-left" style="min-width:200px">Category &amp; Threshold</th>
+              <th>AMI Limit</th>
+              <th>% Aff. Units</th>
+              <th>Density Bonus</th>
+              <th>Base Units</th>
+              <th>Aff. Units <small style="font-weight:400;opacity:.8">(rounded↑)</small></th>
+              <th>Bonus Units <small style="font-weight:400;opacity:.8">(rounded↑)</small></th>
+              <th>Total Units</th>
+              <th>Market-Rate</th>
+              <th>Incentives</th>
+              <th style="min-width:140px">Visual Split</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+      <div class="matrix-legend">
+        <span><span class="dot" style="background:var(--blue-mid)"></span> Bonus units</span>
+        <span><span class="dot" style="background:var(--green)"></span> Affordable units</span>
+        <span><span class="dot" style="background:#d1d5db"></span> Market-rate units</span>
+        <span><span style="background:var(--gold);color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:700">▶ CURRENT</span> Matches your current selection</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 6. PROJECT MAP -->
+  <div class="section-title"><div class="num">6</div> Project Location Map</div>
 
   <div class="card">
     <div class="card-header">📍 Location Map <div class="badge">Google Maps</div></div>
@@ -784,7 +893,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ GENERATE REPORT -->
-  <div class="section-title no-print"><div class="num">6</div> Generate Report</div>
+  <div class="section-title no-print"><div class="num">7</div> Generate Report</div>
 
   <div class="card no-print">
     <div class="card-header">📄 Printable Report</div>
@@ -861,9 +970,33 @@
       <div class="result-grid" id="rpt-result-grid" style="margin-bottom:16px"></div>
     </div>
 
+    <!-- COMPARISON MATRIX IN REPORT -->
+    <div class="report-section">
+      <h3 id="rpt-matrix-num">4. Scenario Comparison Matrix (All Thresholds)</h3>
+      <div class="matrix-wrap" style="overflow-x:auto">
+        <table class="matrix-table" id="rpt-matrix-table" style="min-width:700px;font-size:10px">
+          <thead>
+            <tr>
+              <th class="col-left" style="min-width:170px">Category &amp; Threshold</th>
+              <th>AMI</th>
+              <th>% Aff.</th>
+              <th>DB%</th>
+              <th>Base</th>
+              <th>Aff. Units</th>
+              <th>Bonus Units</th>
+              <th>Total</th>
+              <th>Mkt-Rate</th>
+              <th>Incentives</th>
+            </tr>
+          </thead>
+          <tbody id="rpt-matrix-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- CALC STEPS -->
     <div class="report-section">
-      <h3 id="rpt-steps-num">4. Calculation Methodology</h3>
+      <h3 id="rpt-steps-num">5. Calculation Methodology</h3>
       <div class="calc-steps" id="rpt-calc-steps"></div>
     </div>
 
@@ -1151,8 +1284,9 @@ function calculate() {
   // Parking
   updateParking(vliPct, liPct, seniorFlag, transit);
 
-  // Sync report
+  // Sync report and matrix
   syncReport();
+  buildMatrix();
   window._calcState = {baseUnits, vliPct, liPct, modPct, seniorFlag, specialPct, landPct,
     categories, maxBonusPct, winnerCat, bonusUnitsRaw, bonusUnits, totalUnits,
     vliUnits, liUnits, modUnits, specialUnits, totalAff, marketUnits, numIncentives, transit};
@@ -1322,6 +1456,7 @@ function loadMap(address) {
 function renumberReport(hasMap) {
   var base = hasMap ? 3 : 2;
   document.getElementById('rpt-results-num').textContent  = base++ + '. Density Bonus Summary';
+  document.getElementById('rpt-matrix-num').textContent   = base++ + '. Scenario Comparison Matrix';
   document.getElementById('rpt-steps-num').textContent    = base++ + '. Calculation Methodology';
   document.getElementById('rpt-inc-num').textContent      = base++ + '. Incentives & Concessions (§65915(d))';
   document.getElementById('rpt-park-num').textContent     = base++ + '. Parking Standards (§65915(p))';
@@ -1412,6 +1547,155 @@ function syncReportAffordability() {
     : '<tr><td colspan="5" style="text-align:center;color:#9ca3af">No affordability categories selected</td></tr>';
 }
 
+// ── COMPARISON MATRIX ────────────────────────────────
+
+var _matrixView = 'all';
+
+function setMatrixView(view, btn) {
+  _matrixView = view;
+  document.querySelectorAll('.mtoggle').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  buildMatrix();
+}
+
+function buildMatrix() {
+  var baseUnits  = parseInt(document.getElementById('base-units').value) || 0;
+  var vliSel     = parseInt(document.getElementById('vli-pct').value) || 0;
+  var liSel      = parseInt(document.getElementById('li-pct').value) || 0;
+  var modSel     = parseInt(document.getElementById('mod-pct').value) || 0;
+  var seniorSel  = document.getElementById('senior-flag').value;
+  var specialSel = parseInt(document.getElementById('special-pct').value) || 0;
+
+  // Define all threshold rows
+  var rows = [];
+
+  // VLI thresholds: 5,6,7,8,9,10,11,12,13,14,15,17 (50% cap at 17%)
+  if (_matrixView === 'all' || _matrixView === 'vli') {
+    rows.push({ group:'vli', header: true, label: '🔴 Very Low Income (≤50% AMI)  —  §65915(f)(1)  |  Base: 5% min → 20% DB; +2.5%/1%; cap 50%' });
+    var vliThresholds = [5,6,7,8,9,10,11,12,13,14,15,17,20,24];
+    vliThresholds.forEach(function(pct) {
+      var bonus = calcVLIBonus(pct);
+      rows.push({ group:'vli', type:'vli', ami:'≤50% AMI', pct: pct, bonus: bonus,
+        selMatch: vliSel === pct,
+        incentives: calcIncentives(pct,0,0,'no',0,baseUnits),
+        covenantYrs: '55 yrs (rental)'
+      });
+    });
+  }
+
+  // LI thresholds: 10,11,12,13,14,15,16,17,18,19,20,22,24,26,28,30
+  if (_matrixView === 'all' || _matrixView === 'li') {
+    rows.push({ group:'li', header: true, label: '🔵 Lower Income (≤80% AMI)  —  §65915(f)(2)  |  Base: 10% min → 20% DB; +1.5%/1%; cap 50%' });
+    var liThresholds = [10,11,12,13,14,15,16,17,18,19,20,22,24,26,28,30];
+    liThresholds.forEach(function(pct) {
+      var bonus = calcLIBonus(pct);
+      rows.push({ group:'li', type:'li', ami:'≤80% AMI', pct: pct, bonus: bonus,
+        selMatch: liSel === pct,
+        incentives: calcIncentives(0,pct,0,'no',0,baseUnits),
+        covenantYrs: '55 yrs (rental)'
+      });
+    });
+  }
+
+  // Moderate thresholds: 10,12,14,16,18,20,22,24,26,28,30,35,40,44
+  if (_matrixView === 'all' || _matrixView === 'mod') {
+    rows.push({ group:'mod', header: true, label: '🟢 Moderate Income/For-Sale (≤120% AMI)  —  §65915(f)(3)  |  Base: 10% min → 5% DB; +1%/1%; cap 50%' });
+    var modThresholds = [10,12,14,16,18,20,22,24,26,28,30,35,40,44];
+    modThresholds.forEach(function(pct) {
+      var bonus = calcModBonus(pct);
+      rows.push({ group:'mod', type:'mod', ami:'≤120% AMI', pct: pct, bonus: bonus,
+        selMatch: modSel === pct,
+        incentives: calcIncentives(0,0,pct,'no',0,baseUnits),
+        covenantYrs: '45 yrs (for-sale)'
+      });
+    });
+  }
+
+  // Senior / Special
+  if (_matrixView === 'all' || _matrixView === 'sr') {
+    rows.push({ group:'sr', header: true, label: '🟣 Senior Housing (100% 55+/62+)  —  §65915(b)(3)  |  Flat 20% DB' });
+    rows.push({ group:'sr', type:'sr', ami:'N/A', pct:100, bonus:20,
+      selMatch: seniorSel === 'yes',
+      incentives: 1,
+      covenantYrs: 'Ongoing'
+    });
+    rows.push({ group:'sr', header: true, label: '⭐ Special Needs / Foster Youth / Homeless  —  §65915(b)(4)  |  10% min → flat 20% DB' });
+    [10,15,20,25,30].forEach(function(pct) {
+      rows.push({ group:'sr', type:'special', ami:'Varies', pct: pct, bonus: calcSpecialBonus(pct),
+        selMatch: specialSel === pct && pct >= 10,
+        incentives: calcIncentives(0,0,0,'no',pct,baseUnits),
+        covenantYrs: '55 yrs'
+      });
+    });
+  }
+
+  var maxTotal = baseUnits > 0 ? Math.ceil(baseUnits * 1.5) : 1;
+
+  function buildRows(rows, isReport) {
+    return rows.map(function(row) {
+      if (row.header) {
+        var colspan = isReport ? 9 : 10;
+        return '<tr class="cat-header ' + row.group + '"><td colspan="' + colspan + '">' + row.label + '</td></tr>';
+      }
+      var bonusPct   = row.bonus;
+      var bonusUnitsR = baseUnits > 0 ? roundUp(baseUnits * bonusPct / 100) : 0;
+      var affUnitsR   = baseUnits > 0 ? roundUp(baseUnits * (row.type === 'sr' ? 0 : row.pct) / 100) : 0;
+      if (row.type === 'sr') affUnitsR = baseUnits;
+      var totalUnitsR = baseUnits + bonusUnitsR;
+      var marketR     = totalUnitsR - affUnitsR;
+      if (marketR < 0) marketR = 0;
+
+      var isActive = row.selMatch && baseUnits > 0;
+      var activeCls = isActive ? ' active-row' : '';
+      var marker = isActive ? '<span class="active-marker">▶ CURRENT</span>' : '';
+      var bonusStr = bonusPct > 0 ? bonusPct.toFixed(1) + '%' : '<span style="color:#9ca3af">—</span>';
+      var incStr   = row.incentives > 0 ? row.incentives : '<span style="color:#9ca3af">0</span>';
+
+      var barW = Math.round((totalUnitsR / Math.max(maxTotal, totalUnitsR)) * 120);
+      var affW  = baseUnits > 0 ? Math.round((affUnitsR / totalUnitsR) * barW) : 0;
+      var bonW  = baseUnits > 0 ? Math.round((bonusUnitsR / totalUnitsR) * barW) : 0;
+      var mktW  = Math.max(0, barW - affW - bonW);
+      var barHtml = '<div class="bar-cell">'
+        + '<div class="bar bar-aff" style="width:' + affW + 'px" title="Affordable: ' + affUnitsR + '"></div>'
+        + '<div class="bar bar-total" style="width:' + bonW + 'px" title="Bonus: ' + bonusUnitsR + '"></div>'
+        + '<div class="bar bar-market" style="width:' + mktW + 'px" title="Market: ' + marketR + '"></div>'
+        + '</div>';
+
+      if (isReport) {
+        return '<tr class="group-' + row.group + activeCls + '">'
+          + '<td class="col-left">' + (row.type === 'sr' && row.pct === 100 ? 'Senior 100%' : row.pct + '% units') + marker + '</td>'
+          + '<td>' + row.ami + '</td>'
+          + '<td>' + (row.type === 'sr' && row.pct === 100 ? '100%' : row.pct + '%') + '</td>'
+          + '<td><strong>' + bonusStr + '</strong></td>'
+          + '<td>' + baseUnits + '</td>'
+          + '<td>' + (baseUnits > 0 ? affUnitsR : '—') + '</td>'
+          + '<td>' + (baseUnits > 0 ? bonusUnitsR : '—') + '</td>'
+          + '<td><strong>' + (baseUnits > 0 ? totalUnitsR : '—') + '</strong></td>'
+          + '<td>' + (baseUnits > 0 ? marketR : '—') + '</td>'
+          + '<td>' + incStr + '</td>'
+          + '</tr>';
+      } else {
+        return '<tr class="group-' + row.group + activeCls + '">'
+          + '<td class="col-left">' + (row.type === 'sr' && row.pct === 100 ? 'Senior 100%' : row.pct + '% units') + marker + '</td>'
+          + '<td>' + row.ami + '</td>'
+          + '<td>' + (row.type === 'sr' && row.pct === 100 ? '100%' : row.pct + '%') + '</td>'
+          + '<td><strong>' + bonusStr + '</strong></td>'
+          + '<td>' + baseUnits + '</td>'
+          + '<td>' + (baseUnits > 0 ? affUnitsR : '—') + '</td>'
+          + '<td>' + (baseUnits > 0 ? bonusUnitsR : '—') + '</td>'
+          + '<td><strong>' + (baseUnits > 0 ? totalUnitsR : '—') + '</strong></td>'
+          + '<td>' + (baseUnits > 0 ? marketR : '—') + '</td>'
+          + '<td>' + incStr + '</td>'
+          + '<td>' + barHtml + '</td>'
+          + '</tr>';
+      }
+    }).join('');
+  }
+
+  document.getElementById('matrix-body').innerHTML = buildRows(rows, false);
+  document.getElementById('rpt-matrix-body').innerHTML = buildRows(rows, true);
+}
+
 // ── PRINT ────────────────────────────────────────────
 function printReport() {
   syncReport();
@@ -1447,6 +1731,7 @@ function resetForm() {
 
 // ── INIT ─────────────────────────────────────────────
 calculate();
+buildMatrix();
 renumberReport(false);
 </script>
 </body>
