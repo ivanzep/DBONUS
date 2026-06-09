@@ -280,66 +280,109 @@
 
   /* ── COMPARISON MATRIX ── */
   .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .matrix-table { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 12px; }
-  .matrix-table th {
-    background: var(--blue);
-    color: #fff;
+  .cmp-table { width: 100%; min-width: 780px; border-collapse: collapse; font-size: 12px; }
+
+  /* top-level group headers */
+  .cmp-table .grp-head th {
     padding: 8px 10px;
     text-align: center;
-    font-weight: 600;
     font-size: 11px;
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
-  }
-  .matrix-table th.col-left { text-align: left; }
-  .matrix-table td { padding: 7px 10px; border-bottom: 1px solid #f0f4f8; text-align: center; }
-  .matrix-table td.col-left { text-align: left; font-weight: 600; }
-  .matrix-table tr.active-row td { background: #fffbeb !important; }
-  .matrix-table tr.active-row td.col-left { border-left: 3px solid var(--gold); }
-  .matrix-table tr.group-vli td { background: #fff7f0; }
-  .matrix-table tr.group-li  td { background: #f0f5ff; }
-  .matrix-table tr.group-mod td { background: #f0fdf4; }
-  .matrix-table tr.group-sr  td { background: #faf5ff; }
-  .matrix-table tr.active-row.group-vli td,
-  .matrix-table tr.active-row.group-li  td,
-  .matrix-table tr.active-row.group-mod td,
-  .matrix-table tr.active-row.group-sr  td { background: #fffbeb !important; }
-  .matrix-table .cat-header td {
-    background: #e8edf5;
     font-weight: 700;
-    font-size: 11px;
-    color: var(--blue);
-    text-align: left;
-    padding: 5px 10px;
-    letter-spacing: .3px;
+    letter-spacing: .2px;
+    border-bottom: 2px solid rgba(255,255,255,.3);
   }
-  .matrix-table .cat-header.vli td { background: #fff0e0; color: #92400e; }
-  .matrix-table .cat-header.li  td { background: #dbeafe; color: #1e40af; }
-  .matrix-table .cat-header.mod td { background: #d1fae5; color: var(--green); }
-  .matrix-table .cat-header.sr  td { background: #ede9fe; color: #5b21b6; }
-  .bar-cell { display: flex; align-items: center; gap: 6px; justify-content: center; }
-  .bar { height: 10px; border-radius: 5px; min-width: 2px; transition: width .3s; }
-  .bar-total  { background: var(--blue-mid); }
-  .bar-aff    { background: var(--green); }
-  .bar-market { background: #d1d5db; }
+  .cmp-table .grp-head .th-db   { background: var(--blue); color: #fff; }
+  .cmp-table .grp-head .th-bu   { background: #1e4d8c; color: #fff; }
+  .cmp-table .grp-head .th-vli  { background: #92400e; color: #fff; }
+  .cmp-table .grp-head .th-li   { background: #1e40af; color: #fff; }
+  .cmp-table .grp-head .th-mod  { background: var(--green); color: #fff; }
+  .cmp-table .grp-head .th-inc  { background: #4c1d95; color: #fff; }
+
+  /* sub-headers */
+  .cmp-table .sub-head th {
+    padding: 5px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmp-table .sub-head .sh-db  { background: #dbeafe; color: var(--blue); }
+  .cmp-table .sub-head .sh-bu  { background: #bfdbfe; color: #1e3a5f; }
+  .cmp-table .sub-head .sh-vli { background: #fef3c7; color: #92400e; }
+  .cmp-table .sub-head .sh-li  { background: #dbeafe; color: #1e40af; }
+  .cmp-table .sub-head .sh-mod { background: #d1fae5; color: var(--green); }
+  .cmp-table .sub-head .sh-inc { background: #ede9fe; color: #4c1d95; }
+
+  /* data cells */
+  .cmp-table td {
+    padding: 0;
+    border-bottom: 1px solid #e9edf3;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .cmp-table td .cell-inner {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+  }
+  /* column-group background stripes */
+  .cmp-table td.td-db  { background: #f8fafc; }
+  .cmp-table td.td-bu  { background: #eef4ff; }
+  .cmp-table td.td-vli { background: #fff9f0; }
+  .cmp-table td.td-li  { background: #f0f5ff; }
+  .cmp-table td.td-mod { background: #f0fdf4; }
+  .cmp-table td.td-inc { background: #faf5ff; }
+  /* na cell */
+  .cmp-table td.td-na  { color: #c4c9d1; font-size: 11px; font-style: italic; background: #f9fafb; }
+
+  /* active / highlighted row */
+  .cmp-table tr.active-row td { outline: none; }
+  .cmp-table tr.active-row td.td-db  { background: #fffbeb; border-left: 3px solid var(--gold); }
+  .cmp-table tr.active-row td { background: #fffbeb !important; }
+
+  /* bonus units big number */
+  .bu-big  { font-size: 22px; font-weight: 800; color: #1e4d8c; line-height: 1; }
+  .bu-label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+
+  /* DB% pill */
+  .db-pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+
+  /* affordable cell */
+  .aff-req  { font-size: 11px; font-weight: 700; }
+  .aff-units { font-size: 18px; font-weight: 800; line-height: 1; }
+  .aff-cov  { font-size: 9px; color: #9ca3af; }
+
+  /* bar strip at bottom of bonus-units cell */
+  .bu-bar-wrap { display: flex; gap: 2px; height: 5px; width: 100%; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .bu-bar-aff  { background: var(--green); }
+  .bu-bar-bon  { background: var(--blue-mid); }
+  .bu-bar-mkt  { background: #d1d5db; }
+
+  .active-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 6px;
+    margin-top: 2px;
+  }
   .matrix-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #6b7280; margin-top: 10px; }
   .matrix-legend span { display: flex; align-items: center; gap: 5px; }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .active-marker { display: inline-block; background: var(--gold); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin-left: 4px; }
-  .matrix-view-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
-  .mtoggle {
-    padding: 5px 14px;
-    border-radius: 16px;
-    border: 1.5px solid var(--border);
-    background: #fff;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gray);
-    transition: all .15s;
-  }
-  .mtoggle.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
   /* ── PARKING TABLE ── */
   .parking-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -820,44 +863,45 @@
   <div class="section-title"><div class="num">5</div> Scenario Comparison Matrix</div>
 
   <div class="card">
-    <div class="card-header">📊 Unit Yield &amp; Affordability Comparison — All Thresholds <div class="badge">§65915(f)</div></div>
+    <div class="card-header">📊 Bonus Units vs. Affordable Unit Requirements — All Income Tiers <div class="badge">§65915(f)</div></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
-        <span>Shows unit yield for every statutory threshold across all income categories based on your base unit count. <strong>Highlighted rows</strong> match your current calculator selections. Each component is rounded up per §65915(f)(4).</span>
-      </div>
-      <div class="matrix-view-toggle">
-        <button class="mtoggle active" onclick="setMatrixView('all',this)">All Categories</button>
-        <button class="mtoggle" onclick="setMatrixView('vli',this)">Very Low Income</button>
-        <button class="mtoggle" onclick="setMatrixView('li',this)">Lower Income</button>
-        <button class="mtoggle" onclick="setMatrixView('mod',this)">Moderate</button>
-        <button class="mtoggle" onclick="setMatrixView('sr',this)">Senior / Special</button>
+        <span>Each row = one density bonus level (20 %→50 %). The <strong>Bonus Units</strong> column shows how many extra units you gain. The three income-tier columns show the <em>minimum affordability commitment</em> required to reach that bonus level, and the resulting affordable unit count. Rows highlighted in gold match your current selection. Units rounded up per §65915(f)(4).</span>
       </div>
       <div class="matrix-wrap">
-        <table class="matrix-table" id="comparison-matrix">
+        <table class="cmp-table" id="comparison-matrix">
           <thead>
-            <tr>
-              <th class="col-left" style="min-width:200px">Category &amp; Threshold</th>
-              <th>AMI Limit</th>
-              <th>% Aff. Units</th>
-              <th>Density Bonus</th>
-              <th>Base Units</th>
-              <th>Aff. Units <small style="font-weight:400;opacity:.8">(rounded↑)</small></th>
-              <th>Bonus Units <small style="font-weight:400;opacity:.8">(rounded↑)</small></th>
-              <th>Total Units</th>
-              <th>Market-Rate</th>
-              <th>Incentives</th>
-              <th style="min-width:140px">Visual Split</th>
+            <tr class="grp-head">
+              <th class="th-db" colspan="2">Density Bonus Level</th>
+              <th class="th-bu" colspan="1">Bonus Units</th>
+              <th class="th-vli" colspan="2">🔴 Very Low Income (≤50% AMI)</th>
+              <th class="th-li"  colspan="2">🔵 Lower Income (≤80% AMI)</th>
+              <th class="th-mod" colspan="2">🟢 Moderate Income (≤120% AMI)*</th>
+              <th class="th-inc" colspan="1">Incentives</th>
+            </tr>
+            <tr class="sub-head">
+              <th class="sh-db">DB%</th>
+              <th class="sh-db">Total Units</th>
+              <th class="sh-bu">Added (rounded↑)</th>
+              <th class="sh-vli">Min % req'd</th>
+              <th class="sh-vli">Aff. Units (rounded↑)</th>
+              <th class="sh-li">Min % req'd</th>
+              <th class="sh-li">Aff. Units (rounded↑)</th>
+              <th class="sh-mod">Min % req'd</th>
+              <th class="sh-mod">Aff. Units (rounded↑)</th>
+              <th class="sh-inc">§65915(d)</th>
             </tr>
           </thead>
           <tbody id="matrix-body"></tbody>
         </table>
       </div>
-      <div class="matrix-legend">
-        <span><span class="dot" style="background:var(--blue-mid)"></span> Bonus units</span>
-        <span><span class="dot" style="background:var(--green)"></span> Affordable units</span>
+      <div class="matrix-legend" style="margin-top:12px">
+        <span><span class="dot" style="background:var(--blue-mid)"></span> Bonus units added</span>
+        <span><span class="dot" style="background:var(--green)"></span> Affordable units required</span>
         <span><span class="dot" style="background:#d1d5db"></span> Market-rate units</span>
-        <span><span style="background:var(--gold);color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:700">▶ CURRENT</span> Matches your current selection</span>
+        <span><span style="background:var(--gold);color:#fff;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700">CURRENT</span> Matches your active selection</span>
+        <span style="color:#9ca3af">* Moderate income applies to for-sale units only (§65915(f)(3))</span>
       </div>
     </div>
   </div>
@@ -974,23 +1018,32 @@
     <div class="report-section">
       <h3 id="rpt-matrix-num">4. Scenario Comparison Matrix (All Thresholds)</h3>
       <div class="matrix-wrap" style="overflow-x:auto">
-        <table class="matrix-table" id="rpt-matrix-table" style="min-width:700px;font-size:10px">
+        <table class="cmp-table" id="rpt-matrix-table" style="min-width:680px;font-size:10px">
           <thead>
-            <tr>
-              <th class="col-left" style="min-width:170px">Category &amp; Threshold</th>
-              <th>AMI</th>
-              <th>% Aff.</th>
-              <th>DB%</th>
-              <th>Base</th>
-              <th>Aff. Units</th>
-              <th>Bonus Units</th>
-              <th>Total</th>
-              <th>Mkt-Rate</th>
-              <th>Incentives</th>
+            <tr class="grp-head">
+              <th class="th-db" colspan="2">Density Bonus Level</th>
+              <th class="th-bu">Bonus Units</th>
+              <th class="th-vli" colspan="2">VLI (≤50% AMI)</th>
+              <th class="th-li"  colspan="2">LI (≤80% AMI)</th>
+              <th class="th-mod" colspan="2">Moderate (≤120% AMI)*</th>
+              <th class="th-inc">Incentives</th>
+            </tr>
+            <tr class="sub-head">
+              <th class="sh-db">DB%</th>
+              <th class="sh-db">Total Units</th>
+              <th class="sh-bu">Added (↑)</th>
+              <th class="sh-vli">Min % req'd</th>
+              <th class="sh-vli">Aff. Units</th>
+              <th class="sh-li">Min % req'd</th>
+              <th class="sh-li">Aff. Units</th>
+              <th class="sh-mod">Min % req'd</th>
+              <th class="sh-mod">Aff. Units</th>
+              <th class="sh-inc">§65915(d)</th>
             </tr>
           </thead>
           <tbody id="rpt-matrix-body"></tbody>
         </table>
+        <p style="font-size:9px;color:#9ca3af;margin-top:4px">* Moderate income applies to for-sale (ownership) units only per §65915(f)(3).</p>
       </div>
     </div>
 
@@ -1548,152 +1601,191 @@ function syncReportAffordability() {
 }
 
 // ── COMPARISON MATRIX ────────────────────────────────
-
-var _matrixView = 'all';
-
-function setMatrixView(view, btn) {
-  _matrixView = view;
-  document.querySelectorAll('.mtoggle').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  buildMatrix();
-}
+// Rows = density bonus levels 20%→50% (VLI 2.5-pt steps = 13 rows)
+// Columns = Bonus Units (spine) | VLI req'd | LI req'd | Mod req'd
 
 function buildMatrix() {
-  var baseUnits  = parseInt(document.getElementById('base-units').value) || 0;
-  var vliSel     = parseInt(document.getElementById('vli-pct').value) || 0;
-  var liSel      = parseInt(document.getElementById('li-pct').value) || 0;
-  var modSel     = parseInt(document.getElementById('mod-pct').value) || 0;
-  var seniorSel  = document.getElementById('senior-flag').value;
-  var specialSel = parseInt(document.getElementById('special-pct').value) || 0;
+  var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
+  var vliSel    = parseInt(document.getElementById('vli-pct').value) || 0;
+  var liSel     = parseInt(document.getElementById('li-pct').value)  || 0;
+  var modSel    = parseInt(document.getElementById('mod-pct').value) || 0;
+  var seniorSel = document.getElementById('senior-flag').value;
 
-  // Define all threshold rows
-  var rows = [];
+  // Determine the currently active DB% from the main calculator
+  var activeBonusPct = 0;
+  if (seniorSel === 'yes') activeBonusPct = 20;
+  var bonuses = [calcVLIBonus(vliSel), calcLIBonus(liSel), calcModBonus(modSel)];
+  bonuses.forEach(function(b) { if (b > activeBonusPct) activeBonusPct = b; });
 
-  // VLI thresholds: 5,6,7,8,9,10,11,12,13,14,15,17 (50% cap at 17%)
-  if (_matrixView === 'all' || _matrixView === 'vli') {
-    rows.push({ group:'vli', header: true, label: '🔴 Very Low Income (≤50% AMI)  —  §65915(f)(1)  |  Base: 5% min → 20% DB; +2.5%/1%; cap 50%' });
-    var vliThresholds = [5,6,7,8,9,10,11,12,13,14,15,17,20,24];
-    vliThresholds.forEach(function(pct) {
-      var bonus = calcVLIBonus(pct);
-      rows.push({ group:'vli', type:'vli', ami:'≤50% AMI', pct: pct, bonus: bonus,
-        selMatch: vliSel === pct,
-        incentives: calcIncentives(pct,0,0,'no',0,baseUnits),
-        covenantYrs: '55 yrs (rental)'
-      });
-    });
+  // For a given DB%, return the min integer % for each category to achieve it
+  // VLI:  pct = 5  + (db - 20) / 2.5  (exact, always integer at 2.5-pt steps)
+  // LI:   pct = ceil(10 + (db - 20) / 1.5)
+  // Mod:  pct = db + 5               (exact integer: 5+(mod-10)=db → mod=db+5)
+  function vliReq(db) { return db >= 20 ? Math.round(5 + (db - 20) / 2.5) : null; }
+  function liReq(db)  { return db >= 20 ? Math.ceil(10 + (db - 20) / 1.5) : null; }
+  function modReq(db) {
+    var pct = db + 5; // derived: 5 + (pct-10) = db → pct = db+5
+    return (pct <= 44 && db >= 5) ? pct : null; // cap at 44% (gives 39% max DB from Mod)
   }
 
-  // LI thresholds: 10,11,12,13,14,15,16,17,18,19,20,22,24,26,28,30
-  if (_matrixView === 'all' || _matrixView === 'li') {
-    rows.push({ group:'li', header: true, label: '🔵 Lower Income (≤80% AMI)  —  §65915(f)(2)  |  Base: 10% min → 20% DB; +1.5%/1%; cap 50%' });
-    var liThresholds = [10,11,12,13,14,15,16,17,18,19,20,22,24,26,28,30];
-    liThresholds.forEach(function(pct) {
-      var bonus = calcLIBonus(pct);
-      rows.push({ group:'li', type:'li', ami:'≤80% AMI', pct: pct, bonus: bonus,
-        selMatch: liSel === pct,
-        incentives: calcIncentives(0,pct,0,'no',0,baseUnits),
-        covenantYrs: '55 yrs (rental)'
-      });
-    });
+  // DB level rows: every 2.5% from 20 to 50 (13 rows)
+  var dbLevels = [];
+  for (var db = 20; db <= 50; db += 2.5) dbLevels.push(parseFloat(db.toFixed(1)));
+
+  // DB pill colour: interpolate blue → green over 20→50
+  function dbColor(db) {
+    var t = (db - 20) / 30; // 0→1
+    var r = Math.round(26  + t * (22  - 26));
+    var g = Math.round(58  + t * (163 - 58));
+    var b = Math.round(92  + t * (52  - 92));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
   }
 
-  // Moderate thresholds: 10,12,14,16,18,20,22,24,26,28,30,35,40,44
-  if (_matrixView === 'all' || _matrixView === 'mod') {
-    rows.push({ group:'mod', header: true, label: '🟢 Moderate Income/For-Sale (≤120% AMI)  —  §65915(f)(3)  |  Base: 10% min → 5% DB; +1%/1%; cap 50%' });
-    var modThresholds = [10,12,14,16,18,20,22,24,26,28,30,35,40,44];
-    modThresholds.forEach(function(pct) {
-      var bonus = calcModBonus(pct);
-      rows.push({ group:'mod', type:'mod', ami:'≤120% AMI', pct: pct, bonus: bonus,
-        selMatch: modSel === pct,
-        incentives: calcIncentives(0,0,pct,'no',0,baseUnits),
-        covenantYrs: '45 yrs (for-sale)'
-      });
-    });
+  function affCell(pct, db, base, selPct, isReport) {
+    if (pct === null) {
+      return isReport
+        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
+        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">—</div></td>';
+    }
+    var units = base > 0 ? roundUp(base * pct / 100) : '—';
+    var isSel = (selPct === pct) && base > 0;
+    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
+    if (isReport) {
+      return '<td style="' + selStyle + '">' + pct + '%</td>'
+           + '<td style="' + selStyle + '">' + units + '</td>';
+    }
+    return '<td class="td-vli" style="' + (pct !== null && pct === vliReq(db) ? '' : '') + '">'
+         + '<div class="cell-inner">'
+         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
+         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
+         + '<span class="aff-cov" style="font-size:9px">units</span>'
+         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
+         + '</div></td>';
   }
 
-  // Senior / Special
-  if (_matrixView === 'all' || _matrixView === 'sr') {
-    rows.push({ group:'sr', header: true, label: '🟣 Senior Housing (100% 55+/62+)  —  §65915(b)(3)  |  Flat 20% DB' });
-    rows.push({ group:'sr', type:'sr', ami:'N/A', pct:100, bonus:20,
-      selMatch: seniorSel === 'yes',
-      incentives: 1,
-      covenantYrs: 'Ongoing'
-    });
-    rows.push({ group:'sr', header: true, label: '⭐ Special Needs / Foster Youth / Homeless  —  §65915(b)(4)  |  10% min → flat 20% DB' });
-    [10,15,20,25,30].forEach(function(pct) {
-      rows.push({ group:'sr', type:'special', ami:'Varies', pct: pct, bonus: calcSpecialBonus(pct),
-        selMatch: specialSel === pct && pct >= 10,
-        incentives: calcIncentives(0,0,0,'no',pct,baseUnits),
-        covenantYrs: '55 yrs'
-      });
-    });
+  function liCellHtml(pct, db, base, selPct, isReport) {
+    if (pct === null) {
+      return isReport
+        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
+        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">—</div></td>';
+    }
+    var units = base > 0 ? roundUp(base * pct / 100) : '—';
+    var isSel = (selPct === pct) && base > 0;
+    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
+    if (isReport) {
+      return '<td style="' + selStyle + '">' + pct + '%</td>'
+           + '<td style="' + selStyle + '">' + units + '</td>';
+    }
+    return '<td class="td-li">'
+         + '<div class="cell-inner">'
+         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
+         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
+         + '<span class="aff-cov">units</span>'
+         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
+         + '</div></td>';
   }
 
-  var maxTotal = baseUnits > 0 ? Math.ceil(baseUnits * 1.5) : 1;
+  function modCellHtml(pct, db, base, selPct, isReport) {
+    if (pct === null) {
+      return isReport
+        ? '<td>—</td><td style="color:#9ca3af">N/A</td>'
+        : '<td class="td-na" colspan="2"><div class="cell-inner" style="justify-content:center">N/A for-sale only</div></td>';
+    }
+    var units = base > 0 ? roundUp(base * pct / 100) : '—';
+    var isSel = (selPct === pct) && base > 0;
+    var selStyle = isSel ? 'font-weight:800;color:var(--gold)' : '';
+    if (isReport) {
+      return '<td style="' + selStyle + '">' + pct + '%</td>'
+           + '<td style="' + selStyle + '">' + units + '</td>';
+    }
+    return '<td class="td-mod">'
+         + '<div class="cell-inner">'
+         + '<span class="aff-req" style="' + selStyle + '">' + pct + '% of base</span>'
+         + '<span class="aff-units" style="' + selStyle + '">' + units + '</span>'
+         + '<span class="aff-cov">units (for-sale)</span>'
+         + (isSel ? '<span class="active-tag">CURRENT</span>' : '')
+         + '</div></td>';
+  }
 
-  function buildRows(rows, isReport) {
-    return rows.map(function(row) {
-      if (row.header) {
-        var colspan = isReport ? 9 : 10;
-        return '<tr class="cat-header ' + row.group + '"><td colspan="' + colspan + '">' + row.label + '</td></tr>';
+  function makeRows(isReport) {
+    // Pick the best VLI sel match for highlighting
+    var activeVLI = vliSel >= 5  ? vliSel : 0;
+    var activeLI  = liSel  >= 10 ? liSel  : 0;
+    var activeMod = modSel >= 10 ? modSel : 0;
+
+    return dbLevels.map(function(db) {
+      var bonusUnitsR = baseUnits > 0 ? roundUp(baseUnits * db / 100) : '—';
+      var totalUnitsR = baseUnits > 0 ? baseUnits + roundUp(baseUnits * db / 100) : '—';
+
+      var vp = vliReq(db);
+      var lp = liReq(db);
+      var mp = modReq(db);
+
+      // Is this the active row?
+      var isActive = baseUnits > 0 && Math.abs(db - activeBonusPct) < 0.01;
+
+      // Incentives for this DB level (use whichever category achieves it with min commitment)
+      var incForLevel = 0;
+      if (vp !== null) incForLevel = Math.max(incForLevel, calcIncentives(vp,0,0,'no',0,baseUnits));
+      if (lp !== null) incForLevel = Math.max(incForLevel, calcIncentives(0,lp,0,'no',0,baseUnits));
+      if (mp !== null) incForLevel = Math.max(incForLevel, calcIncentives(0,0,mp,'no',0,baseUnits));
+
+      // Bar strip proportions for bonus units cell
+      var barHtml = '';
+      if (!isReport && baseUnits > 0) {
+        var bu = roundUp(baseUnits * db / 100);
+        var tu = baseUnits + bu;
+        // use smallest aff commitment (VLI is cheapest per bonus point above 20%)
+        var cheapestAff = vp !== null ? roundUp(baseUnits * vp / 100) : (lp !== null ? roundUp(baseUnits * lp / 100) : 0);
+        var mkt = tu - cheapestAff;
+        var bonPct  = bu / tu;
+        var affPct  = cheapestAff / tu;
+        var mktPct  = mkt / tu;
+        barHtml = '<div class="bu-bar-wrap">'
+          + '<div class="bu-bar-aff" style="flex:' + affPct + '"></div>'
+          + '<div class="bu-bar-bon" style="flex:' + bonPct + '"></div>'
+          + '<div class="bu-bar-mkt" style="flex:' + mktPct + '"></div>'
+          + '</div>';
       }
-      var bonusPct   = row.bonus;
-      var bonusUnitsR = baseUnits > 0 ? roundUp(baseUnits * bonusPct / 100) : 0;
-      var affUnitsR   = baseUnits > 0 ? roundUp(baseUnits * (row.type === 'sr' ? 0 : row.pct) / 100) : 0;
-      if (row.type === 'sr') affUnitsR = baseUnits;
-      var totalUnitsR = baseUnits + bonusUnitsR;
-      var marketR     = totalUnitsR - affUnitsR;
-      if (marketR < 0) marketR = 0;
 
-      var isActive = row.selMatch && baseUnits > 0;
       var activeCls = isActive ? ' active-row' : '';
-      var marker = isActive ? '<span class="active-marker">▶ CURRENT</span>' : '';
-      var bonusStr = bonusPct > 0 ? bonusPct.toFixed(1) + '%' : '<span style="color:#9ca3af">—</span>';
-      var incStr   = row.incentives > 0 ? row.incentives : '<span style="color:#9ca3af">0</span>';
+      var dbPillStyle = 'background:' + dbColor(db) + ';';
 
-      var barW = Math.round((totalUnitsR / Math.max(maxTotal, totalUnitsR)) * 120);
-      var affW  = baseUnits > 0 ? Math.round((affUnitsR / totalUnitsR) * barW) : 0;
-      var bonW  = baseUnits > 0 ? Math.round((bonusUnitsR / totalUnitsR) * barW) : 0;
-      var mktW  = Math.max(0, barW - affW - bonW);
-      var barHtml = '<div class="bar-cell">'
-        + '<div class="bar bar-aff" style="width:' + affW + 'px" title="Affordable: ' + affUnitsR + '"></div>'
-        + '<div class="bar bar-total" style="width:' + bonW + 'px" title="Bonus: ' + bonusUnitsR + '"></div>'
-        + '<div class="bar bar-market" style="width:' + mktW + 'px" title="Market: ' + marketR + '"></div>'
-        + '</div>';
-
+      // Build cell content
+      var dbCell, buCell, incCell;
       if (isReport) {
-        return '<tr class="group-' + row.group + activeCls + '">'
-          + '<td class="col-left">' + (row.type === 'sr' && row.pct === 100 ? 'Senior 100%' : row.pct + '% units') + marker + '</td>'
-          + '<td>' + row.ami + '</td>'
-          + '<td>' + (row.type === 'sr' && row.pct === 100 ? '100%' : row.pct + '%') + '</td>'
-          + '<td><strong>' + bonusStr + '</strong></td>'
-          + '<td>' + baseUnits + '</td>'
-          + '<td>' + (baseUnits > 0 ? affUnitsR : '—') + '</td>'
-          + '<td>' + (baseUnits > 0 ? bonusUnitsR : '—') + '</td>'
-          + '<td><strong>' + (baseUnits > 0 ? totalUnitsR : '—') + '</strong></td>'
-          + '<td>' + (baseUnits > 0 ? marketR : '—') + '</td>'
-          + '<td>' + incStr + '</td>'
-          + '</tr>';
+        dbCell = '<td style="font-weight:700">' + db.toFixed(1) + '%</td>'
+               + '<td>' + totalUnitsR + '</td>';
+        buCell = '<td style="font-size:14px;font-weight:800;color:#1e4d8c">' + bonusUnitsR + '</td>';
+        incCell= '<td>' + (incForLevel > 0 ? incForLevel : '—') + '</td>';
       } else {
-        return '<tr class="group-' + row.group + activeCls + '">'
-          + '<td class="col-left">' + (row.type === 'sr' && row.pct === 100 ? 'Senior 100%' : row.pct + '% units') + marker + '</td>'
-          + '<td>' + row.ami + '</td>'
-          + '<td>' + (row.type === 'sr' && row.pct === 100 ? '100%' : row.pct + '%') + '</td>'
-          + '<td><strong>' + bonusStr + '</strong></td>'
-          + '<td>' + baseUnits + '</td>'
-          + '<td>' + (baseUnits > 0 ? affUnitsR : '—') + '</td>'
-          + '<td>' + (baseUnits > 0 ? bonusUnitsR : '—') + '</td>'
-          + '<td><strong>' + (baseUnits > 0 ? totalUnitsR : '—') + '</strong></td>'
-          + '<td>' + (baseUnits > 0 ? marketR : '—') + '</td>'
-          + '<td>' + incStr + '</td>'
-          + '<td>' + barHtml + '</td>'
-          + '</tr>';
+        dbCell = '<td class="td-db">'
+               + '<div class="cell-inner">'
+               + '<span class="db-pill" style="' + dbPillStyle + '">' + db.toFixed(1) + '%</span>'
+               + (isActive ? '<span class="active-tag" style="margin-top:3px">SELECTED</span>' : '')
+               + '</div></td>'
+               + '<td class="td-db"><div class="cell-inner"><span style="font-size:13px;font-weight:700">' + totalUnitsR + '</span><span style="font-size:9px;color:#9ca3af">total units</span></div></td>';
+        buCell = '<td class="td-bu">'
+               + '<div class="cell-inner">'
+               + '<span class="bu-big">' + bonusUnitsR + '</span>'
+               + '<span class="bu-label">bonus units</span>'
+               + barHtml
+               + '</div></td>';
+        incCell= '<td class="td-inc"><div class="cell-inner"><span style="font-size:18px;font-weight:800;color:#4c1d95">' + (incForLevel > 0 ? incForLevel : '<span style=\'color:#c4c9d1\'>—</span>') + '</span></div></td>';
       }
+
+      var vliHtml = isReport
+        ? affCell(vp, db, baseUnits, activeVLI, true)
+        : affCell(vp, db, baseUnits, activeVLI, false).replace(/class="td-vli"/g, 'class="td-vli"');
+      var liHtml  = liCellHtml(lp,  db, baseUnits, activeLI,  isReport);
+      var modHtml = modCellHtml(mp, db, baseUnits, activeMod, isReport);
+
+      return '<tr' + activeCls + '>' + dbCell + buCell + vliHtml + liHtml + modHtml + incCell + '</tr>';
     }).join('');
   }
 
-  document.getElementById('matrix-body').innerHTML = buildRows(rows, false);
-  document.getElementById('rpt-matrix-body').innerHTML = buildRows(rows, true);
+  document.getElementById('matrix-body').innerHTML     = makeRows(false);
+  document.getElementById('rpt-matrix-body').innerHTML = makeRows(true);
 }
 
 // ── PRINT ────────────────────────────────────────────
