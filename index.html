@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>California Density Bonus Law Calculator — Gov. Code §65915</title>
+<style>
+  :root {
+    --blue: #1a3a5c;
+    --blue-mid: #2563a8;
+    --blue-light: #dbeafe;
+    --gold: #b8860b;
+    --gold-light: #fef9e7;
+    --green: #166534;
+    --green-light: #dcfce7;
+    --red: #991b1b;
+    --red-light: #fee2e2;
+    --gray: #374151;
+    --gray-light: #f9fafb;
+    --border: #d1d5db;
+    --white: #ffffff;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    color: var(--gray);
+    background: #eef2f7;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--blue);
+    color: #fff;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .topbar-seal { width: 52px; height: 52px; flex-shrink: 0; }
+  .topbar h1 { font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .topbar p { font-size: 12px; opacity: .8; margin-top: 2px; }
+  .topbar-ref { margin-left: auto; text-align: right; font-size: 11px; opacity: .75; }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: span 3; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    background: var(--blue);
+    color: #fff;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-header .badge {
+    background: rgba(255,255,255,.22);
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .card-body { padding: 18px; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 14px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--blue); margin-bottom: 4px; }
+  label .hint { font-weight: 400; color: #6b7280; margin-left: 4px; }
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 13px;
+    color: var(--gray);
+    background: var(--gray-light);
+    transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--blue-mid);
+    background: #fff;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  .input-unit {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .input-unit input { border-radius: 5px 0 0 5px; }
+  .input-unit span {
+    background: #e5e7eb;
+    border: 1px solid var(--border);
+    border-left: none;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #6b7280;
+    border-radius: 0 5px 5px 0;
+    white-space: nowrap;
+  }
+
+  /* ── SLIDER ── */
+  .slider-wrap { display: flex; align-items: center; gap: 10px; }
+  .slider-wrap input[type="range"] {
+    flex: 1;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    height: 6px;
+    accent-color: var(--blue-mid);
+  }
+  .slider-val {
+    width: 54px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--blue-mid);
+    font-size: 14px;
+    background: var(--blue-light);
+    border: 1px solid var(--blue-mid);
+    border-radius: 4px;
+    padding: 3px 4px;
+  }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    transition: all .2s;
+  }
+  .tab-btn:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
+  .tab-btn.active { background: var(--blue-mid); color: #fff; border-color: var(--blue-mid); }
+
+  /* ── RESULT BOXES ── */
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .result-box {
+    background: var(--blue-light);
+    border: 1.5px solid var(--blue-mid);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .result-box.green { background: var(--green-light); border-color: var(--green); }
+  .result-box.gold { background: var(--gold-light); border-color: var(--gold); }
+  .result-box.red { background: var(--red-light); border-color: var(--red); }
+  .result-box .val {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .result-box.green .val { color: var(--green); }
+  .result-box.gold .val { color: var(--gold); }
+  .result-box.red .val { color: var(--red); }
+  .result-box .lbl { font-size: 11px; font-weight: 600; color: #6b7280; margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
+  .result-box .sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+  /* ── CALC STEPS ── */
+  .calc-steps { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; font-size: 12px; }
+  .calc-steps h4 { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+  .step { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .step-num { background: var(--blue-mid); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { flex: 1; line-height: 1.5; color: var(--gray); }
+  .step-text strong { color: var(--blue); }
+  .step-formula { font-family: monospace; background: #e8edf2; border-radius: 3px; padding: 1px 5px; font-size: 11px; }
+
+  /* ── INCENTIVES TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: var(--blue); color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; font-size: 11px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #f0f4f8; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .highlight-row td { background: var(--green-light) !important; font-weight: 700; color: var(--green); }
+  .check { color: var(--green); font-weight: 700; }
+  .cross { color: #9ca3af; }
+
+  /* ── MAP ── */
+  .map-container { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .map-container iframe { width: 100%; height: 340px; border: none; display: block; }
+  .map-placeholder {
+    background: #e8edf2;
+    height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13px;
+    gap: 8px;
+  }
+  .map-placeholder svg { opacity: .4; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn-primary { background: var(--blue-mid); color: #fff; }
+  .btn-primary:hover { background: var(--blue); }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-success:hover { background: #14532d; }
+  .btn-outline { background: #fff; color: var(--blue-mid); border: 1.5px solid var(--blue-mid); }
+  .btn-outline:hover { background: var(--blue-light); }
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+
+  /* ── NOTICE / ALERT ── */
+  .notice {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+  }
+  .notice.info { background: var(--blue-light); border-left: 3px solid var(--blue-mid); color: #1e40af; }
+  .notice.warn { background: #fffbeb; border-left: 3px solid #d97706; color: #92400e; }
+  .notice.success { background: var(--green-light); border-left: 3px solid var(--green); color: var(--green); }
+
+  /* ── SECTION DIVIDER ── */
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue);
+    border-bottom: 2px solid var(--blue-light);
+    padding-bottom: 8px;
+    margin: 24px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .num {
+    background: var(--blue);
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── PARKING TABLE ── */
+  .parking-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .parking-box {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    background: #fafbfc;
+  }
+  .parking-box .unit-type { font-size: 11px; font-weight: 700; color: var(--blue); margin-bottom: 4px; text-transform: uppercase; }
+  .parking-box .spaces { font-size: 24px; font-weight: 800; color: var(--blue-mid); }
+  .parking-box .label { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  /* ── REPORT (print view) ── */
+  #report-section { display: none; }
+  .report-page {
+    background: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0,0,0,.1);
+  }
+  .report-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid var(--blue);
+  }
+  .report-title h2 { font-size: 22px; color: var(--blue); }
+  .report-title p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  .report-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; margin-bottom: 20px; font-size: 12px; }
+  .report-meta dt { font-weight: 700; color: var(--blue); }
+  .report-meta dd { color: var(--gray); }
+  .report-section { margin-bottom: 24px; }
+  .report-section h3 { font-size: 14px; font-weight: 700; color: var(--blue); border-bottom: 1.5px solid var(--blue-light); padding-bottom: 5px; margin-bottom: 10px; }
+  .report-disclaimer { font-size: 10px; color: #9ca3af; line-height: 1.6; margin-top: 20px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+
+  /* ── AFFORDABILITY BADGE ── */
+  .aff-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .aff-vli { background: #fde68a; color: #92400e; }
+  .aff-li { background: #bfdbfe; color: #1e40af; }
+  .aff-mod { background: #d1fae5; color: var(--green); }
+  .aff-sr { background: #ede9fe; color: #5b21b6; }
+
+  /* ══════════════ PRINT STYLES ══════════════ */
+  @media print {
+    body { background: #fff; font-size: 11px; }
+    .no-print { display: none !important; }
+    .topbar { padding: 10px 20px; }
+    #calculator-section { display: none !important; }
+    #report-section { display: block !important; }
+    .report-page { box-shadow: none; padding: 0; max-width: 100%; }
+    .card { box-shadow: none; break-inside: avoid; }
+    .map-container iframe { height: 260px; }
+    @page { margin: 15mm; size: letter portrait; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .col-span-2, .col-span-3 { grid-column: span 1; }
+    .parking-grid { grid-template-columns: 1fr 1fr; }
+    .topbar h1 { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar no-print">
+  <svg class="topbar-seal" viewBox="0 0 52 52" fill="none">
+    <circle cx="26" cy="26" r="25" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-width="1.5"/>
+    <text x="26" y="21" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">STATE OF</text>
+    <text x="26" y="31" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">CALIFORNIA</text>
+    <text x="26" y="40" text-anchor="middle" fill="#fde68a" font-size="7">✦ ✦ ✦</text>
+  </svg>
+  <div>
+    <h1>California Density Bonus Law Calculator</h1>
+    <p>Government Code §65915 — Interactive Project Analysis Tool</p>
+  </div>
+  <div class="topbar-ref">
+    <div>Cal. Gov. Code §65915</div>
+    <div>Chapter 4.3, Title 7</div>
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page" id="calculator-section">
+
+  <div class="notice info">
+    <span>ℹ️</span>
+    <span>This calculator implements California Government Code §65915 density bonus provisions. Results are based on statutory formulas and are intended for preliminary planning purposes only. Always verify with a licensed planning professional and current local ordinance.</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 1. PROJECT INFO -->
+  <div class="section-title"><div class="num">1</div> Project Information</div>
+
+  <div class="card">
+    <div class="card-header">📋 Project Details</div>
+    <div class="card-body">
+      <div class="grid-3">
+        <div class="form-group">
+          <label>Project Name</label>
+          <input type="text" id="proj-name" placeholder="e.g. Maple Street Apartments" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Applicant / Developer</label>
+          <input type="text" id="proj-applicant" placeholder="Developer name" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="text" id="proj-date" oninput="syncReport()">
+        </div>
+        <div class="form-group col-span-2">
+          <label>Project Address <span class="hint">(used for map)</span></label>
+          <input type="text" id="proj-address" placeholder="123 Main St, Los Angeles, CA 90001" oninput="syncReport()" onkeyup="debouncedMapUpdate()">
+        </div>
+        <div class="form-group">
+          <label>APN / Parcel No.</label>
+          <input type="text" id="proj-apn" placeholder="000-000-000" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Jurisdiction / City</label>
+          <input type="text" id="proj-city" placeholder="e.g. City of Los Angeles" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Zoning District</label>
+          <input type="text" id="proj-zone" placeholder="e.g. R3-1" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>General Plan Land Use</label>
+          <input type="text" id="proj-gp" placeholder="e.g. Medium Density Residential" oninput="syncReport()">
+        </div>
+        <div class="form-group col-span-3">
+          <label>Project Description <span class="hint">(optional)</span></label>
+          <textarea id="proj-desc" placeholder="Brief description of the proposed project..." oninput="syncReport()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 2. BASE DENSITY -->
+  <div class="section-title"><div class="num">2</div> Base Density Parameters</div>
+
+  <div class="card">
+    <div class="card-header">🏗️ Existing Zoning Entitlement</div>
+    <div class="card-body">
+      <div class="grid-3">
+        <div class="form-group">
+          <label>Base Units Allowed <span class="hint">(by right under zoning)</span></label>
+          <div class="input-unit">
+            <input type="number" id="base-units" value="50" min="1" oninput="calculate()">
+            <span>units</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Lot Size</label>
+          <div class="input-unit">
+            <input type="number" id="lot-size" placeholder="0" min="0" oninput="syncReport()">
+            <span>sq ft</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Max Height (current zoning)</label>
+          <div class="input-unit">
+            <input type="number" id="max-height" placeholder="0" min="0" oninput="syncReport()">
+            <span>ft</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Existing FAR</label>
+          <input type="number" id="base-far" placeholder="0.00" step="0.01" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Number of Stories</label>
+          <input type="number" id="base-stories" placeholder="0" min="1" oninput="syncReport()">
+        </div>
+        <div class="form-group">
+          <label>Project Type</label>
+          <select id="proj-type" onchange="calculate()">
+            <option value="rental">Rental Housing</option>
+            <option value="forsale">For-Sale / Ownership</option>
+            <option value="mixed">Mixed (Rental + For-Sale)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 3. AFFORDABILITY MIX -->
+  <div class="section-title"><div class="num">3</div> Affordability Mix</div>
+
+  <div class="notice warn">
+    <span>⚠️</span>
+    <span><strong>§65915(b):</strong> A project qualifies for density bonus by providing affordable units in one or more categories below. Percentages are calculated against the <em>base (non-bonus)</em> unit count. The density bonus is calculated separately for each category; the highest applicable bonus is used. Affordability covenants must run ≥55 years (rental) or ≥45 years (for-sale).</span>
+  </div>
+
+  <div class="tabs" id="aff-tabs">
+    <button class="tab-btn active" onclick="showAffTab('vli', this)">🔴 Very Low Income</button>
+    <button class="tab-btn" onclick="showAffTab('li', this)">🔵 Lower Income</button>
+    <button class="tab-btn" onclick="showAffTab('mod', this)">🟢 Moderate Income</button>
+    <button class="tab-btn" onclick="showAffTab('senior', this)">🟣 Senior Housing</button>
+    <button class="tab-btn" onclick="showAffTab('special', this)">⭐ Special Categories</button>
+  </div>
+
+  <!-- VLI TAB -->
+  <div id="tab-vli" class="card">
+    <div class="card-header">🔴 Very Low-Income Units <div class="badge">§65915(f)(1)</div></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>Very Low Income = ≤50% Area Median Income (AMI). Minimum 5% of base units to qualify. Density bonus starts at 20% and increases 2.5 percentage points per each 1% above 5%, up to 50% maximum. Rental units: 55-year affordability covenant required.</span>
+      </div>
+      <div class="form-group">
+        <label>% of Base Units Reserved for Very Low Income <span class="hint">(0 = not using this category)</span></label>
+        <div class="slider-wrap">
+          <input type="range" id="vli-pct" min="0" max="24" step="1" value="0" oninput="updateSlider('vli-pct','vli-pct-val'); calculate()">
+          <div class="slider-val" id="vli-pct-val">0%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
+          <span>0% (none)</span><span>5% (min)</span><span>10%</span><span>15%</span><span>20%</span><span>24%</span>
+        </div>
+      </div>
+      <div id="vli-bonus-preview" class="notice success" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- LI TAB -->
+  <div id="tab-li" class="card" style="display:none">
+    <div class="card-header">🔵 Lower-Income Units <div class="badge">§65915(f)(2)</div></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>Lower Income = ≤80% AMI. Minimum 10% of base units to qualify. Density bonus starts at 20% and increases 1.5 percentage points per each 1% above 10%, up to 50% maximum.</span>
+      </div>
+      <div class="form-group">
+        <label>% of Base Units Reserved for Lower Income</label>
+        <div class="slider-wrap">
+          <input type="range" id="li-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('li-pct','li-pct-val'); calculate()">
+          <div class="slider-val" id="li-pct-val">0%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
+          <span>0%</span><span>10% (min)</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
+        </div>
+      </div>
+      <div id="li-bonus-preview" class="notice success" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- MOD TAB -->
+  <div id="tab-mod" class="card" style="display:none">
+    <div class="card-header">🟢 Moderate-Income (For-Sale) Units <div class="badge">§65915(f)(3)</div></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>Moderate Income = ≤120% AMI. <strong>Applies only to for-sale (ownership) common-interest developments.</strong> Minimum 10% of base units. Density bonus starts at 5% and increases 1 percentage point per each 1% above 10%, up to 50% maximum. For-sale units: 45-year affordability covenant.</span>
+      </div>
+      <div class="form-group">
+        <label>% of Base Units Reserved for Moderate Income (For-Sale)</label>
+        <div class="slider-wrap">
+          <input type="range" id="mod-pct" min="0" max="44" step="1" value="0" oninput="updateSlider('mod-pct','mod-pct-val'); calculate()">
+          <div class="slider-val" id="mod-pct-val">0%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
+          <span>0%</span><span>10% (min)</span><span>20%</span><span>30%</span><span>40%</span><span>44%</span>
+        </div>
+      </div>
+      <div id="mod-bonus-preview" class="notice success" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- SENIOR TAB -->
+  <div id="tab-senior" class="card" style="display:none">
+    <div class="card-header">🟣 Senior Citizen Housing <div class="badge">§65915(b)(3)</div></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>A senior citizen housing development (100% of units restricted to seniors age 55+ or 62+) qualifies for a <strong>20% density bonus</strong>. Must comply with Civil Code §51.3 or §51.12 and qualify as senior housing under state law.</span>
+      </div>
+      <div class="form-group">
+        <label>Is this a 100% Senior Citizen Housing Development?</label>
+        <select id="senior-flag" onchange="calculate()">
+          <option value="no">No</option>
+          <option value="yes">Yes — 100% Senior Housing (55+ or 62+)</option>
+        </select>
+      </div>
+      <div id="senior-bonus-preview" class="notice success" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- SPECIAL TAB -->
+  <div id="tab-special" class="card" style="display:none">
+    <div class="card-header">⭐ Special Categories <div class="badge">§65915(b)(4)–(6)</div></div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div>
+          <div class="notice info" style="margin-bottom:12px">
+            <span>ℹ️</span>
+            <span><strong>Transitional / Foster Youth / Special Needs:</strong> Units for transitional foster youth, disabled veterans, or homeless persons. Minimum 10% of total units for 20% density bonus. (§65915(b)(4))</span>
+          </div>
+          <div class="form-group">
+            <label>% Transitional/Foster Youth/Homeless/Disabled Veteran Units</label>
+            <div class="slider-wrap">
+              <input type="range" id="special-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('special-pct','special-pct-val'); calculate()">
+              <div class="slider-val" id="special-pct-val">0%</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="notice info" style="margin-bottom:12px">
+            <span>ℹ️</span>
+            <span><strong>Land Donation (§65915(g)):</strong> Applicant donates land for very low income units. Minimum 10% of total buildable area donated. Earns 15% density bonus + 1% per each 1% above 10%, up to 35% maximum for this category.</span>
+          </div>
+          <div class="form-group">
+            <label>% of Total Buildable Area Donated for VLI</label>
+            <div class="slider-wrap">
+              <input type="range" id="land-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('land-pct','land-pct-val'); calculate()">
+              <div class="slider-val" id="land-pct-val">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="special-bonus-preview" class="notice success" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 4. RESULTS -->
+  <div class="section-title"><div class="num">4</div> Density Bonus Calculation Results</div>
+
+  <div id="no-qualify" class="notice warn">
+    <span>⚠️</span>
+    <span>No qualifying affordability category has been selected yet. Set at least one affordability percentage above the minimum threshold to calculate the density bonus.</span>
+  </div>
+
+  <div id="results-panel" style="display:none">
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="val" id="r-bonus-pct">0%</div>
+        <div class="lbl">Density Bonus</div>
+        <div class="sub">§65915(f)</div>
+      </div>
+      <div class="result-box green">
+        <div class="val" id="r-bonus-units">0</div>
+        <div class="lbl">Bonus Units</div>
+        <div class="sub">Rounded up</div>
+      </div>
+      <div class="result-box gold">
+        <div class="val" id="r-total-units">0</div>
+        <div class="lbl">Total Units Allowed</div>
+        <div class="sub">Base + Bonus</div>
+      </div>
+      <div class="result-box">
+        <div class="val" id="r-incentives">0</div>
+        <div class="lbl">Incentives/Concessions</div>
+        <div class="sub">§65915(d)</div>
+      </div>
+      <div class="result-box green">
+        <div class="val" id="r-aff-units">0</div>
+        <div class="lbl">Affordable Units</div>
+        <div class="sub">Required minimum</div>
+      </div>
+      <div class="result-box gold">
+        <div class="val" id="r-market-units">0</div>
+        <div class="lbl">Market-Rate Units</div>
+        <div class="sub">Remaining</div>
+      </div>
+    </div>
+
+    <!-- CALCULATION STEPS -->
+    <div class="card">
+      <div class="card-header">🔢 Step-by-Step Calculation <div class="badge">Per §65915(f) & rounding rules</div></div>
+      <div class="card-body">
+        <div class="calc-steps" id="calc-steps-container"></div>
+      </div>
+    </div>
+
+    <!-- INCENTIVES & CONCESSIONS -->
+    <div class="card">
+      <div class="card-header">🏛️ Incentives &amp; Concessions <div class="badge">§65915(d)</div></div>
+      <div class="card-body">
+        <div class="notice info" style="margin-bottom:14px">
+          <span>ℹ️</span>
+          <span>The jurisdiction shall grant the number of incentives/concessions below <em>unless</em> it makes a written finding that: (1) the incentive is not required to make affordable units financially feasible; (2) it would have a specific adverse impact on public health/safety with no feasible mitigation; or (3) it would be contrary to state/federal law. (§65915(d)(1))</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Concession / Incentive</th>
+              <th>Statutory Basis</th>
+              <th>Granted</th>
+            </tr>
+          </thead>
+          <tbody id="incentives-table-body"></tbody>
+        </table>
+        <div style="margin-top:14px">
+          <div class="notice info">
+            <span>ℹ️</span>
+            <span><strong>Examples of incentives/concessions</strong> that may be requested include: reduced setbacks, increased FAR/height, reduced lot coverage requirements, reduced parking requirements, reduced open space requirements, other zoning modifications, fee deferrals, mixed-use zoning, and other development standard modifications per §65915(k).</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARKING STANDARDS -->
+    <div class="card">
+      <div class="card-header">🚗 Maximum Parking Standards <div class="badge">§65915(p)</div></div>
+      <div class="card-body">
+        <div class="notice info" style="margin-bottom:14px">
+          <span>ℹ️</span>
+          <span>Upon request, the jurisdiction shall not impose parking requirements exceeding these maximums (inclusive of handicapped and guest parking). These ratios apply when at least the minimum affordability threshold is met. On-street parking does not count toward these ratios. Tandem and uncovered parking is permitted. (§65915(p))</span>
+        </div>
+        <div class="parking-grid" id="parking-grid">
+          <div class="parking-box">
+            <div class="unit-type">Studio / 1 Bedroom</div>
+            <div class="spaces">1</div>
+            <div class="label">space per unit</div>
+          </div>
+          <div class="parking-box">
+            <div class="unit-type">2 Bedrooms</div>
+            <div class="spaces" id="pk-2br">1</div>
+            <div class="label">space per unit</div>
+          </div>
+          <div class="parking-box">
+            <div class="unit-type">3+ Bedrooms</div>
+            <div class="spaces" id="pk-3br">2</div>
+            <div class="label">space per unit</div>
+          </div>
+        </div>
+        <div id="parking-zero-notice" class="notice success" style="display:none;margin-top:12px">
+          <span>✅</span>
+          <span><strong>Zero Parking Required:</strong> This project may be eligible for zero minimum parking if it meets one of the following: (1) located within ½ mile of a major transit stop; (2) 100% affordable to lower income households; (3) senior housing; (4) special needs housing. (§65915(p)(3))</span>
+        </div>
+        <div style="margin-top:10px">
+          <label style="font-size:12px">
+            <input type="checkbox" id="transit-check" onchange="calculate()" style="width:auto;margin-right:6px">
+            Project is within ½ mile of a major transit stop or high-quality transit corridor
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- WAIVER / REDUCTION -->
+    <div class="card">
+      <div class="card-header">📏 Development Standard Waivers <div class="badge">§65915(e)</div></div>
+      <div class="card-body">
+        <div class="notice info" style="margin-bottom:12px">
+          <span>ℹ️</span>
+          <span><strong>§65915(e)(1):</strong> The applicant may request a waiver or reduction of development standards that would physically preclude construction of a project at the density permitted, including the density bonus units. The applicant must show the development standard prevents the project from being built at the allowed density. The jurisdiction cannot refuse a waiver unless it would have a specific, adverse impact on public health or safety.</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Development Standard</th><th>Applicability</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Maximum Height</td><td>May be increased to accommodate bonus units</td><td>Must be necessary to achieve density</td></tr>
+            <tr><td>Setbacks</td><td>May be reduced</td><td>Cannot reduce below fire/life safety minimums</td></tr>
+            <tr><td>Lot Coverage</td><td>May be increased</td><td>Subject to stormwater/landscaping requirements</td></tr>
+            <tr><td>Open Space / Landscaping</td><td>May be reduced</td><td>Subject to tree canopy / CEQA</td></tr>
+            <tr><td>Floor Area Ratio (FAR)</td><td>May be increased</td><td>Tied to height/massing</td></tr>
+            <tr><td>Design Standards</td><td>May be waived</td><td>Must not conflict with state building code</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 5. PROJECT MAP -->
+  <div class="section-title"><div class="num">5</div> Project Location Map</div>
+
+  <div class="card">
+    <div class="card-header">📍 Location Map <div class="badge">Google Maps</div></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Search / Update Address</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="map-address-input" placeholder="Enter project address to display map..." style="flex:1">
+          <button class="btn btn-primary" onclick="updateMap()">Load Map</button>
+        </div>
+      </div>
+      <div class="map-container" id="map-container">
+        <div class="map-placeholder" id="map-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+          <span>Enter an address above to load the project location map</span>
+        </div>
+        <iframe id="map-iframe" style="display:none" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="notice warn" style="margin-top:12px">
+        <span>⚠️</span>
+        <span>Map is for reference only. Verify exact parcel boundaries using the county assessor's GIS portal and official survey records.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ GENERATE REPORT -->
+  <div class="section-title no-print"><div class="num">6</div> Generate Report</div>
+
+  <div class="card no-print">
+    <div class="card-header">📄 Printable Report</div>
+    <div class="card-body">
+      <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report summarizing all density bonus calculations, applicable incentives, parking standards, and project information for inclusion in planning submittals.</p>
+      <div class="action-row">
+        <button class="btn btn-success" onclick="printReport()">🖨️ Print / Save as PDF</button>
+        <button class="btn btn-outline" onclick="resetForm()">🔄 Reset Calculator</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /calculator-section -->
+
+<!-- ═══════════════════════════════════════ PRINT REPORT -->
+<div id="report-section">
+  <div class="report-page">
+
+    <!-- REPORT HEADER -->
+    <div class="report-header">
+      <div>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+          <svg width="44" height="44" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="#1a3a5c" stroke="#1a3a5c" stroke-width="1.5"/>
+            <text x="26" y="20" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">STATE OF</text>
+            <text x="26" y="29" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">CALIFORNIA</text>
+            <text x="26" y="38" text-anchor="middle" fill="#fde68a" font-size="6">✦ ✦ ✦</text>
+          </svg>
+          <div>
+            <div class="report-title">
+              <h2>Density Bonus Analysis Report</h2>
+              <p>California Government Code §65915 — Chapter 4.3, Title 7</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-left:auto;text-align:right;font-size:11px;color:#6b7280">
+        <div id="rpt-date-header"></div>
+        <div style="margin-top:2px;color:#9ca3af">For planning purposes only</div>
+      </div>
+    </div>
+
+    <!-- PROJECT INFO -->
+    <div class="report-section">
+      <h3>1. Project Information</h3>
+      <dl class="report-meta">
+        <dt>Project Name:</dt><dd id="rpt-name">—</dd>
+        <dt>Applicant:</dt><dd id="rpt-applicant">—</dd>
+        <dt>Project Address:</dt><dd id="rpt-address">—</dd>
+        <dt>APN:</dt><dd id="rpt-apn">—</dd>
+        <dt>Jurisdiction:</dt><dd id="rpt-city">—</dd>
+        <dt>Zoning:</dt><dd id="rpt-zone">—</dd>
+        <dt>General Plan:</dt><dd id="rpt-gp">—</dd>
+        <dt>Report Date:</dt><dd id="rpt-date">—</dd>
+      </dl>
+      <div id="rpt-desc-wrap" style="display:none;margin-top:6px">
+        <strong style="font-size:12px">Project Description:</strong>
+        <p id="rpt-desc" style="font-size:12px;color:#374151;margin-top:4px;line-height:1.6"></p>
+      </div>
+    </div>
+
+    <!-- MAP IN REPORT -->
+    <div class="report-section" id="rpt-map-section" style="display:none">
+      <h3>2. Project Location</h3>
+      <div class="map-container" style="height:260px">
+        <iframe id="rpt-map-iframe" allowfullscreen style="width:100%;height:260px;border:none;display:block"></iframe>
+      </div>
+      <p style="font-size:10px;color:#9ca3af;margin-top:4px">Map data © Google. For reference only.</p>
+    </div>
+
+    <!-- SUMMARY RESULTS -->
+    <div class="report-section">
+      <h3 id="rpt-results-num">3. Density Bonus Summary</h3>
+      <div class="result-grid" id="rpt-result-grid" style="margin-bottom:16px"></div>
+    </div>
+
+    <!-- CALC STEPS -->
+    <div class="report-section">
+      <h3 id="rpt-steps-num">4. Calculation Methodology</h3>
+      <div class="calc-steps" id="rpt-calc-steps"></div>
+    </div>
+
+    <!-- INCENTIVES -->
+    <div class="report-section">
+      <h3 id="rpt-inc-num">5. Incentives &amp; Concessions (§65915(d))</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Incentive / Concession</th><th>Basis</th><th>Granted</th>
+          </tr>
+        </thead>
+        <tbody id="rpt-incentives-body"></tbody>
+      </table>
+    </div>
+
+    <!-- PARKING -->
+    <div class="report-section">
+      <h3 id="rpt-park-num">6. Parking Standards (§65915(p))</h3>
+      <table>
+        <thead>
+          <tr><th>Unit Type</th><th>Max Spaces Required</th><th>Note</th></tr>
+        </thead>
+        <tbody id="rpt-parking-body"></tbody>
+      </table>
+    </div>
+
+    <!-- AFFORDABLE UNIT TABLE -->
+    <div class="report-section">
+      <h3 id="rpt-aff-num">7. Affordability Summary</h3>
+      <table id="rpt-aff-table">
+        <thead>
+          <tr><th>Income Category</th><th>AMI Limit</th><th>% of Base Units</th><th># Units</th><th>Covenant Term</th></tr>
+        </thead>
+        <tbody id="rpt-aff-body"></tbody>
+      </table>
+    </div>
+
+    <!-- APPLICABLE WAIVERS -->
+    <div class="report-section">
+      <h3 id="rpt-wav-num">8. Potential Waiver/Reduction Rights (§65915(e))</h3>
+      <p style="font-size:12px;color:#374151;line-height:1.6;margin-bottom:8px">
+        Per §65915(e)(1), this project is entitled to a waiver or reduction of development standards that would physically preclude construction at the permitted density (including bonus units). The applicant must demonstrate the standard prevents achievement of the allowed density. The jurisdiction must grant the waiver unless it would cause a specific, adverse impact on public health or safety with no feasible mitigation.
+      </p>
+      <table>
+        <thead><tr><th>Standard</th><th>Waiver Right</th></tr></thead>
+        <tbody>
+          <tr><td>Height limit</td><td>May request increase to achieve bonus density</td></tr>
+          <tr><td>Setbacks</td><td>May request reduction</td></tr>
+          <tr><td>Lot coverage</td><td>May request increase</td></tr>
+          <tr><td>Floor area ratio</td><td>May request increase</td></tr>
+          <tr><td>Open space/landscaping</td><td>May request reduction</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- AFFORDABILITY COVENANT NOTICE -->
+    <div class="report-section">
+      <h3 id="rpt-cov-num">9. Affordability Covenant Requirements</h3>
+      <table>
+        <thead><tr><th>Category</th><th>Minimum Covenant Term</th><th>Statutory Basis</th></tr></thead>
+        <tbody>
+          <tr><td>Very Low Income — Rental</td><td>55 years</td><td>§65915(c)(1)</td></tr>
+          <tr><td>Lower Income — Rental</td><td>55 years</td><td>§65915(c)(1)</td></tr>
+          <tr><td>Moderate Income — For-Sale</td><td>45 years</td><td>§65915(c)(2)</td></tr>
+          <tr><td>Senior Housing</td><td>Ongoing (per Civil Code §51.3)</td><td>§65915(b)(3)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-disclaimer">
+      <strong>Disclaimer:</strong> This report is generated for preliminary planning analysis purposes only and does not constitute a legal determination or formal entitlement. Density bonus calculations are based on California Government Code §65915 as amended through AB 2345 (2020) and subsequent legislation. Final project entitlement is subject to local discretionary review, conformance with applicable local ordinances, CEQA review, and all applicable state and federal laws. Applicants should consult with a licensed planning professional and the applicable local jurisdiction for formal determinations. Affordability income limits are set annually by the California Department of Housing and Community Development (HCD) based on Area Median Income (AMI) for each county.<br>
+      <br>
+      <strong>Source:</strong> California Government Code §65915 — Chapter 4.3 (Density Bonuses and Other Incentives), Title 7 (Planning and Land Use), Division 1 (Planning and Zoning).
+    </div>
+
+  </div>
+</div><!-- /report-section -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CALIFORNIA DENSITY BONUS LAW — Gov. Code §65915
+//  Calculator Engine
+// ═══════════════════════════════════════════════════════
+
+// Set today's date
+document.getElementById('proj-date').value = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+// ── SLIDER SYNC ──────────────────────────────────────
+function updateSlider(sliderId, valId) {
+  var v = document.getElementById(sliderId).value;
+  document.getElementById(valId).textContent = v + '%';
+  updateBonusPreview();
+}
+
+function updateBonusPreview() {
+  showPreview('vli-pct', 'vli-bonus-preview', calcVLIBonus, 5);
+  showPreview('li-pct',  'li-bonus-preview',  calcLIBonus,  10);
+  showPreview('mod-pct', 'mod-bonus-preview', calcModBonus, 10);
+  showSeniorPreview();
+  showSpecialPreview();
+}
+
+function showPreview(sliderId, previewId, calcFn, min) {
+  var pct = parseInt(document.getElementById(sliderId).value);
+  var el = document.getElementById(previewId);
+  if (pct >= min) {
+    var bonus = calcFn(pct);
+    el.style.display = 'flex';
+    el.innerHTML = '✅ <span>At <strong>' + pct + '%</strong> qualifying units → Density Bonus: <strong>' + bonus.toFixed(1) + '%</strong></span>';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function showSeniorPreview() {
+  var flag = document.getElementById('senior-flag').value;
+  var el = document.getElementById('senior-bonus-preview');
+  if (flag === 'yes') {
+    el.style.display = 'flex';
+    el.innerHTML = '✅ <span>100% Senior Housing qualifies for a flat <strong>20% density bonus</strong> per §65915(b)(3).</span>';
+  } else { el.style.display = 'none'; }
+}
+
+function showSpecialPreview() {
+  var sp = parseInt(document.getElementById('special-pct').value);
+  var lp = parseInt(document.getElementById('land-pct').value);
+  var el = document.getElementById('special-bonus-preview');
+  var msgs = [];
+  if (sp >= 10) msgs.push('Special needs units (' + sp + '%) → 20% bonus');
+  if (lp >= 10) msgs.push('Land donation (' + lp + '%) → ' + calcLandBonus(lp).toFixed(1) + '% bonus');
+  if (msgs.length) {
+    el.style.display = 'flex';
+    el.innerHTML = '✅ <span>' + msgs.join(' | ') + '</span>';
+  } else { el.style.display = 'none'; }
+}
+
+// ── DENSITY BONUS FORMULAS §65915(f) ─────────────────
+
+// (f)(1) Very Low Income: 5% min → 20%; +2.5% per 1% above 5%; cap 50%
+function calcVLIBonus(pct) {
+  if (pct < 5) return 0;
+  return Math.min(50, 20 + (pct - 5) * 2.5);
+}
+
+// (f)(2) Lower Income: 10% min → 20%; +1.5% per 1% above 10%; cap 50%
+function calcLIBonus(pct) {
+  if (pct < 10) return 0;
+  return Math.min(50, 20 + (pct - 10) * 1.5);
+}
+
+// (f)(3) Moderate Income (for-sale): 10% min → 5%; +1% per 1% above 10%; cap 50%
+function calcModBonus(pct) {
+  if (pct < 10) return 0;
+  return Math.min(50, 5 + (pct - 10) * 1);
+}
+
+// (b)(3) Senior Housing: flat 20%
+function calcSeniorBonus(flag) {
+  return flag === 'yes' ? 20 : 0;
+}
+
+// (b)(4) Special needs / transitional / foster youth / homeless / disabled vet: 10% min → 20%
+function calcSpecialBonus(pct) {
+  return pct >= 10 ? 20 : 0;
+}
+
+// (g) Land Donation: 10% min → 15%; +1% per 1% above 10%; cap 35%
+function calcLandBonus(pct) {
+  if (pct < 10) return 0;
+  return Math.min(35, 15 + (pct - 10) * 1);
+}
+
+// ── INCENTIVES COUNT §65915(d)(2) ────────────────────
+// The number of incentives is based on the % of VLI and LI affordable units:
+// 1 incentive: ≥5% VLI  OR  ≥10% LI  OR  ≥10% Moderate
+// 2 incentives: ≥10% VLI OR  ≥20% LI  OR  ≥20% Moderate
+// 3 incentives: ≥15% VLI OR  ≥30% LI  OR  ≥30% Moderate
+// 4 incentives: 100% affordable project
+function calcIncentives(vliPct, liPct, modPct, seniorFlag, specialPct, baseUnits) {
+  if (seniorFlag === 'yes') return 1;
+
+  var n = 0;
+
+  // Threshold checks (use the best qualifying category)
+  var q3 = (vliPct >= 15) || (liPct >= 30) || (modPct >= 30);
+  var q2 = (vliPct >= 10) || (liPct >= 20) || (modPct >= 20);
+  var q1 = (vliPct >= 5)  || (liPct >= 10) || (modPct >= 10) || (specialPct >= 10);
+
+  if (q3) n = 3;
+  else if (q2) n = 2;
+  else if (q1) n = 1;
+
+  // 100% affordable → 4 incentives (all units restricted)
+  var totalAff = Math.round(baseUnits * (vliPct + liPct + modPct + specialPct) / 100);
+  if (totalAff >= baseUnits) n = 4;
+
+  return n;
+}
+
+// ── ROUNDING RULE §65915(f)(4) ───────────────────────
+// "Fractional units shall be rounded up to the next whole number"
+function roundUp(n) {
+  return Math.ceil(n);
+}
+
+// ── MAIN CALCULATE ───────────────────────────────────
+function calculate() {
+  var baseUnits  = parseInt(document.getElementById('base-units').value) || 0;
+  var vliPct     = parseInt(document.getElementById('vli-pct').value) || 0;
+  var liPct      = parseInt(document.getElementById('li-pct').value) || 0;
+  var modPct     = parseInt(document.getElementById('mod-pct').value) || 0;
+  var seniorFlag = document.getElementById('senior-flag').value;
+  var specialPct = parseInt(document.getElementById('special-pct').value) || 0;
+  var landPct    = parseInt(document.getElementById('land-pct').value) || 0;
+  var transit    = document.getElementById('transit-check').checked;
+
+  updateBonusPreview();
+
+  // Calculate bonus % for each qualifying category
+  var bonuses = [];
+  var categories = [];
+
+  var vliBon = calcVLIBonus(vliPct);
+  if (vliBon > 0) { bonuses.push(vliBon); categories.push({name:'Very Low Income', pct: vliPct, bonus: vliBon, type:'vli'}); }
+
+  var liBon = calcLIBonus(liPct);
+  if (liBon > 0) { bonuses.push(liBon); categories.push({name:'Lower Income', pct: liPct, bonus: liBon, type:'li'}); }
+
+  var modBon = calcModBonus(modPct);
+  if (modBon > 0) { bonuses.push(modBon); categories.push({name:'Moderate Income', pct: modPct, bonus: modBon, type:'mod'}); }
+
+  var srBon = calcSeniorBonus(seniorFlag);
+  if (srBon > 0) { bonuses.push(srBon); categories.push({name:'Senior Housing', pct:100, bonus:srBon, type:'sr'}); }
+
+  var spBon = calcSpecialBonus(specialPct);
+  if (spBon > 0) { bonuses.push(spBon); categories.push({name:'Special Needs/Transitional/Foster Youth', pct: specialPct, bonus: spBon, type:'special'}); }
+
+  var lndBon = calcLandBonus(landPct);
+  if (lndBon > 0) { bonuses.push(lndBon); categories.push({name:'Land Donation', pct: landPct, bonus: lndBon, type:'land'}); }
+
+  var qualifies = bonuses.length > 0 && baseUnits > 0;
+
+  document.getElementById('no-qualify').style.display = qualifies ? 'none' : 'flex';
+  document.getElementById('results-panel').style.display = qualifies ? 'block' : 'none';
+
+  if (!qualifies) return;
+
+  // Per §65915(f): use the MAXIMUM applicable density bonus
+  var maxBonusPct = Math.max(...bonuses);
+  var winnerCat   = categories.find(c => c.bonus === maxBonusPct);
+
+  // Rounding: bonus units rounded up to next whole number
+  var bonusUnitsRaw  = baseUnits * (maxBonusPct / 100);
+  var bonusUnits     = roundUp(bonusUnitsRaw);
+  var totalUnits     = baseUnits + bonusUnits;
+
+  // Affordable unit counts (rounded up separately per §65915(f)(4))
+  var vliUnits     = vliPct > 0     ? roundUp(baseUnits * vliPct / 100) : 0;
+  var liUnits      = liPct > 0      ? roundUp(baseUnits * liPct / 100) : 0;
+  var modUnits     = modPct > 0     ? roundUp(baseUnits * modPct / 100) : 0;
+  var specialUnits = specialPct > 0 ? roundUp(baseUnits * specialPct / 100) : 0;
+  var totalAff     = vliUnits + liUnits + modUnits + specialUnits;
+  var marketUnits  = totalUnits - totalAff;
+
+  // Incentives
+  var numIncentives = calcIncentives(vliPct, liPct, modPct, seniorFlag, specialPct, baseUnits);
+
+  // Update result boxes
+  document.getElementById('r-bonus-pct').textContent   = maxBonusPct.toFixed(1) + '%';
+  document.getElementById('r-bonus-units').textContent = bonusUnits;
+  document.getElementById('r-total-units').textContent = totalUnits;
+  document.getElementById('r-incentives').textContent  = numIncentives;
+  document.getElementById('r-aff-units').textContent   = totalAff;
+  document.getElementById('r-market-units').textContent= marketUnits;
+
+  // Build calculation steps
+  buildCalcSteps(baseUnits, vliPct, liPct, modPct, seniorFlag, specialPct, landPct,
+                 categories, maxBonusPct, winnerCat, bonusUnitsRaw, bonusUnits, totalUnits,
+                 vliUnits, liUnits, modUnits, specialUnits, totalAff, marketUnits);
+
+  // Build incentives table
+  buildIncentivesTable(numIncentives, vliPct, liPct, modPct, specialPct, seniorFlag);
+
+  // Parking
+  updateParking(vliPct, liPct, seniorFlag, transit);
+
+  // Sync report
+  syncReport();
+  window._calcState = {baseUnits, vliPct, liPct, modPct, seniorFlag, specialPct, landPct,
+    categories, maxBonusPct, winnerCat, bonusUnitsRaw, bonusUnits, totalUnits,
+    vliUnits, liUnits, modUnits, specialUnits, totalAff, marketUnits, numIncentives, transit};
+}
+
+function buildCalcSteps(baseUnits, vliPct, liPct, modPct, seniorFlag, specialPct, landPct,
+                         categories, maxBonusPct, winnerCat, bonusUnitsRaw, bonusUnits, totalUnits,
+                         vliUnits, liUnits, modUnits, specialUnits, totalAff, marketUnits) {
+  var c = document.getElementById('calc-steps-container');
+  var steps = [];
+  steps.push('<div class="calc-steps"><h4>Density Bonus Calculation — §65915(f)</h4>');
+
+  var n = 1;
+
+  // Step 1: Base units
+  steps.push(mkStep(n++, 'Base Units (by-right zoning entitlement)',
+    'Base units = <span class="step-formula">' + baseUnits + ' units</span>'));
+
+  // Step 2: Each qualifying category
+  if (categories.length > 0) {
+    var catLines = categories.map(function(cat) {
+      var formula = '';
+      if (cat.type === 'vli') {
+        formula = cat.pct >= 5
+          ? '20% + (' + cat.pct + '% − 5%) × 2.5 = <strong>' + cat.bonus.toFixed(1) + '%</strong>'
+          : 'Below 5% minimum — does not qualify';
+      } else if (cat.type === 'li') {
+        formula = cat.pct >= 10
+          ? '20% + (' + cat.pct + '% − 10%) × 1.5 = <strong>' + cat.bonus.toFixed(1) + '%</strong>'
+          : 'Below 10% minimum';
+      } else if (cat.type === 'mod') {
+        formula = cat.pct >= 10
+          ? '5% + (' + cat.pct + '% − 10%) × 1.0 = <strong>' + cat.bonus.toFixed(1) + '%</strong>'
+          : 'Below 10% minimum';
+      } else if (cat.type === 'sr') {
+        formula = 'Flat 20% for 100% senior development';
+      } else if (cat.type === 'special') {
+        formula = 'Flat 20% for ≥10% special needs/transitional/foster youth units';
+      } else if (cat.type === 'land') {
+        formula = '15% + (' + cat.pct + '% − 10%) × 1.0 = <strong>' + cat.bonus.toFixed(1) + '%</strong>';
+      }
+      return '<div style="margin:3px 0;padding:3px 6px;background:#f8fafc;border-radius:3px">• ' + cat.name + ' (' + cat.pct + '%): ' + formula + '</div>';
+    });
+    steps.push(mkStep(n++, 'Density Bonus % by Qualifying Category (§65915(f))',
+      catLines.join('')));
+  }
+
+  // Step 3: Maximum bonus selected
+  steps.push(mkStep(n++, 'Applicable Density Bonus (highest qualifying category, §65915(f))',
+    'Winning category: <strong>' + (winnerCat ? winnerCat.name : '—') + '</strong> → ' +
+    'Density Bonus = <span class="step-formula">' + maxBonusPct.toFixed(1) + '%</span>'));
+
+  // Step 4: Bonus units calculation
+  steps.push(mkStep(n++, 'Bonus Units Calculation',
+    'Bonus Units (raw) = Base Units × Density Bonus % = ' +
+    '<span class="step-formula">' + baseUnits + ' × ' + maxBonusPct.toFixed(1) + '% = ' + bonusUnitsRaw.toFixed(2) + ' units</span><br>' +
+    '<strong>Rounded up per §65915(f)(4):</strong> ' + bonusUnitsRaw.toFixed(2) + ' → <strong>' + bonusUnits + ' bonus units</strong>'));
+
+  // Step 5: Total units
+  steps.push(mkStep(n++, 'Total Units Allowed',
+    'Total Units = Base + Bonus = <span class="step-formula">' + baseUnits + ' + ' + bonusUnits + ' = <strong>' + totalUnits + ' units</strong></span>'));
+
+  // Step 6: Affordable unit counts
+  var affLines = [];
+  if (vliPct > 0) affLines.push('VLI: ' + baseUnits + ' × ' + vliPct + '% = ' + (baseUnits * vliPct/100).toFixed(2) + ' → <strong>' + vliUnits + ' units</strong> (rounded up)');
+  if (liPct > 0) affLines.push('LI: ' + baseUnits + ' × ' + liPct + '% = ' + (baseUnits * liPct/100).toFixed(2) + ' → <strong>' + liUnits + ' units</strong> (rounded up)');
+  if (modPct > 0) affLines.push('Moderate: ' + baseUnits + ' × ' + modPct + '% = ' + (baseUnits * modPct/100).toFixed(2) + ' → <strong>' + modUnits + ' units</strong> (rounded up)');
+  if (specialPct > 0) affLines.push('Special Needs: ' + baseUnits + ' × ' + specialPct + '% = ' + (baseUnits * specialPct/100).toFixed(2) + ' → <strong>' + specialUnits + ' units</strong> (rounded up)');
+  if (affLines.length) {
+    steps.push(mkStep(n++, 'Affordable Unit Counts (each component rounded up separately per §65915(f)(4))',
+      affLines.join('<br>')));
+  }
+
+  // Step 7: Market rate
+  steps.push(mkStep(n++, 'Market-Rate Units',
+    'Market-Rate = Total − Affordable = <span class="step-formula">' + totalUnits + ' − ' + totalAff + ' = <strong>' + marketUnits + ' units</strong></span>'));
+
+  steps.push('</div>');
+  c.innerHTML = steps.join('');
+}
+
+function mkStep(n, title, body) {
+  return '<div class="step"><div class="step-num">' + n + '</div><div class="step-text"><strong>' + title + '</strong><br>' + body + '</div></div>';
+}
+
+function buildIncentivesTable(num, vliPct, liPct, modPct, specialPct, seniorFlag) {
+  var rows = [
+    { n:1, name:'One Incentive/Concession', basis:'§65915(d)(2)(A)', cond: 'VLI ≥5%  OR  LI ≥10%  OR  Moderate ≥10%',  q: (vliPct>=5)||(liPct>=10)||(modPct>=10)||(specialPct>=10)||(seniorFlag==='yes') },
+    { n:2, name:'Two Incentives/Concessions', basis:'§65915(d)(2)(B)', cond: 'VLI ≥10% OR  LI ≥20%  OR  Moderate ≥20%', q: (vliPct>=10)||(liPct>=20)||(modPct>=20) },
+    { n:3, name:'Three Incentives/Concessions', basis:'§65915(d)(2)(C)', cond: 'VLI ≥15% OR  LI ≥30%  OR  Moderate ≥30%', q: (vliPct>=15)||(liPct>=30)||(modPct>=30) },
+    { n:4, name:'Four Incentives/Concessions', basis:'§65915(d)(2)(D)', cond: '100% Affordable project (all units restricted)', q: false },
+  ];
+  var body = '';
+  rows.forEach(function(r) {
+    var active = num >= r.n;
+    body += '<tr' + (active ? ' class="highlight-row"' : '') + '>';
+    body += '<td>' + r.n + '</td>';
+    body += '<td>' + r.name + '<br><small style="color:#6b7280;font-weight:400">' + r.cond + '</small></td>';
+    body += '<td>' + r.basis + '</td>';
+    body += '<td>' + (active ? '<span class="check">✔ Entitled</span>' : '<span class="cross">✗ Below threshold</span>') + '</td>';
+    body += '</tr>';
+  });
+  document.getElementById('incentives-table-body').innerHTML = body;
+  document.getElementById('rpt-incentives-body').innerHTML = body;
+}
+
+function updateParking(vliPct, liPct, seniorFlag, transit) {
+  var zeroNotice = document.getElementById('parking-zero-notice');
+  // AB 2345 parking ratios
+  var ratio2br = 1;
+  var ratio3br = 2;
+
+  if (transit || seniorFlag === 'yes' || (liPct >= 10 && vliPct >= 5)) {
+    zeroNotice.style.display = 'flex';
+  } else {
+    zeroNotice.style.display = 'none';
+  }
+  document.getElementById('pk-2br').textContent = ratio2br;
+  document.getElementById('pk-3br').textContent = ratio3br;
+}
+
+// ── AFFORDABILITY TABS ───────────────────────────────
+function showAffTab(name, btn) {
+  ['vli','li','mod','senior','special'].forEach(function(t) {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// ── MAP ──────────────────────────────────────────────
+var mapDebounceTimer = null;
+function debouncedMapUpdate() {
+  clearTimeout(mapDebounceTimer);
+  mapDebounceTimer = setTimeout(function() {
+    var addr = document.getElementById('proj-address').value.trim();
+    document.getElementById('map-address-input').value = addr;
+    if (addr.length > 5) loadMap(addr);
+  }, 800);
+}
+
+function updateMap() {
+  var addr = document.getElementById('map-address-input').value.trim();
+  document.getElementById('proj-address').value = addr;
+  loadMap(addr);
+}
+
+function loadMap(address) {
+  if (!address) return;
+  var encoded = encodeURIComponent(address);
+  var src = 'https://maps.google.com/maps?q=' + encoded + '&output=embed&t=m&z=15&hl=en';
+  var iframe = document.getElementById('map-iframe');
+  iframe.src = src;
+  iframe.style.display = 'block';
+  document.getElementById('map-placeholder').style.display = 'none';
+
+  // Also update report map
+  var rptIframe = document.getElementById('rpt-map-iframe');
+  rptIframe.src = src;
+  document.getElementById('rpt-map-section').style.display = 'block';
+
+  // Renumber report sections after map
+  renumberReport(true);
+  syncReport();
+}
+
+function renumberReport(hasMap) {
+  var base = hasMap ? 3 : 2;
+  document.getElementById('rpt-results-num').textContent  = base++ + '. Density Bonus Summary';
+  document.getElementById('rpt-steps-num').textContent    = base++ + '. Calculation Methodology';
+  document.getElementById('rpt-inc-num').textContent      = base++ + '. Incentives & Concessions (§65915(d))';
+  document.getElementById('rpt-park-num').textContent     = base++ + '. Parking Standards (§65915(p))';
+  document.getElementById('rpt-aff-num').textContent      = base++ + '. Affordability Summary';
+  document.getElementById('rpt-wav-num').textContent      = base++ + '. Potential Waiver/Reduction Rights (§65915(e))';
+  document.getElementById('rpt-cov-num').textContent      = base++ + '. Affordability Covenant Requirements';
+}
+
+// ── REPORT SYNC ──────────────────────────────────────
+function syncReport() {
+  var dateStr = document.getElementById('proj-date').value || new Date().toLocaleDateString();
+  document.getElementById('rpt-date-header').textContent = 'Report Date: ' + dateStr;
+  document.getElementById('rpt-name').textContent      = document.getElementById('proj-name').value || '—';
+  document.getElementById('rpt-applicant').textContent = document.getElementById('proj-applicant').value || '—';
+  document.getElementById('rpt-address').textContent   = document.getElementById('proj-address').value || '—';
+  document.getElementById('rpt-apn').textContent       = document.getElementById('proj-apn').value || '—';
+  document.getElementById('rpt-city').textContent      = document.getElementById('proj-city').value || '—';
+  document.getElementById('rpt-zone').textContent      = document.getElementById('proj-zone').value || '—';
+  document.getElementById('rpt-gp').textContent        = document.getElementById('proj-gp').value || '—';
+  document.getElementById('rpt-date').textContent      = dateStr;
+
+  var desc = document.getElementById('proj-desc').value.trim();
+  if (desc) {
+    document.getElementById('rpt-desc-wrap').style.display = 'block';
+    document.getElementById('rpt-desc').textContent = desc;
+  } else {
+    document.getElementById('rpt-desc-wrap').style.display = 'none';
+  }
+
+  syncReportResults();
+  syncReportParking();
+  syncReportAffordability();
+}
+
+function syncReportResults() {
+  var grid = document.getElementById('rpt-result-grid');
+  var boxes = [
+    {id:'r-bonus-pct', lbl:'Density Bonus', sub:'§65915(f)', cls:''},
+    {id:'r-bonus-units', lbl:'Bonus Units', sub:'Rounded up', cls:'green'},
+    {id:'r-total-units', lbl:'Total Units Allowed', sub:'Base + Bonus', cls:'gold'},
+    {id:'r-incentives', lbl:'Incentives/Concessions', sub:'§65915(d)', cls:''},
+    {id:'r-aff-units', lbl:'Affordable Units Required', sub:'Min. restricted', cls:'green'},
+    {id:'r-market-units', lbl:'Market-Rate Units', sub:'Remaining', cls:'gold'},
+  ];
+  grid.innerHTML = boxes.map(function(b) {
+    var val = document.getElementById(b.id) ? document.getElementById(b.id).textContent : '—';
+    return '<div class="result-box ' + b.cls + '"><div class="val">' + val + '</div><div class="lbl">' + b.lbl + '</div><div class="sub">' + b.sub + '</div></div>';
+  }).join('');
+
+  // Copy calc steps to report
+  var steps = document.getElementById('calc-steps-container');
+  if (steps) document.getElementById('rpt-calc-steps').innerHTML = steps.innerHTML;
+}
+
+function syncReportParking() {
+  var transit = document.getElementById('transit-check').checked;
+  var seniorFlag = document.getElementById('senior-flag').value;
+  var rows = [
+    ['Studio / 1 Bedroom', '1 space', '§65915(p)(1)(A)'],
+    ['2 Bedrooms', '1 space', '§65915(p)(1)(B) — as amended by AB 2345'],
+    ['3+ Bedrooms', '2 spaces', '§65915(p)(1)(C) — as amended by AB 2345'],
+  ];
+  if (transit || seniorFlag === 'yes') {
+    rows.push(['Any (near transit / senior)', '0 spaces', '§65915(p)(3) — possible zero parking eligibility']);
+  }
+  document.getElementById('rpt-parking-body').innerHTML = rows.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+  }).join('');
+}
+
+function syncReportAffordability() {
+  var baseUnits  = parseInt(document.getElementById('base-units').value) || 0;
+  var vliPct     = parseInt(document.getElementById('vli-pct').value) || 0;
+  var liPct      = parseInt(document.getElementById('li-pct').value) || 0;
+  var modPct     = parseInt(document.getElementById('mod-pct').value) || 0;
+  var specialPct = parseInt(document.getElementById('special-pct').value) || 0;
+  var seniorFlag = document.getElementById('senior-flag').value;
+
+  var rows = [];
+  if (vliPct > 0) rows.push(['Very Low Income', '≤50% AMI', vliPct + '%', roundUp(baseUnits*vliPct/100), '55 years (rental)']);
+  if (liPct > 0) rows.push(['Lower Income', '≤80% AMI', liPct + '%', roundUp(baseUnits*liPct/100), '55 years (rental)']);
+  if (modPct > 0) rows.push(['Moderate Income (For-Sale)', '≤120% AMI', modPct + '%', roundUp(baseUnits*modPct/100), '45 years']);
+  if (specialPct > 0) rows.push(['Special Needs / Foster Youth / Homeless / Disabled Vet', 'Varies', specialPct + '%', roundUp(baseUnits*specialPct/100), '55 years']);
+  if (seniorFlag === 'yes') rows.push(['Senior Housing (55+ or 62+)', 'N/A', '100%', '—', 'Ongoing']);
+
+  document.getElementById('rpt-aff-body').innerHTML = rows.length
+    ? rows.map(function(r) { return '<tr>' + r.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:#9ca3af">No affordability categories selected</td></tr>';
+}
+
+// ── PRINT ────────────────────────────────────────────
+function printReport() {
+  syncReport();
+  var mapAddr = document.getElementById('proj-address').value.trim();
+  if (mapAddr && document.getElementById('map-iframe').style.display !== 'none') {
+    document.getElementById('rpt-map-section').style.display = 'block';
+    renumberReport(true);
+  } else {
+    document.getElementById('rpt-map-section').style.display = 'none';
+    renumberReport(false);
+  }
+  window.print();
+}
+
+// ── RESET ────────────────────────────────────────────
+function resetForm() {
+  if (!confirm('Reset all fields?')) return;
+  document.getElementById('vli-pct').value = 0;
+  document.getElementById('li-pct').value = 0;
+  document.getElementById('mod-pct').value = 0;
+  document.getElementById('special-pct').value = 0;
+  document.getElementById('land-pct').value = 0;
+  document.getElementById('vli-pct-val').textContent = '0%';
+  document.getElementById('li-pct-val').textContent = '0%';
+  document.getElementById('mod-pct-val').textContent = '0%';
+  document.getElementById('special-pct-val').textContent = '0%';
+  document.getElementById('land-pct-val').textContent = '0%';
+  document.getElementById('senior-flag').value = 'no';
+  document.getElementById('transit-check').checked = false;
+  document.getElementById('base-units').value = 50;
+  calculate();
+}
+
+// ── INIT ─────────────────────────────────────────────
+calculate();
+renumberReport(false);
+</script>
+</body>
+</html>
