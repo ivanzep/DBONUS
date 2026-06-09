@@ -581,145 +581,16 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════ 3. AFFORDABILITY MIX -->
-  <div class="section-title"><div class="num">3</div> Affordability Mix</div>
+  <!-- Hidden affordability inputs (used by calculator engine) -->
+  <input type="hidden" id="vli-pct"     value="0">
+  <input type="hidden" id="li-pct"      value="0">
+  <input type="hidden" id="mod-pct"     value="0">
+  <input type="hidden" id="special-pct" value="0">
+  <input type="hidden" id="land-pct"    value="0">
+  <select id="senior-flag" style="display:none"><option value="no" selected></option></select>
 
-  <div class="notice warn">
-    <span>⚠️</span>
-    <span><strong>§65915(b):</strong> A project qualifies for density bonus by providing affordable units in one or more categories below. Percentages are calculated against the <em>base (non-bonus)</em> unit count. The density bonus is calculated separately for each category; the highest applicable bonus is used. Affordability covenants must run ≥55 years (rental) or ≥45 years (for-sale).</span>
-  </div>
-
-  <div class="tabs" id="aff-tabs">
-    <button class="tab-btn active" onclick="showAffTab('vli', this)">🔴 Very Low Income</button>
-    <button class="tab-btn" onclick="showAffTab('li', this)">🔵 Lower Income</button>
-    <button class="tab-btn" onclick="showAffTab('mod', this)">🟢 Moderate Income</button>
-    <button class="tab-btn" onclick="showAffTab('senior', this)">🟣 Senior Housing</button>
-    <button class="tab-btn" onclick="showAffTab('special', this)">⭐ Special Categories</button>
-  </div>
-
-  <!-- VLI TAB -->
-  <div id="tab-vli" class="card">
-    <div class="card-header" onclick="toggleCard(this)">🔴 Very Low-Income Units <div class="badge">§65915(f)(1)<span class="collapse-arrow">▼</span></div></div>
-    <div class="card-body">
-      <div class="notice info" style="margin-bottom:12px">
-        <span>ℹ️</span>
-        <span>Very Low Income = ≤50% Area Median Income (AMI). Minimum 5% of base units to qualify. Density bonus starts at 20% and increases 2.5 percentage points per each 1% above 5%, up to 50% maximum. Rental units: 55-year affordability covenant required.</span>
-      </div>
-      <div class="form-group">
-        <label>% of Base Units Reserved for Very Low Income <span class="hint">(0 = not using this category)</span></label>
-        <div class="slider-wrap">
-          <input type="range" id="vli-pct" min="0" max="24" step="1" value="0" oninput="updateSlider('vli-pct','vli-pct-val'); calculate()">
-          <div class="slider-val" id="vli-pct-val">0%</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
-          <span>0% (none)</span><span>5% (min)</span><span>10%</span><span>15%</span><span>20%</span><span>24%</span>
-        </div>
-      </div>
-      <div id="vli-bonus-preview" class="notice success" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- LI TAB -->
-  <div id="tab-li" class="card" style="display:none">
-    <div class="card-header" onclick="toggleCard(this)">🔵 Lower-Income Units <div class="badge">§65915(f)(2)<span class="collapse-arrow">▼</span></div></div>
-    <div class="card-body">
-      <div class="notice info" style="margin-bottom:12px">
-        <span>ℹ️</span>
-        <span>Lower Income = ≤80% AMI. Minimum 10% of base units to qualify. Density bonus starts at 20% and increases 1.5 percentage points per each 1% above 10%, up to 50% maximum.</span>
-      </div>
-      <div class="form-group">
-        <label>% of Base Units Reserved for Lower Income</label>
-        <div class="slider-wrap">
-          <input type="range" id="li-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('li-pct','li-pct-val'); calculate()">
-          <div class="slider-val" id="li-pct-val">0%</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
-          <span>0%</span><span>10% (min)</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
-        </div>
-      </div>
-      <div id="li-bonus-preview" class="notice success" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- MOD TAB -->
-  <div id="tab-mod" class="card" style="display:none">
-    <div class="card-header" onclick="toggleCard(this)">🟢 Moderate-Income (For-Sale) Units <div class="badge">§65915(f)(3)<span class="collapse-arrow">▼</span></div></div>
-    <div class="card-body">
-      <div class="notice info" style="margin-bottom:12px">
-        <span>ℹ️</span>
-        <span>Moderate Income = ≤120% AMI. <strong>Applies only to for-sale (ownership) common-interest developments.</strong> Minimum 10% of base units. Density bonus starts at 5% and increases 1 percentage point per each 1% above 10%, up to 50% maximum. For-sale units: 45-year affordability covenant.</span>
-      </div>
-      <div class="form-group">
-        <label>% of Base Units Reserved for Moderate Income (For-Sale)</label>
-        <div class="slider-wrap">
-          <input type="range" id="mod-pct" min="0" max="44" step="1" value="0" oninput="updateSlider('mod-pct','mod-pct-val'); calculate()">
-          <div class="slider-val" id="mod-pct-val">0%</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px">
-          <span>0%</span><span>10% (min)</span><span>20%</span><span>30%</span><span>40%</span><span>44%</span>
-        </div>
-      </div>
-      <div id="mod-bonus-preview" class="notice success" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- SENIOR TAB -->
-  <div id="tab-senior" class="card" style="display:none">
-    <div class="card-header" onclick="toggleCard(this)">🟣 Senior Citizen Housing <div class="badge">§65915(b)(3)<span class="collapse-arrow">▼</span></div></div>
-    <div class="card-body">
-      <div class="notice info" style="margin-bottom:12px">
-        <span>ℹ️</span>
-        <span>A senior citizen housing development (100% of units restricted to seniors age 55+ or 62+) qualifies for a <strong>20% density bonus</strong>. Must comply with Civil Code §51.3 or §51.12 and qualify as senior housing under state law.</span>
-      </div>
-      <div class="form-group">
-        <label>Is this a 100% Senior Citizen Housing Development?</label>
-        <select id="senior-flag" onchange="calculate()">
-          <option value="no">No</option>
-          <option value="yes">Yes — 100% Senior Housing (55+ or 62+)</option>
-        </select>
-      </div>
-      <div id="senior-bonus-preview" class="notice success" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- SPECIAL TAB -->
-  <div id="tab-special" class="card" style="display:none">
-    <div class="card-header" onclick="toggleCard(this)">⭐ Special Categories <div class="badge">§65915(b)(4)–(6)<span class="collapse-arrow">▼</span></div></div>
-    <div class="card-body">
-      <div class="grid-2">
-        <div>
-          <div class="notice info" style="margin-bottom:12px">
-            <span>ℹ️</span>
-            <span><strong>Transitional / Foster Youth / Special Needs:</strong> Units for transitional foster youth, disabled veterans, or homeless persons. Minimum 10% of total units for 20% density bonus. (§65915(b)(4))</span>
-          </div>
-          <div class="form-group">
-            <label>% Transitional/Foster Youth/Homeless/Disabled Veteran Units</label>
-            <div class="slider-wrap">
-              <input type="range" id="special-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('special-pct','special-pct-val'); calculate()">
-              <div class="slider-val" id="special-pct-val">0%</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="notice info" style="margin-bottom:12px">
-            <span>ℹ️</span>
-            <span><strong>Land Donation (§65915(g)):</strong> Applicant donates land for very low income units. Minimum 10% of total buildable area donated. Earns 15% density bonus + 1% per each 1% above 10%, up to 35% maximum for this category.</span>
-          </div>
-          <div class="form-group">
-            <label>% of Total Buildable Area Donated for VLI</label>
-            <div class="slider-wrap">
-              <input type="range" id="land-pct" min="0" max="30" step="1" value="0" oninput="updateSlider('land-pct','land-pct-val'); calculate()">
-              <div class="slider-val" id="land-pct-val">0%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="special-bonus-preview" class="notice success" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ 4. RESULTS -->
-  <div class="section-title"><div class="num">4</div> Density Bonus Calculation Results</div>
+  <!-- ═══════════════════════════════════════ 3. RESULTS -->
+  <div class="section-title"><div class="num">3</div> Density Bonus Calculation Results</div>
 
   <div id="no-qualify" class="notice warn">
     <span>⚠️</span>
@@ -860,7 +731,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 5. COMPARISON MATRIX -->
-  <div class="section-title"><div class="num">5</div> Scenario Comparison Matrix</div>
+  <div class="section-title"><div class="num">4</div> Scenario Comparison Matrix</div>
 
   <div class="card">
     <div class="card-header" onclick="toggleCard(this)">📊 Bonus Units vs. Affordable Unit Requirements — All Income Tiers <div class="badge">§65915(f)<span class="collapse-arrow">▼</span></div></div>
@@ -909,7 +780,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 6. PROJECT MAP -->
-  <div class="section-title"><div class="num">6</div> Project Location Map</div>
+  <div class="section-title"><div class="num">5</div> Project Location Map</div>
 
   <div class="card">
     <div class="card-header" onclick="toggleCard(this)">📍 Location Map <div class="badge">Google Maps<span class="collapse-arrow">▼</span></div></div>
@@ -939,7 +810,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ GENERATE REPORT -->
-  <div class="section-title no-print"><div class="num">7</div> Generate Report</div>
+  <div class="section-title no-print"><div class="num">6</div> Generate Report</div>
 
   <div class="card no-print">
     <div class="card-header" onclick="toggleCard(this)">📄 Printable Report<span class="collapse-arrow">▼</span></div>
@@ -1142,54 +1013,6 @@
 // Set today's date
 document.getElementById('proj-date').value = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
-// ── SLIDER SYNC ──────────────────────────────────────
-function updateSlider(sliderId, valId) {
-  var v = document.getElementById(sliderId).value;
-  document.getElementById(valId).textContent = v + '%';
-  updateBonusPreview();
-}
-
-function updateBonusPreview() {
-  showPreview('vli-pct', 'vli-bonus-preview', calcVLIBonus, 5);
-  showPreview('li-pct',  'li-bonus-preview',  calcLIBonus,  10);
-  showPreview('mod-pct', 'mod-bonus-preview', calcModBonus, 10);
-  showSeniorPreview();
-  showSpecialPreview();
-}
-
-function showPreview(sliderId, previewId, calcFn, min) {
-  var pct = parseInt(document.getElementById(sliderId).value);
-  var el = document.getElementById(previewId);
-  if (pct >= min) {
-    var bonus = calcFn(pct);
-    el.style.display = 'flex';
-    el.innerHTML = '✅ <span>At <strong>' + pct + '%</strong> qualifying units → Density Bonus: <strong>' + bonus.toFixed(1) + '%</strong></span>';
-  } else {
-    el.style.display = 'none';
-  }
-}
-
-function showSeniorPreview() {
-  var flag = document.getElementById('senior-flag').value;
-  var el = document.getElementById('senior-bonus-preview');
-  if (flag === 'yes') {
-    el.style.display = 'flex';
-    el.innerHTML = '✅ <span>100% Senior Housing qualifies for a flat <strong>20% density bonus</strong> per §65915(b)(3).</span>';
-  } else { el.style.display = 'none'; }
-}
-
-function showSpecialPreview() {
-  var sp = parseInt(document.getElementById('special-pct').value);
-  var lp = parseInt(document.getElementById('land-pct').value);
-  var el = document.getElementById('special-bonus-preview');
-  var msgs = [];
-  if (sp >= 10) msgs.push('Special needs units (' + sp + '%) → 20% bonus');
-  if (lp >= 10) msgs.push('Land donation (' + lp + '%) → ' + calcLandBonus(lp).toFixed(1) + '% bonus');
-  if (msgs.length) {
-    el.style.display = 'flex';
-    el.innerHTML = '✅ <span>' + msgs.join(' | ') + '</span>';
-  } else { el.style.display = 'none'; }
-}
 
 // ── DENSITY BONUS FORMULAS §65915(f) ─────────────────
 
@@ -1271,7 +1094,6 @@ function calculate() {
   var landPct    = parseInt(document.getElementById('land-pct').value) || 0;
   var transit    = document.getElementById('transit-check').checked;
 
-  updateBonusPreview();
 
   // Calculate bonus % for each qualifying category
   var bonuses = [];
@@ -1465,14 +1287,6 @@ function updateParking(vliPct, liPct, seniorFlag, transit) {
   document.getElementById('pk-3br').textContent = ratio3br;
 }
 
-// ── AFFORDABILITY TABS ───────────────────────────────
-function showAffTab(name, btn) {
-  ['vli','li','mod','senior','special'].forEach(function(t) {
-    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
-  });
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-}
 
 // ── MAP ──────────────────────────────────────────────
 var mapDebounceTimer = null;
