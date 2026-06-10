@@ -42,7 +42,7 @@
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  .topbar-seal { width: 52px; height: 52px; flex-shrink: 0; }
+  #topbar-logo { flex-shrink: 0; }
   .topbar h1 { font-size: 18px; font-weight: 700; line-height: 1.2; }
   .topbar p { font-size: 12px; opacity: .8; margin-top: 2px; }
   .topbar-ref { margin-left: auto; text-align: right; font-size: 11px; opacity: .75; }
@@ -433,6 +433,30 @@
     @page { margin: 15mm; size: letter portrait; }
   }
 
+  /* ── PREVIEW SIDEBAR SUB-OPTION ── */
+  .preview-section-toggle.sub-opt {
+    margin-left: 18px;
+    font-size: 11px;
+    color: #6b7280;
+    border-left: 2px solid #e5e7eb;
+    padding-left: 8px;
+  }
+
+  /* ── NO TIER COLORS (print preview option) ── */
+  .no-tier-colors .cmp-table .grp-head .th-vli,
+  .no-tier-colors .cmp-table .grp-head .th-li,
+  .no-tier-colors .cmp-table .grp-head .th-mod { background: #374151 !important; }
+  .no-tier-colors .cmp-table .sub-head .sh-vli,
+  .no-tier-colors .cmp-table .sub-head .sh-li,
+  .no-tier-colors .cmp-table .sub-head .sh-mod { background: #f1f5f9 !important; color: #374151 !important; }
+  .no-tier-colors .cmp-table td.td-vli,
+  .no-tier-colors .cmp-table td.td-li,
+  .no-tier-colors .cmp-table td.td-mod { background: #fff !important; }
+  .no-tier-colors .aff-vli,
+  .no-tier-colors .aff-li,
+  .no-tier-colors .aff-mod,
+  .no-tier-colors .aff-sr { background: #f1f5f9 !important; color: #374151 !important; }
+
   /* ── SUB-SECTION COLLAPSE ── */
   .sub-section-header {
     display: flex;
@@ -545,12 +569,7 @@
 
 <!-- TOP BAR -->
 <div class="topbar no-print">
-  <svg class="topbar-seal" viewBox="0 0 52 52" fill="none">
-    <circle cx="26" cy="26" r="25" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-width="1.5"/>
-    <text x="26" y="21" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">STATE OF</text>
-    <text x="26" y="31" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">CALIFORNIA</text>
-    <text x="26" y="40" text-anchor="middle" fill="#fde68a" font-size="7">✦ ✦ ✦</text>
-  </svg>
+  <img id="topbar-logo" src="" alt="" style="height:44px;max-width:120px;object-fit:contain;display:none;border-radius:4px">
   <div>
     <h1>California Density Bonus Law Calculator</h1>
     <p>Government Code §65915 — Interactive Project Analysis Tool</p>
@@ -609,6 +628,14 @@
         <div class="form-group col-span-3">
           <label>Project Description <span class="hint">(optional)</span></label>
           <textarea id="proj-desc" placeholder="Brief description of the proposed project..." oninput="syncReport()"></textarea>
+        </div>
+        <div class="form-group col-span-3">
+          <label>Logo / Agency Seal <span class="hint">(optional — appears in header and report)</span></label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <label class="btn btn-outline" style="cursor:pointer;margin:0;font-size:12px">Upload Logo<input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="loadLogo(event)"></label>
+            <button class="btn btn-outline" id="logo-clear-btn" onclick="clearLogo()" style="display:none;font-size:12px">Remove Logo</button>
+            <img id="logo-preview" src="" alt="" style="height:40px;max-width:120px;object-fit:contain;display:none;border:1px solid #e5e7eb;border-radius:4px;padding:4px">
+          </div>
         </div>
       </div>
     </div>
@@ -954,6 +981,9 @@
         <label class="preview-section-toggle">
           <input type="checkbox" id="ps-matrix" checked onchange="refreshPreview()"> Comparison Matrix
         </label>
+        <label class="preview-section-toggle sub-opt">
+          <input type="checkbox" id="ps-colors" checked onchange="refreshPreview()"> &nbsp;Show income tier colors
+        </label>
         <label class="preview-section-toggle">
           <input type="checkbox" id="ps-steps" checked onchange="refreshPreview()"> Calculation Methodology
         </label>
@@ -972,6 +1002,26 @@
         <label class="preview-section-toggle">
           <input type="checkbox" id="ps-covenant" checked onchange="refreshPreview()"> Covenant Requirements
         </label>
+
+        <h3 style="margin-top:16px">Page Margins</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+          <div>
+            <div style="color:#9ca3af;margin-bottom:3px">Top (mm)</div>
+            <input type="number" id="pm-top" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+          </div>
+          <div>
+            <div style="color:#9ca3af;margin-bottom:3px">Bottom (mm)</div>
+            <input type="number" id="pm-bottom" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+          </div>
+          <div>
+            <div style="color:#9ca3af;margin-bottom:3px">Left (mm)</div>
+            <input type="number" id="pm-left" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+          </div>
+          <div>
+            <div style="color:#9ca3af;margin-bottom:3px">Right (mm)</div>
+            <input type="number" id="pm-right" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+          </div>
+        </div>
       </div>
       <div id="preview-frame-wrap">
         <div id="preview-content" class="report-page"></div>
@@ -988,12 +1038,7 @@
     <div class="report-header">
       <div>
         <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
-          <svg width="44" height="44" viewBox="0 0 52 52">
-            <circle cx="26" cy="26" r="25" fill="#1a3a5c" stroke="#1a3a5c" stroke-width="1.5"/>
-            <text x="26" y="20" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">STATE OF</text>
-            <text x="26" y="29" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">CALIFORNIA</text>
-            <text x="26" y="38" text-anchor="middle" fill="#fde68a" font-size="6">✦ ✦ ✦</text>
-          </svg>
+          <img id="rpt-logo" src="" alt="" style="height:52px;max-width:140px;object-fit:contain;display:none;border-radius:4px">
           <div>
             <div class="report-title">
               <h2>Density Bonus Analysis Report</h2>
@@ -1710,35 +1755,64 @@ function closePrintPreview() {
   document.getElementById('print-preview-overlay').classList.remove('active');
 }
 
+function getMargins() {
+  return {
+    top:    (parseInt(document.getElementById('pm-top').value)    || 15) + 'mm',
+    bottom: (parseInt(document.getElementById('pm-bottom').value) || 15) + 'mm',
+    left:   (parseInt(document.getElementById('pm-left').value)   || 15) + 'mm',
+    right:  (parseInt(document.getElementById('pm-right').value)  || 15) + 'mm',
+  };
+}
+
+function applyPrintMargins() {
+  var m = getMargins();
+  var el = document.getElementById('dynamic-print-style');
+  if (!el) { el = document.createElement('style'); el.id = 'dynamic-print-style'; document.head.appendChild(el); }
+  el.textContent = '@media print { @page { margin: ' + m.top + ' ' + m.right + ' ' + m.bottom + ' ' + m.left + '; } }';
+}
+
 function refreshPreview() {
   syncReport();
   buildMatrix();
-  var hasMap = document.getElementById('ps-map').checked;
 
-  // Show/hide sections in the hidden report-section based on checkboxes
-  PREVIEW_SECTIONS.forEach(function(s) {
-    var el = document.getElementById(s.rs);
-    if (!el) return;
-    var checked = document.getElementById(s.cb).checked;
-    el.style.display = checked ? '' : 'none';
-  });
+  var hasMap    = document.getElementById('ps-map').checked;
+  var useColors = document.getElementById('ps-colors').checked;
+
   renumberReport(hasMap);
 
-  // Clone report-section content into preview pane
-  var src = document.getElementById('report-section');
+  // Clone report content into preview pane
+  var src  = document.getElementById('report-section');
   var dest = document.getElementById('preview-content');
   dest.innerHTML = src.querySelector('.report-page').innerHTML;
+
+  // Apply section visibility to the CLONED elements (not the hidden source)
+  PREVIEW_SECTIONS.forEach(function(s) {
+    var checked = document.getElementById(s.cb).checked;
+    var el = dest.querySelector('[id="' + s.rs + '"]');
+    if (el) el.style.display = checked ? '' : 'none';
+  });
+
+  // Toggle income tier colors
+  dest.classList.toggle('no-tier-colors', !useColors);
+
+  // Update print margins
+  applyPrintMargins();
 }
 
 function printFromPreview() {
-  refreshPreview();
-  // Apply section visibility to the actual report-section used by @media print
+  // Apply section visibility to the actual hidden report-section for @media print
   PREVIEW_SECTIONS.forEach(function(s) {
     var el = document.getElementById(s.rs);
     if (el) el.style.display = document.getElementById(s.cb).checked ? '' : 'none';
   });
+  // Toggle colors on actual report-section
+  var useColors = document.getElementById('ps-colors').checked;
+  var rptPage = document.querySelector('#report-section .report-page');
+  if (rptPage) rptPage.classList.toggle('no-tier-colors', !useColors);
+  applyPrintMargins();
   closePrintPreview();
   window.print();
+  if (rptPage) rptPage.classList.remove('no-tier-colors');
 }
 
 // ── PRINT (legacy direct) ─────────────────────────────
@@ -1749,6 +1823,40 @@ function printReport() {
   document.getElementById('rpt-map-section').style.display = hasMap ? 'block' : 'none';
   renumberReport(hasMap);
   window.print();
+}
+
+// ── LOGO ─────────────────────────────────────────────
+var _logoDataURL = '';
+
+function loadLogo(evt) {
+  var file = evt.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    _logoDataURL = e.target.result;
+    applyLogo(_logoDataURL);
+  };
+  reader.readAsDataURL(file);
+  evt.target.value = '';
+}
+
+function clearLogo() {
+  _logoDataURL = '';
+  applyLogo('');
+}
+
+function applyLogo(url) {
+  var preview = document.getElementById('logo-preview');
+  var topbar  = document.getElementById('topbar-logo');
+  var rpt     = document.getElementById('rpt-logo');
+  var clearBtn= document.getElementById('logo-clear-btn');
+  var show    = !!url;
+  [preview, topbar, rpt].forEach(function(el) {
+    if (!el) return;
+    el.src = url;
+    el.style.display = show ? '' : 'none';
+  });
+  if (clearBtn) clearBtn.style.display = show ? '' : 'none';
 }
 
 // ── SAVE / LOAD ──────────────────────────────────────
@@ -1764,6 +1872,7 @@ function saveSettings() {
     if (!el) return;
     data[id] = el.type === 'checkbox' ? el.checked : el.value;
   });
+  if (_logoDataURL) data['_logo'] = _logoDataURL;
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var url  = URL.createObjectURL(blob);
   var a    = document.createElement('a');
@@ -1792,6 +1901,8 @@ function loadSettings(evt) {
       buildMatrix();
       updateSelResult();
       if (typeof updateMap === 'function') updateMap();
+      if (data['_logo']) { _logoDataURL = data['_logo']; applyLogo(_logoDataURL); }
+      else { clearLogo(); }
     } catch(err) {
       alert('Could not load file: ' + err.message);
     }
