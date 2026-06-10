@@ -489,6 +489,7 @@
     .report-page { box-shadow: none; padding: 0; max-width: 100%; }
     .card { box-shadow: none; break-inside: avoid; }
     .map-container iframe { height: 260px; }
+    .preview-page-break { display: none !important; }
     @page { margin: 15mm; size: letter portrait; }
   }
 
@@ -1368,19 +1369,35 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
           <div>
             <div style="color:#9ca3af;margin-bottom:3px">Top (mm)</div>
-            <input type="number" id="pm-top" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+            <div style="display:flex;align-items:center">
+              <button onclick="adjustMargin('pm-top',-1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-right:none;border-radius:4px 0 0 4px;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">−</button>
+              <input type="number" id="pm-top" value="15" min="0" max="50" style="width:100%;text-align:center;padding:4px 2px;border:1px solid #d1d5db;border-radius:0;font-size:12px" oninput="refreshPreview()">
+              <button onclick="adjustMargin('pm-top',1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-left:none;border-radius:0 4px 4px 0;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">+</button>
+            </div>
           </div>
           <div>
             <div style="color:#9ca3af;margin-bottom:3px">Bottom (mm)</div>
-            <input type="number" id="pm-bottom" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+            <div style="display:flex;align-items:center">
+              <button onclick="adjustMargin('pm-bottom',-1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-right:none;border-radius:4px 0 0 4px;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">−</button>
+              <input type="number" id="pm-bottom" value="15" min="0" max="50" style="width:100%;text-align:center;padding:4px 2px;border:1px solid #d1d5db;border-radius:0;font-size:12px" oninput="refreshPreview()">
+              <button onclick="adjustMargin('pm-bottom',1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-left:none;border-radius:0 4px 4px 0;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">+</button>
+            </div>
           </div>
           <div>
             <div style="color:#9ca3af;margin-bottom:3px">Left (mm)</div>
-            <input type="number" id="pm-left" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+            <div style="display:flex;align-items:center">
+              <button onclick="adjustMargin('pm-left',-1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-right:none;border-radius:4px 0 0 4px;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">−</button>
+              <input type="number" id="pm-left" value="15" min="0" max="50" style="width:100%;text-align:center;padding:4px 2px;border:1px solid #d1d5db;border-radius:0;font-size:12px" oninput="refreshPreview()">
+              <button onclick="adjustMargin('pm-left',1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-left:none;border-radius:0 4px 4px 0;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">+</button>
+            </div>
           </div>
           <div>
             <div style="color:#9ca3af;margin-bottom:3px">Right (mm)</div>
-            <input type="number" id="pm-right" value="15" min="0" max="50" style="width:100%;padding:4px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px" oninput="refreshPreview()">
+            <div style="display:flex;align-items:center">
+              <button onclick="adjustMargin('pm-right',-1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-right:none;border-radius:4px 0 0 4px;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">−</button>
+              <input type="number" id="pm-right" value="15" min="0" max="50" style="width:100%;text-align:center;padding:4px 2px;border:1px solid #d1d5db;border-radius:0;font-size:12px" oninput="refreshPreview()">
+              <button onclick="adjustMargin('pm-right',1)" style="min-width:28px;min-height:28px;border:1px solid #d1d5db;border-left:none;border-radius:0 4px 4px 0;background:#f9fafb;font-size:14px;cursor:pointer;padding:0">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2185,6 +2202,13 @@ function getMargins() {
   };
 }
 
+function adjustMargin(id, delta) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.value = Math.max(0, Math.min(50, (parseInt(el.value) || 15) + delta));
+  refreshPreview();
+}
+
 function onStackToggle() {
   var enabled = document.getElementById('stack-enabled').checked;
   // Show/hide the stacking body panel
@@ -2243,17 +2267,74 @@ function applyPrintMargins() {
   var mr    = mmToPx(parseInt(m.right)  || 15);
 
   var dest = document.getElementById('preview-content');
+  var wrap = document.getElementById('preview-frame-wrap');
   if (dest) {
     dest.style.width     = dims.w + 'px';
     dest.style.minHeight = dims.h + 'px';
     dest.style.maxWidth  = 'none';
-    // Apply margin insets visually as padding so content mirrors print layout
     dest.style.padding   = mt + 'px ' + mr + 'px ' + mb + 'px ' + ml + 'px';
     dest.style.boxSizing = 'border-box';
+
+    // Scale to fit the available container width (important for mobile)
+    if (wrap) {
+      var availW = wrap.clientWidth - 40;
+      var scale  = availW > 0 ? Math.min(1, availW / dims.w) : 1;
+      dest.style.transform       = 'scale(' + scale + ')';
+      dest.style.transformOrigin = 'top center';
+      // Compensate height so the wrapper scrolls correctly
+      dest.style.marginBottom = Math.round((dims.h * scale) - dims.h) + 'px';
+    }
   }
 }
 
+function insertPageBreaks(dest, dims, margins) {
+  var mt   = mmToPx(parseInt(margins.top)    || 15);
+  var mb   = mmToPx(parseInt(margins.bottom) || 15);
+  var pageH = dims.h; // full page height in px
+  var contentH = pageH - mt - mb;
+  if (contentH <= 0) return;
+  // Insert dashed dividers at each page boundary
+  var totalH = dest.scrollHeight;
+  var offset = pageH;
+  while (offset < totalH + pageH) {
+    var marker = document.createElement('div');
+    marker.className = 'preview-page-break';
+    marker.style.cssText = [
+      'position:absolute',
+      'left:0','right:0',
+      'top:' + offset + 'px',
+      'height:0',
+      'border-top:2px dashed #94a3b8',
+      'pointer-events:none',
+      'z-index:10',
+    ].join(';');
+    dest.appendChild(marker);
+    // Add a label
+    var lbl = document.createElement('div');
+    lbl.style.cssText = [
+      'position:absolute',
+      'left:50%',
+      'transform:translateX(-50%)',
+      'top:' + (offset - 14) + 'px',
+      'background:#94a3b8',
+      'color:#fff',
+      'font-size:9px',
+      'padding:1px 6px',
+      'border-radius:3px',
+      'pointer-events:none',
+      'z-index:11',
+      'white-space:nowrap',
+    ].join(';');
+    lbl.textContent = 'Page Break';
+    dest.appendChild(lbl);
+    offset += pageH;
+  }
+  dest.style.position = 'relative';
+}
+
 function refreshPreview() {
+  // Ensure scenario result boxes are populated before cloning
+  updateSelResult();
   syncReport();
   buildMatrix();
 
@@ -2277,8 +2358,9 @@ function refreshPreview() {
   // Toggle income tier colors
   dest.classList.toggle('no-tier-colors', !useColors);
 
-  // Update print margins
+  // Update print margins and scale, then insert page break markers
   applyPrintMargins();
+  insertPageBreaks(dest, getPaperDims(), getMargins());
 }
 
 function printFromPreview() {
