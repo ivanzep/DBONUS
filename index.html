@@ -319,12 +319,13 @@
     letter-spacing: .2px;
     border-bottom: 2px solid rgba(255,255,255,.3);
   }
-  .cmp-table .grp-head .th-db   { background: var(--blue); color: #fff; }
-  .cmp-table .grp-head .th-bu   { background: #1e4d8c; color: #fff; }
-  .cmp-table .grp-head .th-vli  { background: #92400e; color: #fff; }
-  .cmp-table .grp-head .th-li   { background: #1e40af; color: #fff; }
-  .cmp-table .grp-head .th-mod  { background: var(--green); color: #fff; }
-  .cmp-table .grp-head .th-inc  { background: #4c1d95; color: #fff; }
+  .cmp-table .grp-head .th-base { background: #1a3a5c; color: #fff; }
+  .cmp-table .grp-head .th-db   { background: #1e4d8c; color: #fff; }
+  .cmp-table .grp-head .th-total{ background: #0f766e; color: #fff; }
+  .cmp-table .grp-head .th-mix  { background: #374151; color: #fff; }
+  .cmp-table .grp-head .th-vli  { background: #be185d; color: #fff; }
+  .cmp-table .grp-head .th-li   { background: #c2410c; color: #fff; }
+  .cmp-table .grp-head .th-mod  { background: #92400e; color: #fff; }
 
   /* sub-headers */
   .cmp-table .sub-head th {
@@ -335,12 +336,12 @@
     white-space: nowrap;
     border-bottom: 1px solid var(--border);
   }
-  .cmp-table .sub-head .sh-db  { background: #dbeafe; color: var(--blue); }
-  .cmp-table .sub-head .sh-bu  { background: #bfdbfe; color: #1e3a5f; }
-  .cmp-table .sub-head .sh-vli { background: #fef3c7; color: #92400e; }
-  .cmp-table .sub-head .sh-li  { background: #dbeafe; color: #1e40af; }
-  .cmp-table .sub-head .sh-mod { background: #d1fae5; color: var(--green); }
-  .cmp-table .sub-head .sh-inc { background: #ede9fe; color: #4c1d95; }
+  .cmp-table .sub-head .sh-base { background: #dbeafe; color: #1a3a5c; }
+  .cmp-table .sub-head .sh-db   { background: #bfdbfe; color: #1e4d8c; }
+  .cmp-table .sub-head .sh-total{ background: #ccfbf1; color: #0f766e; }
+  .cmp-table .sub-head .sh-vli  { background: #fce7f3; color: #be185d; }
+  .cmp-table .sub-head .sh-li   { background: #ffedd5; color: #c2410c; }
+  .cmp-table .sub-head .sh-mod  { background: #fef3c7; color: #92400e; }
 
   /* ── cmp-table data cells ── */
   .cmp-table td {
@@ -738,40 +739,37 @@
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
-        <span>Each row = one density bonus level (20 %→50 %). The <strong>Bonus Units</strong> column shows how many extra units you gain. The three income-tier columns show the <em>minimum affordability commitment</em> required to reach that bonus level, and the resulting affordable unit count. Rows highlighted in gold match your current selection. Units rounded up per §65915(f)(4).</span>
+        <span>Each row = one achievable density bonus % under §65915(f). The <strong>INCREASE UNITS</strong> column shows how many bonus units you gain on top of baseline. The income-tier columns show the <em>minimum affordability commitment</em> (min %) required to reach that bonus level and how many affordable units that requires. Units rounded up per §65915(f)(4). AB 2345 piecewise scale.</span>
       </div>
       <div class="matrix-wrap">
         <table class="cmp-table" id="comparison-matrix">
           <thead>
             <tr class="grp-head">
-              <th class="th-db"  colspan="1">% of Base<br>Units</th>
-              <th class="th-vli" colspan="4">🔴 Very Low Income (≤50% AMI) — §65915(f)(1)</th>
-              <th class="th-li"  colspan="4">🔵 Lower Income (≤80% AMI) — §65915(f)(2)</th>
-              <th class="th-mod" colspan="4">🟢 Moderate Income (≤120% AMI)* — §65915(f)(3)</th>
+              <th class="th-base" rowspan="2">BASELINE<br>DENSITY</th>
+              <th class="th-db"   colspan="2">INCREASE</th>
+              <th class="th-total" rowspan="2">TOTAL<br>DENSITY</th>
+              <th class="th-mix"  colspan="9" style="text-align:center;letter-spacing:1px">UNIT MIX ALLOCATION</th>
             </tr>
             <tr class="sub-head">
-              <th class="sh-db">Aff. %</th>
-              <th class="sh-vli">DB%</th>
-              <th class="sh-vli">Bonus Units</th>
-              <th class="sh-vli">Aff. Units</th>
-              <th class="sh-vli">Incentives</th>
-              <th class="sh-li">DB%</th>
-              <th class="sh-li">Bonus Units</th>
-              <th class="sh-li">Aff. Units</th>
-              <th class="sh-li">Incentives</th>
-              <th class="sh-mod">DB%</th>
-              <th class="sh-mod">Bonus Units</th>
-              <th class="sh-mod">Aff. Units</th>
-              <th class="sh-mod">Incentives</th>
+              <th class="sh-db">%</th>
+              <th class="sh-db">UNITS</th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d;border-left:2px solid #be185d">VERY LOW INCOME<br><small>min %</small></th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d">UNITS</th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d">INCENTIVES</th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c;border-left:2px solid #c2410c">LOW INCOME<br><small>min %</small></th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">UNITS</th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">INCENTIVES</th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e;border-left:2px solid #92400e">MODERATE INCOME<br><small>%</small></th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e">UNITS</th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e">INCENTIVES</th>
             </tr>
           </thead>
           <tbody id="matrix-body"></tbody>
         </table>
       </div>
       <div class="matrix-legend" style="margin-top:12px">
-        <span style="color:#6b7280;font-size:11px">Rows = % of base units committed to each affordability tier. Each tier's full DB% range is shown independently.</span>
-        <span><span style="background:var(--gold);color:#fff;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700">CURRENT</span> Matches active selection</span>
-        <span style="color:#9ca3af">* Moderate income — for-sale units only (§65915(f)(3))</span>
+        <span style="color:#6b7280;font-size:11px">Each row = one achievable density bonus %. The min % column shows the minimum affordable unit commitment required to reach that bonus for each income tier. Blank = that tier cannot achieve this bonus level.</span>
+        <span style="color:#9ca3af">* Moderate income — for-sale units only (§65915(f)(3)). AB 2345 (eff. 1/1/2021).</span>
         <span style="color:#9ca3af">All units rounded up per §65915(f)(4)</span>
       </div>
     </div>
@@ -892,25 +890,23 @@
         <table class="cmp-table" id="rpt-matrix-table" style="min-width:680px;font-size:10px">
           <thead>
             <tr class="grp-head">
-              <th class="th-db"  colspan="1">Aff. %</th>
-              <th class="th-vli" colspan="4">🔴 VLI (≤50% AMI)</th>
-              <th class="th-li"  colspan="4">🔵 LI (≤80% AMI)</th>
-              <th class="th-mod" colspan="4">🟢 Moderate (≤120% AMI)*</th>
+              <th class="th-base" rowspan="2">BASELINE</th>
+              <th class="th-db"   colspan="2">INCREASE</th>
+              <th class="th-total" rowspan="2">TOTAL</th>
+              <th class="th-mix"  colspan="9" style="text-align:center">UNIT MIX ALLOCATION</th>
             </tr>
             <tr class="sub-head">
-              <th class="sh-db">% Units</th>
-              <th class="sh-vli">DB%</th>
-              <th class="sh-vli">Bonus</th>
-              <th class="sh-vli">Aff. Units</th>
-              <th class="sh-vli">Incentives</th>
-              <th class="sh-li">DB%</th>
-              <th class="sh-li">Bonus</th>
-              <th class="sh-li">Aff. Units</th>
-              <th class="sh-li">Incentives</th>
-              <th class="sh-mod">DB%</th>
-              <th class="sh-mod">Bonus</th>
-              <th class="sh-mod">Aff. Units</th>
-              <th class="sh-mod">Incentives</th>
+              <th class="sh-db">%</th>
+              <th class="sh-db">Units</th>
+              <th class="sh-vli">VLI min%</th>
+              <th class="sh-vli">Units</th>
+              <th class="sh-vli">Inc.</th>
+              <th class="sh-li">LI min%</th>
+              <th class="sh-li">Units</th>
+              <th class="sh-li">Inc.</th>
+              <th class="sh-mod">Mod%</th>
+              <th class="sh-mod">Units</th>
+              <th class="sh-mod">Inc.</th>
             </tr>
           </thead>
           <tbody id="rpt-matrix-body"></tbody>
@@ -1420,114 +1416,82 @@ function syncReportAffordability() {
 
 // ── COMPARISON MATRIX ────────────────────────────────
 // Rows = affordability commitment % from 5→44 (every 1%) — 40 rows
-// This covers every achievable DB% for all three tiers:
-//   VLI  5-17% → 20%-50%   (2.5 pts per 1%)
-//   LI  10-30% → 20%-50%   (1.5 pts per 1%)
-//   Mod 10-44% →  5%-39%   (1.0 pt  per 1%)
+// Comparison matrix: rows = every achievable DB%, columns = Baseline | DB% | Bonus Units | Total | VLI(min%, units, inc) | LI(min%, units, inc) | Mod(%, units, inc)
+// AB 2345 piecewise formulas: VLI 5-15%, LI 10-24%, Mod 10-44%
 
 function buildMatrix() {
   var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
-  var vliSel    = parseInt(document.getElementById('vli-pct').value) || 0;
-  var liSel     = parseInt(document.getElementById('li-pct').value)  || 0;
-  var modSel    = parseInt(document.getElementById('mod-pct').value) || 0;
-  var seniorSel = document.getElementById('senior-flag').value;
 
-  // Colour pill: interpolate dark-blue → dark-green over DB 5→50
-  function dbColor(db) {
-    var t = Math.min(1, Math.max(0, (db - 5) / 45));
-    var r = Math.round(26  + t * (22  - 26));
-    var g = Math.round(58  + t * (101 - 58));
-    var b = Math.round(92  + t * (52  - 92));
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  // Build reverse map: DB% string key → { vliPct, liPct, modPct }
+  // For each tier enumerate every integer affordability % and record the DB it produces
+  var map = {};
+  function key(db) { return db.toFixed(2); }
+  function ensure(db) { var k = key(db); if (!map[k]) map[k] = {db: db, vliPct: null, liPct: null, modPct: null}; return map[k]; }
+
+  // VLI: pct 5..15
+  for (var p = 5; p <= 15; p++) { ensure(calcVLIBonus(p)).vliPct = p; }
+  // LI:  pct 10..24
+  for (var p = 10; p <= 24; p++) { ensure(calcLIBonus(p)).liPct = p; }
+  // Mod: pct 10..44
+  for (var p = 10; p <= 44; p++) { ensure(calcModBonus(p)).modPct = p; }
+
+  // Sort unique DB values ascending
+  var rows = Object.values(map).sort(function(a, b) { return a.db - b.db; });
+
+  function fmtPct(db) {
+    // Show as integer if whole number, else 1 decimal
+    return (db % 1 === 0) ? db.toFixed(1) + '%' : db.toFixed(2).replace(/\.?0+$/, '') + '%';
   }
 
-  // Tier output for a given affordability % commitment
-  // Returns {db, bonusUnits, affUnits, inc} or null if below minimum
-  function vliTier(pct) {
-    if (pct < 5) return null;
-    var db  = calcVLIBonus(pct);           // capped at 50
-    var bu  = baseUnits > 0 ? roundUp(baseUnits * db  / 100) : null;
-    var au  = baseUnits > 0 ? roundUp(baseUnits * pct / 100) : null;
-    var inc = calcIncentives(pct, 0, 0, 'no', 0, baseUnits);
-    return {db: db, bu: bu, au: au, inc: inc};
-  }
-  function liTier(pct) {
-    if (pct < 10) return null;
-    var db  = calcLIBonus(pct);
-    var bu  = baseUnits > 0 ? roundUp(baseUnits * db  / 100) : null;
-    var au  = baseUnits > 0 ? roundUp(baseUnits * pct / 100) : null;
-    var inc = calcIncentives(0, pct, 0, 'no', 0, baseUnits);
-    return {db: db, bu: bu, au: au, inc: inc};
-  }
-  function modTier(pct) {
-    if (pct < 10) return null;
-    var db  = calcModBonus(pct);
-    var bu  = baseUnits > 0 ? roundUp(baseUnits * db  / 100) : null;
-    var au  = baseUnits > 0 ? roundUp(baseUnits * pct / 100) : null;
-    var inc = calcIncentives(0, 0, pct, 'no', 0, baseUnits);
-    return {db: db, bu: bu, au: au, inc: inc};
-  }
-
-  // Build 4 <td> for one tier (DB% | Bonus Units | Aff Units | Incentives)
-  // or a single spanning N/A cell if tier is null
-  function tierTds(t, pct, selPct, bgCls, isReport) {
-    var na = isReport
-      ? '<td colspan="4" style="color:#c4c9d1;text-align:center;font-style:italic">Below minimum</td>'
-      : '<td class="' + bgCls + '" colspan="4" style="color:#c4c9d1;font-style:italic;text-align:center">Below min. threshold</td>';
-    if (!t) return na;
-
-    var isSel = (selPct === pct) && baseUnits > 0;
-    var hl    = isSel ? 'font-weight:800;color:var(--gold)' : '';
-    var tag   = isSel ? ' <span class="active-tag">▶</span>' : '';
-    var pill  = '<span class="db-pill" style="background:' + dbColor(t.db) + ';font-size:10px;padding:2px 6px">'
-              + t.db.toFixed(1) + '%</span>';
-    var buStr = t.bu !== null ? t.bu : '—';
-    var auStr = t.au !== null ? t.au : '—';
-
-    if (isReport) {
-      return '<td style="' + hl + '">' + t.db.toFixed(1) + '%</td>'
-           + '<td style="font-weight:700;' + hl + '">' + buStr + '</td>'
-           + '<td style="' + hl + '">' + auStr + '</td>'
-           + '<td style="' + hl + '">' + t.inc + '</td>';
+  function tierCells(affPct, isVLI, isLI, isMod, borderColor, bgLight, isReport) {
+    if (affPct === null) {
+      var style = isReport ? 'color:#ccc;text-align:center' : 'color:#d1d5db;text-align:center;background:#fafafa';
+      return '<td style="' + style + '"></td>'
+           + '<td style="' + style + '"></td>'
+           + '<td style="' + style + '"></td>';
     }
-    return '<td class="' + bgCls + '" style="' + hl + '">' + pill + tag + '</td>'
-         + '<td class="' + bgCls + '" style="font-weight:700;font-size:14px;' + hl + '">' + buStr + '</td>'
-         + '<td class="' + bgCls + '" style="' + hl + '">' + auStr + '</td>'
-         + '<td class="' + bgCls + '" style="' + hl + '">' + t.inc + '</td>';
+    var auStr = baseUnits > 0 ? roundUp(baseUnits * affPct / 100) : '—';
+    var inc   = isVLI ? calcIncentives(affPct, 0,      0,      'no', 0, baseUnits)
+              : isLI  ? calcIncentives(0,      affPct, 0,      'no', 0, baseUnits)
+              :          calcIncentives(0,      0,      affPct, 'no', 0, baseUnits);
+    var pctLabel = affPct + '%';
+    if (isReport) {
+      return '<td style="font-weight:700;text-align:center">' + pctLabel + '</td>'
+           + '<td style="text-align:center">' + auStr + '</td>'
+           + '<td style="text-align:center">' + inc + '</td>';
+    }
+    var bl = 'border-left:2px solid ' + borderColor + ';';
+    return '<td style="' + bl + 'background:' + bgLight + ';font-weight:700;text-align:center">' + pctLabel + '</td>'
+         + '<td style="background:' + bgLight + ';text-align:center">' + auStr + '</td>'
+         + '<td style="background:' + bgLight + ';text-align:center">' + inc + '</td>';
   }
 
   function makeRows(isReport) {
-    var selVLI = vliSel >= 5  ? vliSel : 0;
-    var selLI  = liSel  >= 10 ? liSel  : 0;
-    var selMod = modSel >= 10 ? modSel : 0;
-    var rows   = [];
+    return rows.map(function(r) {
+      var bonusUnits = baseUnits > 0 ? roundUp(baseUnits * r.db / 100) : '—';
+      var total      = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * r.db / 100)) : '—';
+      var dbLabel    = fmtPct(r.db);
 
-    for (var pct = 5; pct <= 44; pct++) {
-      var vt = vliTier(pct);
-      var lt = liTier(pct);
-      var mt = modTier(pct);
+      var baseTd, dbTd, bonusTd, totalTd;
+      if (isReport) {
+        baseTd  = '<td style="text-align:center;font-weight:700">' + (baseUnits || '—') + '</td>';
+        dbTd    = '<td style="text-align:center;font-weight:700">' + dbLabel + '</td>';
+        bonusTd = '<td style="text-align:center;font-weight:700">' + bonusUnits + '</td>';
+        totalTd = '<td style="text-align:center;font-weight:700">' + total + '</td>';
+      } else {
+        baseTd  = '<td style="text-align:center;font-weight:700;background:#1a3a5c;color:#fff;padding:6px 10px">' + (baseUnits || '—') + '</td>';
+        dbTd    = '<td style="text-align:center;font-weight:700;background:#dbeafe;color:#1e4d8c">' + dbLabel + '</td>';
+        bonusTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#bfdbfe;color:#1e3a5f">' + bonusUnits + '</td>';
+        totalTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
+      }
 
-      // Highlight row if this pct matches any active selection
-      var isActive = baseUnits > 0 && (
-        (selVLI === pct && vt) ||
-        (selLI  === pct && lt) ||
-        (selMod === pct && mt)
-      );
-      var activeCls = isActive ? ' active-row' : '';
-
-      var pctCell = isReport
-        ? '<td style="font-weight:700;text-align:center">' + pct + '%</td>'
-        : '<td class="td-db" style="font-weight:700;text-align:center">' + pct + '%'
-          + (isActive ? '<br><span class="active-tag">SEL</span>' : '') + '</td>';
-
-      rows.push('<tr' + activeCls + '>'
-        + pctCell
-        + tierTds(vt, pct, selVLI, 'td-vli', isReport)
-        + tierTds(lt, pct, selLI,  'td-li',  isReport)
-        + tierTds(mt, pct, selMod, 'td-mod', isReport)
-        + '</tr>');
-    }
-    return rows.join('');
+      return '<tr>'
+        + baseTd + dbTd + bonusTd + totalTd
+        + tierCells(r.vliPct, true,  false, false, '#be185d', '#fce7f3', isReport)
+        + tierCells(r.liPct,  false, true,  false, '#c2410c', '#ffedd5', isReport)
+        + tierCells(r.modPct, false, false, true,  '#92400e', '#fef3c7', isReport)
+        + '</tr>';
+    }).join('');
   }
 
   document.getElementById('matrix-body').innerHTML     = makeRows(false);
