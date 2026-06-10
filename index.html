@@ -922,6 +922,8 @@
       <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report. Use Print Preview to select which sections to include before printing.</p>
       <div class="action-row">
         <button class="btn btn-success" onclick="openPrintPreview()">Print Preview</button>
+        <button class="btn btn-outline" onclick="saveSettings()">Save Settings</button>
+        <label class="btn btn-outline" style="cursor:pointer;margin:0">Load Settings<input type="file" accept=".json" style="display:none" onchange="loadSettings(event)"></label>
         <button class="btn btn-outline" onclick="resetForm()">Reset Calculator</button>
       </div>
     </div>
@@ -1273,6 +1275,7 @@ function calculate() {
 
   var qualifies = bonuses.length > 0 && baseUnits > 0;
 
+  buildMatrix();
   if (!qualifies) return;
 
   // Per §65915(f): use the MAXIMUM applicable density bonus
@@ -1708,6 +1711,8 @@ function closePrintPreview() {
 }
 
 function refreshPreview() {
+  syncReport();
+  buildMatrix();
   var hasMap = document.getElementById('ps-map').checked;
 
   // Show/hide sections in the hidden report-section based on checkboxes
@@ -1744,6 +1749,55 @@ function printReport() {
   document.getElementById('rpt-map-section').style.display = hasMap ? 'block' : 'none';
   renumberReport(hasMap);
   window.print();
+}
+
+// ── SAVE / LOAD ──────────────────────────────────────
+var SAVE_FIELDS = ['proj-name','proj-applicant','proj-address','proj-apn','proj-city','proj-zone',
+  'proj-gp','proj-desc','proj-date','base-units','lot-size','lot-unit','max-height','base-far',
+  'base-stories','proj-type','vli-pct','li-pct','mod-pct','special-pct','land-pct','senior-flag',
+  'transit-check','sel-tier','sel-db'];
+
+function saveSettings() {
+  var data = { version: 1, saved: new Date().toISOString() };
+  SAVE_FIELDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    data[id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  var name = (document.getElementById('proj-name').value || 'density-bonus') + '.json';
+  a.href = url; a.download = name.replace(/[^a-z0-9_\-\.]/gi, '_');
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function loadSettings(evt) {
+  var file = evt.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      SAVE_FIELDS.forEach(function(id) {
+        if (!(id in data)) return;
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === 'checkbox') el.checked = !!data[id];
+        else el.value = data[id];
+      });
+      onLotSizeChange();
+      calculate();
+      buildMatrix();
+      updateSelResult();
+      if (typeof updateMap === 'function') updateMap();
+    } catch(err) {
+      alert('Could not load file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
 }
 
 // ── RESET ────────────────────────────────────────────
@@ -1939,6 +1993,8 @@ function updateSelResult() {
 
   // Populate incentives table (writes to both main + rpt-incentives-body)
   buildIncentivesTable(incNum, vliPct, liPct, modPct, 0, 'no');
+
+  syncReport();
 }
 
 // ── COLLAPSE CARDS ───────────────────────────────────
