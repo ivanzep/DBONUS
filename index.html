@@ -343,6 +343,9 @@
     border-bottom: 2px solid rgba(255,255,255,.3);
   }
   .cmp-table .grp-head .th-base { background: #1a3a5c; color: #fff; }
+  /* Stacked columns hidden until checkbox enabled */
+  .cmp-table .stk-col { display: none; }
+  .stacking-on .cmp-table .stk-col { display: table-cell; }
   .cmp-table .grp-head .th-db   { background: #1e4d8c; color: #fff; }
   .cmp-table .grp-head .th-total{ background: #0f766e; color: #fff; }
   .cmp-table .grp-head .th-mix  { background: #374151; color: #fff; }
@@ -765,7 +768,7 @@
               <th class="th-db"   colspan="2">INCREASE</th>
               <th class="th-total" rowspan="2">TOTAL<br>DENSITY</th>
               <th class="th-mix"  colspan="9" style="text-align:center;letter-spacing:1px">UNIT MIX ALLOCATION</th>
-              <th class="th-stk"  colspan="3" style="text-align:center;letter-spacing:1px;background:#7c3aed;color:#fff">AB 1287 MAX STACKED</th>
+              <th class="th-stk stk-col" colspan="3" style="text-align:center;letter-spacing:1px;background:#7c3aed;color:#fff">AB 1287 MAX STACKED</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">%</th>
@@ -779,9 +782,9 @@
               <th class="sh-mod" style="background:#fef3c7;color:#92400e;border-left:2px solid #92400e">MODERATE INCOME<br><small>%</small></th>
               <th class="sh-mod" style="background:#fef3c7;color:#92400e">UNITS</th>
               <th class="sh-mod" style="background:#fef3c7;color:#92400e">INCENTIVES</th>
-              <th style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">TOTAL DB%</th>
-              <th style="background:#ede9fe;color:#5b21b6">TOTAL UNITS</th>
-              <th style="background:#ede9fe;color:#5b21b6">AFF. UNITS</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">TOTAL DB%</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6">TOTAL UNITS</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6">AFF. UNITS</th>
             </tr>
           </thead>
           <tbody id="matrix-body"></tbody>
@@ -852,11 +855,14 @@
         </div>
         <!-- ── AB 1287 STACKING ── -->
         <div style="margin-top:16px">
-          <div class="sub-section-header" onclick="toggleSubSection(this)" style="background:#fef3c7;border-color:#fcd34d;color:#78350f">
-            AB 1287 Additional Density Bonus (Stacking) — §65915(v)
-            <span class="sub-collapse-arrow" style="color:#78350f">▼</span>
+          <div class="sub-section-header" style="background:#fef3c7;border-color:#fcd34d;color:#78350f;cursor:default">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1" onclick="event.stopPropagation()">
+              <input type="checkbox" id="stack-enabled" onchange="onStackToggle()" style="width:15px;height:15px;accent-color:#7c3aed;flex-shrink:0">
+              AB 1287 Additional Density Bonus (Stacking) — §65915(v)
+            </label>
+            <span class="sub-collapse-arrow" style="color:#78350f;cursor:pointer" onclick="toggleSubSection(this.closest('.sub-section-header'))">▼</span>
           </div>
-          <div class="sub-section-body">
+          <div class="sub-section-body collapsed" id="stack-body">
             <div class="notice" style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;margin-bottom:12px">
               <strong>AB 1287 (2023) — GC §65915(v):</strong> A project that already qualifies for a base density bonus may earn an <em>additional</em> density bonus by committing affordable units <em>beyond</em> the base requirement. Enter the additional units below. The total density bonus = base + additional (both applied to base units).
             </div>
@@ -1144,7 +1150,23 @@
         </label>
         </div>
 
-        <h3 style="margin-top:16px">Page Margins</h3>
+        <h3 style="margin-top:16px">Page Setup</h3>
+        <div style="font-size:12px;margin-bottom:10px">
+          <div style="color:#9ca3af;margin-bottom:4px">Paper Size</div>
+          <select id="pm-size" onchange="refreshPreview()" style="width:100%;padding:5px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff">
+            <option value="letter portrait">Letter — 8.5×11 in (Portrait)</option>
+            <option value="letter landscape">Letter — 11×8.5 in (Landscape)</option>
+            <option value="legal portrait">Legal — 8.5×14 in (Portrait)</option>
+            <option value="legal landscape">Legal — 14×8.5 in (Landscape)</option>
+            <option value="tabloid portrait">Tabloid — 11×17 in (Portrait)</option>
+            <option value="tabloid landscape">Tabloid — 17×11 in (Landscape)</option>
+            <option value="A4 portrait">A4 — 210×297 mm (Portrait)</option>
+            <option value="A4 landscape">A4 — 297×210 mm (Landscape)</option>
+            <option value="A3 portrait">A3 — 297×420 mm (Portrait)</option>
+            <option value="A3 landscape">A3 — 420×297 mm (Landscape)</option>
+          </select>
+        </div>
+        <h3 style="margin-top:12px">Page Margins</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
           <div>
             <div style="color:#9ca3af;margin-bottom:3px">Top (mm)</div>
@@ -1240,7 +1262,7 @@
               <th class="th-db"   colspan="2">INCREASE</th>
               <th class="th-total" rowspan="2">TOTAL</th>
               <th class="th-mix"  colspan="9" style="text-align:center">UNIT MIX ALLOCATION</th>
-              <th style="background:#7c3aed;color:#fff;text-align:center" colspan="3">AB 1287 STACKED</th>
+              <th class="stk-col" style="background:#7c3aed;color:#fff;text-align:center" colspan="3">AB 1287 STACKED</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">%</th>
@@ -1254,9 +1276,9 @@
               <th class="sh-mod">Mod%</th>
               <th class="sh-mod">Units</th>
               <th class="sh-mod">Inc.</th>
-              <th style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">Total DB%</th>
-              <th style="background:#ede9fe;color:#5b21b6">Total Units</th>
-              <th style="background:#ede9fe;color:#5b21b6">Aff. Units</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">Total DB%</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6">Total Units</th>
+              <th class="stk-col" style="background:#ede9fe;color:#5b21b6">Aff. Units</th>
             </tr>
           </thead>
           <tbody id="rpt-matrix-body"></tbody>
@@ -1880,23 +1902,26 @@ function buildMatrix() {
       var bonusTd = '<td class="td-bu"   style="text-align:center;font-weight:800;font-size:14px;background:#bfdbfe;color:#1e3a5f">' + bonusUnits + '</td>';
       var totalTd = '<td class="td-tot"  style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
 
-      // AB 1287 stacked columns — best possible additional bonus for this row
-      var stk = bestStack(r.db);
-      var stkLabel = fmtPct(stk.totalDB);
-      var stkUnits = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * stk.totalDB / 100)) : '—';
-      // Base aff units: use the SMALLEST qualifying tier affordability requirement
-      var baseAffPct = r.vliPct || r.liPct || r.modPct || 0;
-      var baseAffUnits = (baseUnits > 0 && baseAffPct) ? roundUp(baseUnits * baseAffPct / 100) : 0;
-      var addlAffUnits = (baseUnits > 0 && stk.addlType) ? roundUp(baseUnits * stk.addlPct / 100) : 0;
-      var totalAff = baseAffUnits + addlAffUnits;
-      var stkAffStr = baseUnits > 0
-        ? totalAff + (stk.addlType ? '<br><small style="color:#7c3aed">+' + stk.addlPct + '% ' + stk.addlType + ' (AB1287)</small>' : '')
-        : '—';
-      var stkTds = stk.addlType
-        ? '<td style="background:#ede9fe;color:#5b21b6;font-weight:800;text-align:center;border-left:2px solid #7c3aed">' + stkLabel + '</td>'
-        + '<td style="background:#ede9fe;color:#5b21b6;font-weight:700;text-align:center">' + stkUnits + '</td>'
-        + '<td style="background:#ede9fe;color:#5b21b6;text-align:center">' + stkAffStr + '</td>'
-        : '<td colspan="3" style="background:#f5f3ff;color:#c4b5fd;text-align:center;font-style:italic;font-size:11px">n/a</td>';
+      // AB 1287 stacked columns — only when stacking is enabled
+      var stackEnabled = (document.getElementById('stack-enabled') || {}).checked;
+      var stkTds = '';
+      if (stackEnabled) {
+        var stk = bestStack(r.db);
+        var stkLabel = fmtPct(stk.totalDB);
+        var stkUnits = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * stk.totalDB / 100)) : '—';
+        var baseAffPct = r.vliPct || r.liPct || r.modPct || 0;
+        var baseAffUnits = (baseUnits > 0 && baseAffPct) ? roundUp(baseUnits * baseAffPct / 100) : 0;
+        var addlAffUnits = (baseUnits > 0 && stk.addlType) ? roundUp(baseUnits * stk.addlPct / 100) : 0;
+        var totalAff = baseAffUnits + addlAffUnits;
+        var stkAffStr = baseUnits > 0
+          ? totalAff + (stk.addlType ? '<br><small style="color:#7c3aed">+' + stk.addlPct + '% ' + stk.addlType + ' (AB1287)</small>' : '')
+          : '—';
+        stkTds = stk.addlType
+          ? '<td style="background:#ede9fe;color:#5b21b6;font-weight:800;text-align:center;border-left:2px solid #7c3aed">' + stkLabel + '</td>'
+          + '<td style="background:#ede9fe;color:#5b21b6;font-weight:700;text-align:center">' + stkUnits + '</td>'
+          + '<td style="background:#ede9fe;color:#5b21b6;text-align:center">' + stkAffStr + '</td>'
+          : '<td colspan="3" style="background:#f5f3ff;color:#c4b5fd;text-align:center;font-style:italic;font-size:11px">n/a</td>';
+      }
 
       return '<tr' + rowCls + '>'
         + baseTd + dbTd + bonusTd + totalTd
@@ -1951,11 +1976,32 @@ function getMargins() {
   };
 }
 
+function onStackToggle() {
+  var enabled = document.getElementById('stack-enabled').checked;
+  // Show/hide the stacking body panel
+  var body = document.getElementById('stack-body');
+  if (body) body.classList.toggle('collapsed', !enabled);
+  // Toggle stacking-on class so .stk-col cells become visible in both tables
+  document.getElementById('calculator-section').classList.toggle('stacking-on', enabled);
+  var rpt = document.getElementById('report-section');
+  if (rpt) rpt.classList.toggle('stacking-on', enabled);
+  // Reset stacking inputs when disabled
+  if (!enabled) {
+    document.getElementById('stack-vli').value = '';
+    document.getElementById('stack-mod').value = '';
+    document.getElementById('stack-result').style.display = 'none';
+    document.getElementById('stack-no-base').style.display = 'none';
+  }
+  buildMatrix();
+  updateStackedResult();
+}
+
 function applyPrintMargins() {
-  var m = getMargins();
-  var el = document.getElementById('dynamic-print-style');
+  var m    = getMargins();
+  var size = (document.getElementById('pm-size') || {}).value || 'letter portrait';
+  var el   = document.getElementById('dynamic-print-style');
   if (!el) { el = document.createElement('style'); el.id = 'dynamic-print-style'; document.head.appendChild(el); }
-  el.textContent = '@media print { @page { margin: ' + m.top + ' ' + m.right + ' ' + m.bottom + ' ' + m.left + '; } }';
+  el.textContent = '@media print { @page { size: ' + size + '; margin: ' + m.top + ' ' + m.right + ' ' + m.bottom + ' ' + m.left + '; } }';
 }
 
 function refreshPreview() {
@@ -2305,6 +2351,9 @@ function updateSelResult() {
 
 // ── AB 1287 STACKED DENSITY BONUS CALCULATOR ──────────────────────────────
 function updateStackedResult() {
+  var enabled = (document.getElementById('stack-enabled') || {}).checked;
+  if (!enabled) return;
+
   var tier      = document.getElementById('sel-tier').value;
   var dbVal     = parseFloat(document.getElementById('sel-db').value);
   var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
@@ -2573,7 +2622,11 @@ refreshPreview = function() {
   // Toggle income tier colors
   dest.classList.toggle('no-tier-colors', !useColors);
 
-  // Update print margins
+  // Propagate stacking-on to cloned preview
+  var stkEnabled = (document.getElementById('stack-enabled') || {}).checked;
+  dest.classList.toggle('stacking-on', stkEnabled);
+
+  // Update print margins + page size
   applyPrintMargins();
 };
 
