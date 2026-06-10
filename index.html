@@ -626,7 +626,7 @@
           <div class="result-box green">
             <div class="val" id="sel-r-bonus">—</div>
             <div class="lbl">Bonus Units</div>
-            <div class="sub">Rounded up</div>
+            <div class="sub">Rounded up §65915(f)(4)</div>
           </div>
           <div class="result-box gold">
             <div class="val" id="sel-r-total">—</div>
@@ -638,7 +638,18 @@
             <div class="lbl">Affordable Units</div>
             <div class="sub">Min. required</div>
           </div>
+          <div class="result-box">
+            <div class="val" id="sel-r-inc">—</div>
+            <div class="lbl">Incentives</div>
+            <div class="sub">§65915(d)</div>
+          </div>
+          <div class="result-box">
+            <div class="val" id="sel-r-market">—</div>
+            <div class="lbl">Market-Rate Units</div>
+            <div class="sub">Remaining</div>
+          </div>
         </div>
+        <div class="calc-steps" id="sel-calc-steps" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -1634,30 +1645,111 @@ function fmtDB(db) {
 }
 
 function updateSelResult() {
-  var tier     = document.getElementById('sel-tier').value;
-  var dbVal    = parseFloat(document.getElementById('sel-db').value);
+  var tier      = document.getElementById('sel-tier').value;
+  var dbVal     = parseFloat(document.getElementById('sel-db').value);
   var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
-  var panel    = document.getElementById('sel-result');
+  var panel     = document.getElementById('sel-result');
+  var noQual    = document.getElementById('no-qualify');
+  var resPan    = document.getElementById('results-panel');
 
-  if (!tier || isNaN(dbVal) || baseUnits < 1) { panel.style.display = 'none'; return; }
+  if (!tier || isNaN(dbVal)) {
+    panel.style.display = 'none';
+    noQual.style.display = 'flex';
+    resPan.style.display = 'none';
+    return;
+  }
 
-  // Find the min affordability % for selected tier+DB
+  // Find min affordability % for selected tier+DB
   var affPct = null;
-  if (tier === 'vli') { for (var p=5;p<=15;p++) { if (Math.abs(calcVLIBonus(p)-dbVal)<0.01){affPct=p;break;} } }
-  else if (tier==='li') { for (var p=10;p<=24;p++) { if (Math.abs(calcLIBonus(p)-dbVal)<0.01){affPct=p;break;} } }
-  else { for (var p=10;p<=44;p++) { if (Math.abs(calcModBonus(p)-dbVal)<0.01){affPct=p;break;} } }
-
+  if (tier==='vli')      { for (var p=5;  p<=15; p++) { if (Math.abs(calcVLIBonus(p)-dbVal)<0.01){affPct=p;break;} } }
+  else if (tier==='li')  { for (var p=10; p<=24; p++) { if (Math.abs(calcLIBonus(p) -dbVal)<0.01){affPct=p;break;} } }
+  else                   { for (var p=10; p<=44; p++) { if (Math.abs(calcModBonus(p)-dbVal)<0.01){affPct=p;break;} } }
   if (affPct === null) { panel.style.display = 'none'; return; }
 
-  var bonusUnits = roundUp(baseUnits * dbVal / 100);
-  var totalUnits = baseUnits + bonusUnits;
-  var affUnits   = roundUp(baseUnits * affPct / 100);
+  var bonusUnitsRaw = baseUnits * dbVal / 100;
+  var bonusUnits    = baseUnits > 0 ? roundUp(bonusUnitsRaw) : 0;
+  var totalUnits    = baseUnits + bonusUnits;
+  var affUnitsRaw   = baseUnits * affPct / 100;
+  var affUnits      = baseUnits > 0 ? roundUp(affUnitsRaw) : 0;
+  var marketUnits   = totalUnits - affUnits;
 
-  document.getElementById('sel-r-db').textContent    = fmtDB(dbVal);
-  document.getElementById('sel-r-bonus').textContent = bonusUnits;
-  document.getElementById('sel-r-total').textContent = totalUnits;
-  document.getElementById('sel-r-aff').textContent   = affUnits + ' (' + affPct + '%)';
+  var vliPct = tier==='vli' ? affPct : 0;
+  var liPct  = tier==='li'  ? affPct : 0;
+  var modPct = tier==='mod' ? affPct : 0;
+  var incNum = calcIncentives(vliPct, liPct, modPct, 'no', 0, baseUnits);
+
+  // ── Summary boxes (in Scenario Selection card) ──
+  document.getElementById('sel-r-db').textContent     = fmtDB(dbVal);
+  document.getElementById('sel-r-bonus').textContent  = baseUnits > 0 ? bonusUnits : '—';
+  document.getElementById('sel-r-total').textContent  = baseUnits > 0 ? totalUnits : '—';
+  document.getElementById('sel-r-aff').textContent    = baseUnits > 0 ? (affUnits + ' (' + affPct + '%)') : '—';
+  document.getElementById('sel-r-inc').textContent    = incNum;
+  document.getElementById('sel-r-market').textContent = baseUnits > 0 ? marketUnits : '—';
   panel.style.display = 'block';
+
+  // ── Step-by-step calculations ──
+  var tierLabel = tier==='vli' ? 'Very Low Income (≤50% AMI)' : tier==='li' ? 'Lower Income (≤80% AMI)' : 'Moderate Income (≤120% AMI, for-sale)';
+  var tierRef   = tier==='vli' ? '§65915(f)(1)' : tier==='li' ? '§65915(f)(2)' : '§65915(f)(3)';
+  var formulaNote = '';
+  if (tier==='vli') {
+    if (affPct <= 11) formulaNote = 'Segment 1 (5–11%): DB = 20 + (' + affPct + ' − 5) × 2.5 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+    else formulaNote = 'Segment 2 (11–15%): DB = 35 + (' + affPct + ' − 11) × 3.75 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+  } else if (tier==='li') {
+    if (affPct <= 20) formulaNote = 'Segment 1 (10–20%): DB = 20 + (' + affPct + ' − 10) × 1.5 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+    else formulaNote = 'Segment 2 (20–24%): DB = 35 + (' + affPct + ' − 20) × 3.75 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+  } else {
+    if (affPct <= 40) formulaNote = 'Segment 1 (10–40%): DB = 5 + (' + affPct + ' − 10) × 1.0 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+    else formulaNote = 'Segment 2 (40–44%): DB = 35 + (' + affPct + ' − 40) × 3.75 = <strong>' + dbVal.toFixed(2) + '%</strong>';
+  }
+
+  var steps = ['<div class="calc-steps">'];
+  var n = 1;
+  steps.push(mkStep(n++, 'Qualifying Tier — ' + tierRef,
+    'Income tier: <strong>' + tierLabel + '</strong><br>Selected density bonus: <strong>' + fmtDB(dbVal) + '</strong><br>Minimum affordability commitment required: <strong>' + affPct + '% of base units</strong>'));
+
+  steps.push(mkStep(n++, 'Density Bonus Formula — AB 2345 Piecewise Scale',
+    formulaNote + '<br><small style="color:#6b7280">AB 2345 (eff. Jan 1 2021) added a steeper second segment above the legacy 35% cap.</small>'));
+
+  if (baseUnits > 0) {
+    steps.push(mkStep(n++, 'Bonus Units — §65915(f)(4) Round Up',
+      'Bonus Units (raw) = ' + baseUnits + ' × ' + fmtDB(dbVal) + ' = ' + bonusUnitsRaw.toFixed(4) + ' units<br>' +
+      '⌈' + bonusUnitsRaw.toFixed(4) + '⌉ = <strong>' + bonusUnits + ' bonus units</strong>'));
+
+    steps.push(mkStep(n++, 'Total Units Allowed',
+      'Total = Base + Bonus = ' + baseUnits + ' + ' + bonusUnits + ' = <strong>' + totalUnits + ' units</strong>'));
+
+    steps.push(mkStep(n++, 'Affordable Units Required — §65915(f)(4) Round Up',
+      'Affordable Units (raw) = ' + baseUnits + ' × ' + affPct + '% = ' + affUnitsRaw.toFixed(4) + ' units<br>' +
+      '⌈' + affUnitsRaw.toFixed(4) + '⌉ = <strong>' + affUnits + ' affordable units</strong>'));
+
+    steps.push(mkStep(n++, 'Market-Rate Units',
+      'Market-Rate = Total − Affordable = ' + totalUnits + ' − ' + affUnits + ' = <strong>' + marketUnits + ' market-rate units</strong>'));
+  }
+
+  steps.push(mkStep(n++, 'Incentives &amp; Concessions — §65915(d)(2)',
+    'Based on ' + affPct + '% ' + tierLabel.split(' (')[0] + ' units: <strong>' + incNum + ' incentive' + (incNum !== 1 ? 's' : '') + ' entitled</strong><br>' +
+    '<small style="color:#6b7280">Thresholds: 1 incentive (VLI≥5%, LI≥10%, Mod≥10%) · 2 (VLI≥10%, LI≥20%, Mod≥20%) · 3 (VLI≥15%, LI≥30%, Mod≥30%)</small>'));
+
+  steps.push('</div>');
+  document.getElementById('sel-calc-steps').innerHTML = steps.join('');
+
+  // ── Drive the main results panel and incentives table from this selection ──
+  noQual.style.display = 'none';
+  resPan.style.display = 'block';
+
+  // Populate main result boxes
+  document.getElementById('r-bonus-pct').textContent   = fmtDB(dbVal);
+  document.getElementById('r-bonus-units').textContent = baseUnits > 0 ? bonusUnits : '—';
+  document.getElementById('r-total-units').textContent = baseUnits > 0 ? totalUnits : '—';
+  document.getElementById('r-incentives').textContent  = incNum;
+  document.getElementById('r-aff-units').textContent   = baseUnits > 0 ? affUnits : '—';
+  document.getElementById('r-market-units').textContent= baseUnits > 0 ? marketUnits : '—';
+
+  // Populate calc-steps in main results panel (for report)
+  document.getElementById('calc-steps-container').innerHTML = steps.join('');
+
+  // Populate incentives table (writes to both main + rpt-incentives-body)
+  buildIncentivesTable(incNum, vliPct, liPct, modPct, 0, 'no');
 }
 
 // ── COLLAPSE CARDS ───────────────────────────────────
