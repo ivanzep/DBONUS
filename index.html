@@ -1013,22 +1013,25 @@ document.getElementById('proj-date').value = new Date().toLocaleDateString('en-U
 
 // ── DENSITY BONUS FORMULAS §65915(f) ─────────────────
 
-// (f)(1) Very Low Income: 5% min → 20%; +2.5% per 1% above 5%; cap 50%
+// (f)(1) VLI: 5%→20% (+2.5%/unit), kinks at 11%→35%, then +3.75%/unit, cap 50% at 15%; AB 2345
 function calcVLIBonus(pct) {
   if (pct < 5) return 0;
-  return Math.min(50, 20 + (pct - 5) * 2.5);
+  if (pct <= 11) return 20 + (pct - 5) * 2.5;
+  return Math.min(50, 35 + (pct - 11) * 3.75);
 }
 
-// (f)(2) Lower Income: 10% min → 20%; +1.5% per 1% above 10%; cap 50%
+// (f)(2) LI: 10%→20% (+1.5%/unit), kinks at 20%→35%, then +3.75%/unit, cap 50% at 24%; AB 2345
 function calcLIBonus(pct) {
   if (pct < 10) return 0;
-  return Math.min(50, 20 + (pct - 10) * 1.5);
+  if (pct <= 20) return 20 + (pct - 10) * 1.5;
+  return Math.min(50, 35 + (pct - 20) * 3.75);
 }
 
-// (f)(3) Moderate Income (for-sale): 10% min → 5%; +1% per 1% above 10%; cap 50%
+// (f)(3) Moderate (for-sale): 10%→5% (+1%/unit), kinks at 40%→35%, then +3.75%/unit, cap 50% at 44%; AB 2345
 function calcModBonus(pct) {
   if (pct < 10) return 0;
-  return Math.min(50, 5 + (pct - 10) * 1);
+  if (pct <= 40) return 5 + (pct - 10) * 1;
+  return Math.min(50, 35 + (pct - 40) * 3.75);
 }
 
 // (b)(3) Senior Housing: flat 20%
