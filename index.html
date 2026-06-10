@@ -1317,34 +1317,34 @@
         <label class="preview-section-toggle disabled" data-rs="rs-cover">
           <input type="checkbox" id="ps-cover" checked disabled> Project Information
         </label>
-        <label class="preview-section-toggle" id="ps-map-lbl" draggable="true" data-rs="rpt-map-section">
+        <label class="preview-section-toggle" id="ps-map-lbl" data-rs="rpt-map-section">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-map" checked onchange="refreshPreview()"> Project Location Map
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-results">
+        <label class="preview-section-toggle" data-rs="rs-results">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-results" checked onchange="refreshPreview()"> Density Bonus Summary
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-matrix">
+        <label class="preview-section-toggle" data-rs="rs-matrix">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-matrix" checked onchange="refreshPreview()"> Comparison Matrix
         </label>
         <label class="preview-section-toggle sub-opt">
           <input type="checkbox" id="ps-colors" checked onchange="refreshPreview()"> &nbsp;Show income tier colors
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-steps">
+        <label class="preview-section-toggle" data-rs="rs-steps">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-steps" checked onchange="refreshPreview()"> Calculation Methodology
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-incentives">
+        <label class="preview-section-toggle" data-rs="rs-incentives">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-incentives" checked onchange="refreshPreview()"> Incentives &amp; Concessions
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-parking">
+        <label class="preview-section-toggle" data-rs="rs-parking">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-parking" checked onchange="refreshPreview()"> Parking Standards
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-affordability">
+        <label class="preview-section-toggle" data-rs="rs-affordability">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-affordability" checked onchange="refreshPreview()"> Affordability Summary
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-waivers">
+        <label class="preview-section-toggle" data-rs="rs-waivers">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-waivers" checked onchange="refreshPreview()"> Waivers &amp; Reductions
         </label>
-        <label class="preview-section-toggle" draggable="true" data-rs="rs-covenant">
+        <label class="preview-section-toggle" data-rs="rs-covenant">
           <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-covenant" checked onchange="refreshPreview()"> Covenant Requirements
         </label>
         </div>
@@ -2796,59 +2796,15 @@ function toggleCard(header) {
 
 // ── DRAG-AND-DROP: MAIN PAGE CARDS ───────────────────
 (function() {
-  var dragSrc = null;
+  var dragSrc   = null;
+  var dragOver  = null;
 
   function getTopCards() {
     return Array.from(document.querySelectorAll('#calculator-section > .card[data-card]'));
   }
 
-  function initCardDrag() {
-    getTopCards().forEach(function(card) {
-      // Only enable draggable while the handle is held down
-      var handle = card.querySelector('.card-drag-handle');
-      if (handle) {
-        handle.addEventListener('mousedown', function() { card.draggable = true; });
-        handle.addEventListener('mouseup',   function() { card.draggable = false; });
-        handle.addEventListener('touchstart', function() { card.draggable = true; }, {passive:true});
-        handle.addEventListener('touchend',   function() { card.draggable = false; }, {passive:true});
-      }
-      card.addEventListener('dragstart', function(e) {
-        if (!card.draggable) { e.preventDefault(); return; }
-        dragSrc = card;
-        card.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', card.dataset.card);
-      });
-      card.addEventListener('dragend', function() {
-        card.draggable = false;
-        card.classList.remove('dragging');
-        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
-        dragSrc = null;
-        renumberCards();
-      });
-      card.addEventListener('dragover', function(e) {
-        if (!dragSrc || dragSrc === card) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
-        card.classList.add('drag-over');
-      });
-      card.addEventListener('dragleave', function() {
-        card.classList.remove('drag-over');
-      });
-      card.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (!dragSrc || dragSrc === card) return;
-        card.classList.remove('drag-over');
-        var parent = card.parentNode;
-        var cards  = getTopCards();
-        var srcIdx = cards.indexOf(dragSrc);
-        var tgtIdx = cards.indexOf(card);
-        if (srcIdx < tgtIdx) parent.insertBefore(dragSrc, card.nextSibling);
-        else                  parent.insertBefore(dragSrc, card);
-        renumberCards();
-      });
-    });
+  function cardOf(el) {
+    return el && el.closest ? el.closest('#calculator-section > .card[data-card]') : null;
   }
 
   function renumberCards() {
@@ -2858,63 +2814,155 @@ function toggleCard(header) {
     });
   }
 
+  function initCardDrag() {
+    // Attach dragstart per card; draggable toggled via mousedown on handle
+    getTopCards().forEach(function(card) {
+      var handle = card.querySelector('.card-drag-handle');
+      if (handle) {
+        handle.addEventListener('mousedown', function(e) {
+          e.stopPropagation();
+          card.draggable = true;
+        });
+      }
+      card.addEventListener('dragstart', function(e) {
+        dragSrc = card;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', card.dataset.card);
+        // keep draggable true during drag but reset after
+        setTimeout(function() { card.draggable = false; }, 0);
+      });
+      card.addEventListener('dragend', function() {
+        card.draggable = false;
+        card.classList.remove('dragging');
+        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
+        dragSrc  = null;
+        dragOver = null;
+        renumberCards();
+      });
+    });
+
+    // Delegate dragover + drop to the container so child elements don't break it
+    var container = document.getElementById('calculator-section');
+    if (!container) return;
+
+    container.addEventListener('dragover', function(e) {
+      if (!dragSrc) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      var target = cardOf(e.target);
+      if (target && target !== dragSrc && target !== dragOver) {
+        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
+        target.classList.add('drag-over');
+        dragOver = target;
+      }
+    });
+
+    container.addEventListener('dragleave', function(e) {
+      // Only clear if truly leaving the container (not just moving between children)
+      if (!container.contains(e.relatedTarget)) {
+        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
+        dragOver = null;
+      }
+    });
+
+    container.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (!dragSrc) return;
+      var target = cardOf(e.target);
+      if (!target || target === dragSrc) return;
+      target.classList.remove('drag-over');
+      var parent = container;
+      var cards  = getTopCards();
+      var srcIdx = cards.indexOf(dragSrc);
+      var tgtIdx = cards.indexOf(target);
+      if (srcIdx < tgtIdx) parent.insertBefore(dragSrc, target.nextSibling);
+      else                  parent.insertBefore(dragSrc, target);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', initCardDrag);
-  // Also init immediately (script runs at end of body)
   initCardDrag();
 })();
 
 // ── DRAG-AND-DROP: PRINT PREVIEW SIDEBAR ─────────────
 (function() {
   var psDragSrc = null;
+  var psOver    = null;
 
-  function getSortableItems() {
-    return Array.from(document.querySelectorAll('#ps-sortable .preview-section-toggle[draggable="true"]'));
+  function getAllItems() {
+    return Array.from(document.querySelectorAll('#ps-sortable .preview-section-toggle'));
+  }
+
+  function itemOf(el) {
+    return el && el.closest ? el.closest('#ps-sortable .preview-section-toggle') : null;
   }
 
   function initSidebarDrag() {
-    getSortableItems().forEach(function(item) {
+    getAllItems().forEach(function(item) {
       var handle = item.querySelector('.ps-drag');
       if (handle) {
-        handle.addEventListener('mousedown', function() { item.draggable = true; });
-        handle.addEventListener('mouseup',   function() { item.draggable = false; });
+        handle.addEventListener('mousedown', function(e) {
+          e.stopPropagation();
+          item.draggable = true;
+        });
       }
       item.addEventListener('dragstart', function(e) {
-        if (!item.draggable) { e.preventDefault(); return; }
         psDragSrc = item;
         item.classList.add('ps-dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', item.dataset.rs || '');
+        setTimeout(function() { item.draggable = false; }, 0);
       });
       item.addEventListener('dragend', function() {
         item.draggable = false;
         item.classList.remove('ps-dragging');
-        getSortableItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
+        getAllItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
         psDragSrc = null;
+        psOver    = null;
         refreshPreview();
       });
-      item.addEventListener('dragover', function(e) {
-        if (!psDragSrc || psDragSrc === item) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        getSortableItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
-        item.classList.add('ps-drag-over');
-      });
-      item.addEventListener('dragleave', function() { item.classList.remove('ps-drag-over'); });
-      item.addEventListener('drop', function(e) {
-        e.preventDefault();
-        if (!psDragSrc || psDragSrc === item) return;
-        item.classList.remove('ps-drag-over');
-        var parent   = item.parentNode;
-        var items    = getSortableItems();
-        var srcIdx   = items.indexOf(psDragSrc);
-        var tgtIdx   = items.indexOf(item);
-        if (srcIdx < tgtIdx) parent.insertBefore(psDragSrc, item.nextSibling);
-        else                  parent.insertBefore(psDragSrc, item);
-        // Keep the sub-opt (colors checkbox) after the matrix label
-        var matrixLbl = parent.querySelector('[data-rs="rs-matrix"]');
-        var colorsLbl = parent.querySelector('.sub-opt');
-        if (matrixLbl && colorsLbl) parent.insertBefore(colorsLbl, matrixLbl.nextSibling);
-      });
+    });
+
+    // Delegate to container
+    var container = document.getElementById('ps-sortable');
+    if (!container) return;
+
+    container.addEventListener('dragover', function(e) {
+      if (!psDragSrc) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      var target = itemOf(e.target);
+      if (target && target !== psDragSrc && target !== psOver) {
+        getAllItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
+        target.classList.add('ps-drag-over');
+        psOver = target;
+      }
+    });
+
+    container.addEventListener('dragleave', function(e) {
+      if (!container.contains(e.relatedTarget)) {
+        getAllItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
+        psOver = null;
+      }
+    });
+
+    container.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (!psDragSrc) return;
+      var target = itemOf(e.target);
+      if (!target || target === psDragSrc) return;
+      target.classList.remove('ps-drag-over');
+      var parent = container;
+      var items  = getAllItems();
+      var srcIdx = items.indexOf(psDragSrc);
+      var tgtIdx = items.indexOf(target);
+      if (srcIdx < tgtIdx) parent.insertBefore(psDragSrc, target.nextSibling);
+      else                  parent.insertBefore(psDragSrc, target);
+      // Keep colors sub-opt pinned after the matrix label
+      var matrixLbl = parent.querySelector('[data-rs="rs-matrix"]');
+      var colorsLbl = parent.querySelector('.sub-opt');
+      if (matrixLbl && colorsLbl) parent.insertBefore(colorsLbl, matrixLbl.nextSibling);
     });
   }
 
