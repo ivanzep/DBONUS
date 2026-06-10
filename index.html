@@ -346,6 +346,9 @@
   /* ── COMPARISON MATRIX ── */
   .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .cmp-table { width: 100%; min-width: 780px; border-collapse: collapse; font-size: 12px; }
+  .stacking-on .cmp-table { min-width: 1060px; }
+  #rpt-matrix-table { min-width: 680px; }
+  .stacking-on #rpt-matrix-table { min-width: 940px; }
 
   /* top-level group headers */
   .cmp-table .grp-head th {
@@ -1470,7 +1473,7 @@
     <div class="report-section" id="rs-matrix">
       <h3 id="rpt-matrix-num">4. Scenario Comparison Matrix (All Thresholds)</h3>
       <div class="matrix-wrap" style="overflow-x:auto">
-        <table class="cmp-table" id="rpt-matrix-table" style="min-width:680px;font-size:10px">
+        <table class="cmp-table" id="rpt-matrix-table" style="font-size:10px">
           <thead>
             <tr class="grp-head">
               <th class="th-base" rowspan="2">BASELINE</th>
