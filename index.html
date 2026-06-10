@@ -664,46 +664,14 @@
   </div>
 
   <div id="results-panel" style="display:none">
-    <div class="result-grid">
-      <div class="result-box">
-        <div class="val" id="r-bonus-pct">0%</div>
-        <div class="lbl">Density Bonus</div>
-        <div class="sub">§65915(f)</div>
-      </div>
-      <div class="result-box green">
-        <div class="val" id="r-bonus-units">0</div>
-        <div class="lbl">Bonus Units</div>
-        <div class="sub">Rounded up</div>
-      </div>
-      <div class="result-box gold">
-        <div class="val" id="r-total-units">0</div>
-        <div class="lbl">Total Units Allowed</div>
-        <div class="sub">Base + Bonus</div>
-      </div>
-      <div class="result-box">
-        <div class="val" id="r-incentives">0</div>
-        <div class="lbl">Incentives/Concessions</div>
-        <div class="sub">§65915(d)</div>
-      </div>
-      <div class="result-box green">
-        <div class="val" id="r-aff-units">0</div>
-        <div class="lbl">Affordable Units</div>
-        <div class="sub">Required minimum</div>
-      </div>
-      <div class="result-box gold">
-        <div class="val" id="r-market-units">0</div>
-        <div class="lbl">Market-Rate Units</div>
-        <div class="sub">Remaining</div>
-      </div>
-    </div>
-
-    <!-- CALCULATION STEPS -->
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">🔢 Step-by-Step Calculation <div class="badge">Per §65915(f) & rounding rules<span class="collapse-arrow">▼</span></div></div>
-      <div class="card-body">
-        <div class="calc-steps" id="calc-steps-container"></div>
-      </div>
-    </div>
+    <!-- Hidden value holders for report sync — not displayed -->
+    <span id="r-bonus-pct"   style="display:none">—</span>
+    <span id="r-bonus-units" style="display:none">—</span>
+    <span id="r-total-units" style="display:none">—</span>
+    <span id="r-incentives"  style="display:none">—</span>
+    <span id="r-aff-units"   style="display:none">—</span>
+    <span id="r-market-units"style="display:none">—</span>
+    <div id="calc-steps-container" style="display:none"></div>
 
     <!-- INCENTIVES & CONCESSIONS -->
     <div class="card">
