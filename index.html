@@ -77,6 +77,18 @@
     user-select: none;
   }
   .card-header:hover { background: #1e4878; }
+  .card-drag-handle {
+    cursor: grab;
+    padding: 2px 4px;
+    opacity: .5;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-right: 2px;
+  }
+  .card-drag-handle:hover { opacity: 1; }
+  .card.drag-over { outline: 2px dashed #fde68a; outline-offset: 2px; }
+  .card.dragging  { opacity: .4; }
   .card-header .collapse-arrow {
     margin-left: auto;
     display: flex;
@@ -545,6 +557,10 @@
   .preview-section-toggle:hover { background: #e2e8f0; }
   .preview-section-toggle input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--blue); flex-shrink: 0; }
   .preview-section-toggle.disabled { opacity: .45; pointer-events: none; }
+  .preview-section-toggle .ps-drag { cursor: grab; opacity: .4; font-size: 13px; margin-right: 2px; flex-shrink: 0; }
+  .preview-section-toggle .ps-drag:hover { opacity: 1; }
+  .preview-section-toggle.ps-drag-over { outline: 2px dashed var(--blue); outline-offset: -2px; border-radius: 6px; }
+  .preview-section-toggle.ps-dragging  { opacity: .35; }
   #preview-frame-wrap {
     flex: 1;
     overflow-y: auto;
@@ -589,8 +605,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 1. PROJECT INFO -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">1</span> Project Information<span class="collapse-arrow">▼</span></div>
+  <div class="card" draggable="true" data-card="proj-info">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">1</span> Project Information<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -642,8 +658,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 2. BASE DENSITY -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">2</span> Base Density Parameters<span class="collapse-arrow">▼</span></div>
+  <div class="card" draggable="true" data-card="base-density">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">2</span> Base Density Parameters<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -700,8 +716,8 @@
   <select id="senior-flag" style="display:none"><option value="no" selected></option></select>
 
   <!-- ═══════════════════════════════════════ 3. COMPARISON MATRIX -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">3</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
+  <div class="card" draggable="true" data-card="matrix">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">3</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -743,8 +759,8 @@
 
   <!-- ═══════════════════════════════════════ 4. DENSITY BONUS RESULTS -->
   <!-- SCENARIO SELECTOR -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">4</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
+  <div class="card" draggable="true" data-card="density-bonus">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">4</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-row">
         <div class="form-group">
@@ -915,8 +931,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 5. PROJECT MAP -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">5</span> Project Location Map<span class="collapse-arrow">▼</span></div>
+  <div class="card" draggable="true" data-card="map">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">5</span> Project Location Map<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-group">
         <label>Search / Update Address</label>
@@ -943,8 +959,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 6. GENERATE REPORT -->
-  <div class="card no-print">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">6</span> Generate Report<span class="collapse-arrow">▼</span></div>
+  <div class="card no-print" draggable="true" data-card="report">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">6</span> Generate Report<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report. Use Print Preview to select which sections to include before printing.</p>
       <div class="action-row">
@@ -969,39 +985,41 @@
     <div id="preview-body">
       <div id="preview-sidebar">
         <h3>Include Sections</h3>
-        <label class="preview-section-toggle disabled">
+        <div id="ps-sortable">
+        <label class="preview-section-toggle disabled" data-rs="rs-cover">
           <input type="checkbox" id="ps-cover" checked disabled> Project Information
         </label>
-        <label class="preview-section-toggle" id="ps-map-lbl">
-          <input type="checkbox" id="ps-map" checked onchange="refreshPreview()"> Project Location Map
+        <label class="preview-section-toggle" id="ps-map-lbl" draggable="true" data-rs="rpt-map-section">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-map" checked onchange="refreshPreview()"> Project Location Map
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-results" checked onchange="refreshPreview()"> Density Bonus Summary
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-results">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-results" checked onchange="refreshPreview()"> Density Bonus Summary
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-matrix" checked onchange="refreshPreview()"> Comparison Matrix
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-matrix">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-matrix" checked onchange="refreshPreview()"> Comparison Matrix
         </label>
         <label class="preview-section-toggle sub-opt">
           <input type="checkbox" id="ps-colors" checked onchange="refreshPreview()"> &nbsp;Show income tier colors
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-steps" checked onchange="refreshPreview()"> Calculation Methodology
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-steps">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-steps" checked onchange="refreshPreview()"> Calculation Methodology
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-incentives" checked onchange="refreshPreview()"> Incentives &amp; Concessions
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-incentives">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-incentives" checked onchange="refreshPreview()"> Incentives &amp; Concessions
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-parking" checked onchange="refreshPreview()"> Parking Standards
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-parking">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-parking" checked onchange="refreshPreview()"> Parking Standards
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-affordability" checked onchange="refreshPreview()"> Affordability Summary
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-affordability">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-affordability" checked onchange="refreshPreview()"> Affordability Summary
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-waivers" checked onchange="refreshPreview()"> Waivers &amp; Reductions
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-waivers">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-waivers" checked onchange="refreshPreview()"> Waivers &amp; Reductions
         </label>
-        <label class="preview-section-toggle">
-          <input type="checkbox" id="ps-covenant" checked onchange="refreshPreview()"> Covenant Requirements
+        <label class="preview-section-toggle" draggable="true" data-rs="rs-covenant">
+          <span class="ps-drag" title="Drag to reorder">⠿</span><input type="checkbox" id="ps-covenant" checked onchange="refreshPreview()"> Covenant Requirements
         </label>
+        </div>
 
         <h3 style="margin-top:16px">Page Margins</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
@@ -1659,23 +1677,17 @@ function buildMatrix() {
     return (db % 1 === 0) ? db.toFixed(1) + '%' : db.toFixed(2).replace(/\.?0+$/, '') + '%';
   }
 
-  function tierCells(affPct, isVLI, isLI, isMod, borderColor, bgLight, isReport) {
+  function tierCells(affPct, isVLI, isLI, isMod, borderColor, bgLight) {
     if (affPct === null) {
-      var style = isReport ? 'color:#ccc;text-align:center' : 'color:#d1d5db;text-align:center;background:#fafafa';
-      return '<td style="' + style + '"></td>'
-           + '<td style="' + style + '"></td>'
-           + '<td style="' + style + '"></td>';
+      return '<td style="color:#d1d5db;text-align:center;background:#fafafa"></td>'
+           + '<td style="color:#d1d5db;text-align:center;background:#fafafa"></td>'
+           + '<td style="color:#d1d5db;text-align:center;background:#fafafa"></td>';
     }
     var auStr = baseUnits > 0 ? roundUp(baseUnits * affPct / 100) : '—';
     var inc   = isVLI ? calcIncentives(affPct, 0,      0,      'no', 0, baseUnits)
               : isLI  ? calcIncentives(0,      affPct, 0,      'no', 0, baseUnits)
               :          calcIncentives(0,      0,      affPct, 'no', 0, baseUnits);
     var pctLabel = affPct + '%';
-    if (isReport) {
-      return '<td style="font-weight:700;text-align:center">' + pctLabel + '</td>'
-           + '<td style="text-align:center">' + auStr + '</td>'
-           + '<td style="text-align:center">' + inc + '</td>';
-    }
     var bl = 'border-left:2px solid ' + borderColor + ';';
     return '<td style="' + bl + 'background:' + bgLight + ';font-weight:700;text-align:center">' + pctLabel + '</td>'
          + '<td style="background:' + bgLight + ';text-align:center">' + auStr + '</td>'
@@ -1686,13 +1698,12 @@ function buildMatrix() {
   var selTier = (document.getElementById('sel-tier') || {}).value || '';
   var selDB   = parseFloat((document.getElementById('sel-db') || {}).value) || null;
 
-  function makeRows(isReport) {
+  function makeRows() {
     return rows.map(function(r) {
       var bonusUnits = baseUnits > 0 ? roundUp(baseUnits * r.db / 100) : '—';
       var total      = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * r.db / 100)) : '—';
       var dbLabel    = fmtPct(r.db);
 
-      // Highlight if this row matches the scenario selection
       var isSelected = selDB !== null && Math.abs(r.db - selDB) < 0.01 && (
         (selTier === 'vli' && r.vliPct !== null) ||
         (selTier === 'li'  && r.liPct  !== null) ||
@@ -1700,30 +1711,23 @@ function buildMatrix() {
       );
       var rowCls = isSelected ? ' class="sel-row"' : '';
 
-      var baseTd, dbTd, bonusTd, totalTd;
-      if (isReport) {
-        baseTd  = '<td style="text-align:center;font-weight:700">' + (baseUnits || '—') + '</td>';
-        dbTd    = '<td style="text-align:center;font-weight:700">' + dbLabel + '</td>';
-        bonusTd = '<td style="text-align:center;font-weight:700">' + bonusUnits + '</td>';
-        totalTd = '<td style="text-align:center;font-weight:700">' + total + '</td>';
-      } else {
-        baseTd  = '<td style="text-align:center;font-weight:700;background:#1a3a5c;color:#fff;padding:6px 10px">' + (baseUnits || '—') + '</td>';
-        dbTd    = '<td style="text-align:center;font-weight:700;background:#dbeafe;color:#1e4d8c">' + dbLabel + '</td>';
-        bonusTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#bfdbfe;color:#1e3a5f">' + bonusUnits + '</td>';
-        totalTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
-      }
+      var baseTd  = '<td style="text-align:center;font-weight:700;background:#1a3a5c;color:#fff;padding:6px 10px">' + (baseUnits || '—') + '</td>';
+      var dbTd    = '<td style="text-align:center;font-weight:700;background:#dbeafe;color:#1e4d8c">' + dbLabel + '</td>';
+      var bonusTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#bfdbfe;color:#1e3a5f">' + bonusUnits + '</td>';
+      var totalTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
 
       return '<tr' + rowCls + '>'
         + baseTd + dbTd + bonusTd + totalTd
-        + tierCells(r.vliPct, true,  false, false, '#be185d', '#fce7f3', isReport)
-        + tierCells(r.liPct,  false, true,  false, '#c2410c', '#ffedd5', isReport)
-        + tierCells(r.modPct, false, false, true,  '#92400e', '#fef3c7', isReport)
+        + tierCells(r.vliPct, true,  false, false, '#be185d', '#fce7f3')
+        + tierCells(r.liPct,  false, true,  false, '#c2410c', '#ffedd5')
+        + tierCells(r.modPct, false, false, true,  '#92400e', '#fef3c7')
         + '</tr>';
     }).join('');
   }
 
-  document.getElementById('matrix-body').innerHTML     = makeRows(false);
-  document.getElementById('rpt-matrix-body').innerHTML = makeRows(true);
+  var rowsHTML = makeRows();
+  document.getElementById('matrix-body').innerHTML     = rowsHTML;
+  document.getElementById('rpt-matrix-body').innerHTML = rowsHTML;
   updateSelResult();
 }
 
@@ -1800,19 +1804,25 @@ function refreshPreview() {
 }
 
 function printFromPreview() {
-  // Apply section visibility to the actual hidden report-section for @media print
-  PREVIEW_SECTIONS.forEach(function(s) {
-    var el = document.getElementById(s.rs);
-    if (el) el.style.display = document.getElementById(s.cb).checked ? '' : 'none';
-  });
-  // Toggle colors on actual report-section
+  // Reorder + apply visibility to the real report-section DOM (used by @media print)
+  var reportPage = document.querySelector('#report-section .report-page');
+  var sortable   = document.getElementById('ps-sortable');
+  if (reportPage && sortable) {
+    var items = Array.from(sortable.querySelectorAll('.preview-section-toggle[data-rs]'));
+    items.forEach(function(item) {
+      var cb      = item.querySelector('input[type="checkbox"]');
+      var checked = cb ? cb.checked : true;
+      var el = reportPage.querySelector('[id="' + item.dataset.rs + '"]');
+      if (!el) el = document.getElementById(item.dataset.rs);
+      if (el) { reportPage.appendChild(el); el.style.display = checked ? '' : 'none'; }
+    });
+  }
   var useColors = document.getElementById('ps-colors').checked;
-  var rptPage = document.querySelector('#report-section .report-page');
-  if (rptPage) rptPage.classList.toggle('no-tier-colors', !useColors);
+  if (reportPage) reportPage.classList.toggle('no-tier-colors', !useColors);
   applyPrintMargins();
   closePrintPreview();
   window.print();
-  if (rptPage) rptPage.classList.remove('no-tier-colors');
+  if (reportPage) reportPage.classList.remove('no-tier-colors');
 }
 
 // ── PRINT (legacy direct) ─────────────────────────────
@@ -2123,10 +2133,174 @@ function toggleCard(header) {
   header.classList.toggle('collapsed', collapsed);
 }
 
+// ── DRAG-AND-DROP: MAIN PAGE CARDS ───────────────────
+(function() {
+  var dragSrc = null;
+
+  function getTopCards() {
+    return Array.from(document.querySelectorAll('#calculator-section > .card[data-card]'));
+  }
+
+  function initCardDrag() {
+    getTopCards().forEach(function(card) {
+      card.addEventListener('dragstart', function(e) {
+        // Only allow drag from the grip handle
+        if (!e.target.classList.contains('card-drag-handle') &&
+            !e.target.closest('.card-drag-handle')) {
+          e.preventDefault(); return;
+        }
+        dragSrc = card;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', card.dataset.card);
+      });
+      card.addEventListener('dragend', function() {
+        card.classList.remove('dragging');
+        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
+        dragSrc = null;
+        renumberCards();
+      });
+      card.addEventListener('dragover', function(e) {
+        if (!dragSrc || dragSrc === card) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', function() {
+        card.classList.remove('drag-over');
+      });
+      card.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!dragSrc || dragSrc === card) return;
+        card.classList.remove('drag-over');
+        var parent = card.parentNode;
+        var cards  = getTopCards();
+        var srcIdx = cards.indexOf(dragSrc);
+        var tgtIdx = cards.indexOf(card);
+        if (srcIdx < tgtIdx) parent.insertBefore(dragSrc, card.nextSibling);
+        else                  parent.insertBefore(dragSrc, card);
+        renumberCards();
+      });
+    });
+  }
+
+  function renumberCards() {
+    getTopCards().forEach(function(card, i) {
+      var num = card.querySelector('.card-num');
+      if (num) num.textContent = i + 1;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCardDrag);
+  // Also init immediately (script runs at end of body)
+  initCardDrag();
+})();
+
+// ── DRAG-AND-DROP: PRINT PREVIEW SIDEBAR ─────────────
+(function() {
+  var psDragSrc = null;
+
+  function getSortableItems() {
+    return Array.from(document.querySelectorAll('#ps-sortable .preview-section-toggle[draggable="true"]'));
+  }
+
+  function initSidebarDrag() {
+    getSortableItems().forEach(function(item) {
+      item.addEventListener('dragstart', function(e) {
+        if (!e.target.classList.contains('ps-drag') &&
+            !e.target.closest('.ps-drag')) {
+          e.preventDefault(); return;
+        }
+        psDragSrc = item;
+        item.classList.add('ps-dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', item.dataset.rs || '');
+      });
+      item.addEventListener('dragend', function() {
+        item.classList.remove('ps-dragging');
+        getSortableItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
+        psDragSrc = null;
+        refreshPreview();
+      });
+      item.addEventListener('dragover', function(e) {
+        if (!psDragSrc || psDragSrc === item) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        getSortableItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
+        item.classList.add('ps-drag-over');
+      });
+      item.addEventListener('dragleave', function() { item.classList.remove('ps-drag-over'); });
+      item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!psDragSrc || psDragSrc === item) return;
+        item.classList.remove('ps-drag-over');
+        var parent   = item.parentNode;
+        var items    = getSortableItems();
+        var srcIdx   = items.indexOf(psDragSrc);
+        var tgtIdx   = items.indexOf(item);
+        if (srcIdx < tgtIdx) parent.insertBefore(psDragSrc, item.nextSibling);
+        else                  parent.insertBefore(psDragSrc, item);
+        // Keep the sub-opt (colors checkbox) after the matrix label
+        var matrixLbl = parent.querySelector('[data-rs="rs-matrix"]');
+        var colorsLbl = parent.querySelector('.sub-opt');
+        if (matrixLbl && colorsLbl) parent.insertBefore(colorsLbl, matrixLbl.nextSibling);
+      });
+    });
+  }
+
+  window._initSidebarDrag = initSidebarDrag;
+})();
+
+// ── REFRESH PREVIEW (order-aware) update ─────────────
+// Patch refreshPreview to insert report sections in sidebar order
+var _origRefreshPreview = refreshPreview;
+refreshPreview = function() {
+  syncReport();
+  buildMatrix();
+
+  var hasMap    = document.getElementById('ps-map').checked;
+  var useColors = document.getElementById('ps-colors').checked;
+
+  renumberReport(hasMap);
+
+  // Reorder sections in the actual report-page DOM to match sidebar order
+  var reportPage = document.querySelector('#report-section .report-page');
+  var sortable   = document.getElementById('ps-sortable');
+  if (reportPage && sortable) {
+    var items = Array.from(sortable.querySelectorAll('.preview-section-toggle[data-rs]'));
+    items.forEach(function(item) {
+      var el = reportPage.querySelector('[id="' + item.dataset.rs + '"]');
+      if (el) reportPage.appendChild(el);  // moves to end in sidebar order
+    });
+  }
+
+  // Clone report content into preview pane
+  var src  = document.getElementById('report-section');
+  var dest = document.getElementById('preview-content');
+  dest.innerHTML = src.querySelector('.report-page').innerHTML;
+
+  // Apply section visibility to cloned elements
+  var items2 = sortable ? Array.from(sortable.querySelectorAll('.preview-section-toggle[data-rs]')) : [];
+  items2.forEach(function(item) {
+    var cb      = item.querySelector('input[type="checkbox"]');
+    var checked = cb ? cb.checked : true;
+    var el = dest.querySelector('[id="' + item.dataset.rs + '"]');
+    if (el) el.style.display = checked ? '' : 'none';
+  });
+
+  // Toggle income tier colors
+  dest.classList.toggle('no-tier-colors', !useColors);
+
+  // Update print margins
+  applyPrintMargins();
+};
+
 // ── INIT ─────────────────────────────────────────────
 calculate();
 buildMatrix();
 renumberReport(false);
+if (typeof _initSidebarDrag === 'function') _initSidebarDrag();
 </script>
 </body>
 </html>
