@@ -837,7 +837,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 1. PROJECT INFO -->
-  <div class="card" draggable="true" data-card="proj-info">
+  <div class="card" data-card="proj-info">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">1</span> Project Information<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
@@ -890,7 +890,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 2. BASE DENSITY -->
-  <div class="card" draggable="true" data-card="base-density">
+  <div class="card" data-card="base-density">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">2</span> Base Density Parameters<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
@@ -948,7 +948,7 @@
   <select id="senior-flag" style="display:none"><option value="no" selected></option></select>
 
   <!-- ═══════════════════════════════════════ 3. COMPARISON MATRIX -->
-  <div class="card" draggable="true" data-card="matrix">
+  <div class="card" data-card="matrix">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">3</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
@@ -995,7 +995,7 @@
 
   <!-- ═══════════════════════════════════════ 4. DENSITY BONUS RESULTS -->
   <!-- SCENARIO SELECTOR -->
-  <div class="card" draggable="true" data-card="density-bonus">
+  <div class="card" data-card="density-bonus">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">4</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-row">
@@ -1255,7 +1255,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 5. PROJECT MAP -->
-  <div class="card" draggable="true" data-card="map">
+  <div class="card" data-card="map">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">5</span> Project Location Map<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-group">
@@ -1283,7 +1283,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 6. GENERATE REPORT -->
-  <div class="card no-print" draggable="true" data-card="report">
+  <div class="card no-print" data-card="report">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-drag-handle" onmousedown="event.stopPropagation()" title="Drag to reorder">⠿</span><span class="card-num">6</span> Generate Report<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report. Use Print Preview to select which sections to include before printing.</p>
@@ -2804,18 +2804,23 @@ function toggleCard(header) {
 
   function initCardDrag() {
     getTopCards().forEach(function(card) {
+      // Only enable draggable while the handle is held down
+      var handle = card.querySelector('.card-drag-handle');
+      if (handle) {
+        handle.addEventListener('mousedown', function() { card.draggable = true; });
+        handle.addEventListener('mouseup',   function() { card.draggable = false; });
+        handle.addEventListener('touchstart', function() { card.draggable = true; }, {passive:true});
+        handle.addEventListener('touchend',   function() { card.draggable = false; }, {passive:true});
+      }
       card.addEventListener('dragstart', function(e) {
-        // Only allow drag from the grip handle
-        if (!e.target.classList.contains('card-drag-handle') &&
-            !e.target.closest('.card-drag-handle')) {
-          e.preventDefault(); return;
-        }
+        if (!card.draggable) { e.preventDefault(); return; }
         dragSrc = card;
         card.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', card.dataset.card);
       });
       card.addEventListener('dragend', function() {
+        card.draggable = false;
         card.classList.remove('dragging');
         getTopCards().forEach(function(c) { c.classList.remove('drag-over'); });
         dragSrc = null;
@@ -2868,13 +2873,20 @@ function toggleCard(header) {
 
   function initSidebarDrag() {
     getSortableItems().forEach(function(item) {
+      var handle = item.querySelector('.ps-drag');
+      if (handle) {
+        handle.addEventListener('mousedown', function() { item.draggable = true; });
+        handle.addEventListener('mouseup',   function() { item.draggable = false; });
+      }
       item.addEventListener('dragstart', function(e) {
+        if (!item.draggable) { e.preventDefault(); return; }
         psDragSrc = item;
         item.classList.add('ps-dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', item.dataset.rs || '');
       });
       item.addEventListener('dragend', function() {
+        item.draggable = false;
         item.classList.remove('ps-dragging');
         getSortableItems().forEach(function(i) { i.classList.remove('ps-drag-over'); });
         psDragSrc = null;
