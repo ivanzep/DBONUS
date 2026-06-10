@@ -552,10 +552,14 @@
         </div>
         <div class="form-group">
           <label>Lot Size</label>
-          <div class="input-unit">
-            <input type="number" id="lot-size" placeholder="0" min="0" oninput="syncReport()">
-            <span>sq ft</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" id="lot-size" placeholder="0" min="0" step="any" style="flex:1" oninput="onLotSizeChange()">
+            <select id="lot-unit" onchange="onLotSizeChange()" style="width:80px">
+              <option value="sf">sq ft</option>
+              <option value="ac">acres</option>
+            </select>
           </div>
+          <div id="lot-conversion" style="font-size:11px;color:#6b7280;margin-top:4px;display:none"></div>
         </div>
         <div class="form-group">
           <label>Max Height (current zoning)</label>
@@ -921,6 +925,7 @@
         <dt>Jurisdiction:</dt><dd id="rpt-city">—</dd>
         <dt>Zoning:</dt><dd id="rpt-zone">—</dd>
         <dt>General Plan:</dt><dd id="rpt-gp">—</dd>
+        <dt>Lot Size:</dt><dd id="rpt-lot-size">—</dd>
         <dt>Report Date:</dt><dd id="rpt-date">—</dd>
       </dl>
       <div id="rpt-desc-wrap" style="display:none;margin-top:6px">
@@ -1405,6 +1410,17 @@ function syncReport() {
   document.getElementById('rpt-zone').textContent      = document.getElementById('proj-zone').value || '—';
   document.getElementById('rpt-gp').textContent        = document.getElementById('proj-gp').value || '—';
   document.getElementById('rpt-date').textContent      = dateStr;
+  // Lot size with both units
+  var lotVal  = parseFloat(document.getElementById('lot-size').value) || 0;
+  var lotUnit = document.getElementById('lot-unit').value;
+  if (lotVal > 0) {
+    var lotSF  = lotUnit === 'ac' ? lotVal * SF_PER_ACRE : lotVal;
+    var lotAc  = lotUnit === 'sf' ? lotVal / SF_PER_ACRE : lotVal;
+    document.getElementById('rpt-lot-size').textContent =
+      lotSF.toLocaleString() + ' sq ft  (' + lotAc.toFixed(4) + ' ac)';
+  } else {
+    document.getElementById('rpt-lot-size').textContent = '—';
+  }
 
   var desc = document.getElementById('proj-desc').value.trim();
   if (desc) {
@@ -1603,6 +1619,38 @@ function resetForm() {
   document.getElementById('transit-check').checked = false;
   document.getElementById('base-units').value = 50;
   calculate();
+}
+
+// ── LOT SIZE UNIT CONVERSION ─────────────────────────
+var SF_PER_ACRE = 43560;
+
+function onLotSizeChange() {
+  var val  = parseFloat(document.getElementById('lot-size').value);
+  var unit = document.getElementById('lot-unit').value;
+  var conv = document.getElementById('lot-conversion');
+
+  if (!val || isNaN(val) || val <= 0) {
+    conv.style.display = 'none';
+    syncReport();
+    return;
+  }
+
+  if (unit === 'sf') {
+    var acres = val / SF_PER_ACRE;
+    conv.textContent = '≈ ' + acres.toFixed(4) + ' acres';
+  } else {
+    var sf = val * SF_PER_ACRE;
+    conv.textContent = '= ' + sf.toLocaleString() + ' sq ft';
+  }
+  conv.style.display = 'block';
+  syncReport();
+}
+
+// Returns lot size always in sq ft for any downstream calcs
+function getLotSizeSF() {
+  var val  = parseFloat(document.getElementById('lot-size').value) || 0;
+  var unit = document.getElementById('lot-unit').value;
+  return unit === 'ac' ? val * SF_PER_ACRE : val;
 }
 
 // ── SCENARIO SELECTOR ────────────────────────────────
