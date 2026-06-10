@@ -433,6 +433,105 @@
     @page { margin: 15mm; size: letter portrait; }
   }
 
+  /* ── SUB-SECTION COLLAPSE ── */
+  .sub-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0;
+  }
+  .sub-section-header:hover { background: #e2e8f0; }
+  .sub-collapse-arrow {
+    font-size: 10px;
+    transition: transform .2s ease;
+    color: #64748b;
+  }
+  .sub-section-header.collapsed .sub-collapse-arrow { transform: rotate(-90deg); }
+  .sub-section-body { padding-top: 10px; }
+  .sub-section-body.collapsed { display: none; }
+
+  /* ── PRINT PREVIEW OVERLAY ── */
+  #print-preview-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 1000;
+    align-items: stretch;
+    justify-content: center;
+  }
+  #print-preview-overlay.active { display: flex; }
+  #print-preview-panel {
+    background: #fff;
+    width: 100%;
+    max-width: 1100px;
+    margin: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  #preview-toolbar {
+    background: var(--blue);
+    color: #fff;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  #preview-toolbar h2 { font-size: 15px; font-weight: 700; margin: 0; flex: 1; }
+  #preview-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  #preview-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #f8fafc;
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+  }
+  #preview-sidebar h3 { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin: 0 0 12px; }
+  .preview-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    transition: background .15s;
+  }
+  .preview-section-toggle:hover { background: #e2e8f0; }
+  .preview-section-toggle input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--blue); flex-shrink: 0; }
+  .preview-section-toggle.disabled { opacity: .45; pointer-events: none; }
+  #preview-frame-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #e5e7eb;
+  }
+  #preview-frame-wrap .report-page {
+    margin: 0 auto;
+    max-width: 800px;
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 700px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
@@ -670,7 +769,15 @@
             <div class="sub">Remaining</div>
           </div>
         </div>
-        <div class="calc-steps" id="sel-calc-steps" style="margin-top:14px"></div>
+        <div style="margin-top:16px">
+          <div class="sub-section-header" onclick="toggleSubSection(this)">
+            Calculation Method
+            <span class="sub-collapse-arrow">▼</span>
+          </div>
+          <div class="sub-section-body">
+            <div class="calc-steps" id="sel-calc-steps"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -812,15 +919,64 @@
   <div class="card no-print">
     <div class="card-header" onclick="toggleCard(this)"><span class="card-num">6</span> Generate Report<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
-      <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report summarizing all density bonus calculations, applicable incentives, parking standards, and project information for inclusion in planning submittals.</p>
+      <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report. Use Print Preview to select which sections to include before printing.</p>
       <div class="action-row">
-        <button class="btn btn-success" onclick="printReport()">🖨️ Print / Save as PDF</button>
-        <button class="btn btn-outline" onclick="resetForm()">🔄 Reset Calculator</button>
+        <button class="btn btn-success" onclick="openPrintPreview()">Print Preview</button>
+        <button class="btn btn-outline" onclick="resetForm()">Reset Calculator</button>
       </div>
     </div>
   </div>
 
 </div><!-- /calculator-section -->
+
+<!-- ═══════════════════════════════════════ PRINT PREVIEW OVERLAY -->
+<div id="print-preview-overlay">
+  <div id="print-preview-panel">
+    <div id="preview-toolbar">
+      <h2>Print Preview</h2>
+      <button class="btn" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="printFromPreview()">Print / Save as PDF</button>
+      <button class="btn" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)" onclick="closePrintPreview()">Close</button>
+    </div>
+    <div id="preview-body">
+      <div id="preview-sidebar">
+        <h3>Include Sections</h3>
+        <label class="preview-section-toggle disabled">
+          <input type="checkbox" id="ps-cover" checked disabled> Project Information
+        </label>
+        <label class="preview-section-toggle" id="ps-map-lbl">
+          <input type="checkbox" id="ps-map" checked onchange="refreshPreview()"> Project Location Map
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-results" checked onchange="refreshPreview()"> Density Bonus Summary
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-matrix" checked onchange="refreshPreview()"> Comparison Matrix
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-steps" checked onchange="refreshPreview()"> Calculation Methodology
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-incentives" checked onchange="refreshPreview()"> Incentives &amp; Concessions
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-parking" checked onchange="refreshPreview()"> Parking Standards
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-affordability" checked onchange="refreshPreview()"> Affordability Summary
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-waivers" checked onchange="refreshPreview()"> Waivers &amp; Reductions
+        </label>
+        <label class="preview-section-toggle">
+          <input type="checkbox" id="ps-covenant" checked onchange="refreshPreview()"> Covenant Requirements
+        </label>
+      </div>
+      <div id="preview-frame-wrap">
+        <div id="preview-content" class="report-page"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════ PRINT REPORT -->
 <div id="report-section">
@@ -851,7 +1007,7 @@
     </div>
 
     <!-- PROJECT INFO -->
-    <div class="report-section">
+    <div class="report-section" id="rs-cover">
       <h3>1. Project Information</h3>
       <dl class="report-meta">
         <dt>Project Name:</dt><dd id="rpt-name">—</dd>
@@ -880,13 +1036,13 @@
     </div>
 
     <!-- SUMMARY RESULTS -->
-    <div class="report-section">
+    <div class="report-section" id="rs-results">
       <h3 id="rpt-results-num">3. Density Bonus Summary</h3>
       <div class="result-grid" id="rpt-result-grid" style="margin-bottom:16px"></div>
     </div>
 
     <!-- COMPARISON MATRIX IN REPORT -->
-    <div class="report-section">
+    <div class="report-section" id="rs-matrix">
       <h3 id="rpt-matrix-num">4. Scenario Comparison Matrix (All Thresholds)</h3>
       <div class="matrix-wrap" style="overflow-x:auto">
         <table class="cmp-table" id="rpt-matrix-table" style="min-width:680px;font-size:10px">
@@ -918,13 +1074,13 @@
     </div>
 
     <!-- CALC STEPS -->
-    <div class="report-section">
+    <div class="report-section" id="rs-steps">
       <h3 id="rpt-steps-num">5. Calculation Methodology</h3>
       <div class="calc-steps" id="rpt-calc-steps"></div>
     </div>
 
     <!-- INCENTIVES -->
-    <div class="report-section">
+    <div class="report-section" id="rs-incentives">
       <h3 id="rpt-inc-num">5. Incentives &amp; Concessions (§65915(d))</h3>
       <table>
         <thead>
@@ -937,7 +1093,7 @@
     </div>
 
     <!-- PARKING -->
-    <div class="report-section">
+    <div class="report-section" id="rs-parking">
       <h3 id="rpt-park-num">6. Parking Standards (§65915(p))</h3>
       <table>
         <thead>
@@ -948,7 +1104,7 @@
     </div>
 
     <!-- AFFORDABLE UNIT TABLE -->
-    <div class="report-section">
+    <div class="report-section" id="rs-affordability">
       <h3 id="rpt-aff-num">7. Affordability Summary</h3>
       <table id="rpt-aff-table">
         <thead>
@@ -959,7 +1115,7 @@
     </div>
 
     <!-- APPLICABLE WAIVERS -->
-    <div class="report-section">
+    <div class="report-section" id="rs-waivers">
       <h3 id="rpt-wav-num">8. Potential Waiver/Reduction Rights (§65915(e))</h3>
       <p style="font-size:12px;color:#374151;line-height:1.6;margin-bottom:8px">
         Per §65915(e)(1), this project is entitled to a waiver or reduction of development standards that would physically preclude construction at the permitted density (including bonus units). The applicant must demonstrate the standard prevents achievement of the allowed density. The jurisdiction must grant the waiver unless it would cause a specific, adverse impact on public health or safety with no feasible mitigation.
@@ -977,7 +1133,7 @@
     </div>
 
     <!-- AFFORDABILITY COVENANT NOTICE -->
-    <div class="report-section">
+    <div class="report-section" id="rs-covenant">
       <h3 id="rpt-cov-num">9. Affordability Covenant Requirements</h3>
       <table>
         <thead><tr><th>Category</th><th>Minimum Covenant Term</th><th>Statutory Basis</th></tr></thead>
@@ -1523,17 +1679,70 @@ function buildMatrix() {
   updateSelResult();
 }
 
-// ── PRINT ────────────────────────────────────────────
+// ── PRINT PREVIEW ────────────────────────────────────
+var PREVIEW_SECTIONS = [
+  { cb: 'ps-map',          rs: 'rpt-map-section' },
+  { cb: 'ps-results',      rs: 'rs-results'      },
+  { cb: 'ps-matrix',       rs: 'rs-matrix'       },
+  { cb: 'ps-steps',        rs: 'rs-steps'        },
+  { cb: 'ps-incentives',   rs: 'rs-incentives'   },
+  { cb: 'ps-parking',      rs: 'rs-parking'      },
+  { cb: 'ps-affordability',rs: 'rs-affordability'},
+  { cb: 'ps-waivers',      rs: 'rs-waivers'      },
+  { cb: 'ps-covenant',     rs: 'rs-covenant'     },
+];
+
+function openPrintPreview() {
+  syncReport();
+  var hasMap = document.getElementById('proj-address').value.trim() &&
+               document.getElementById('map-iframe').style.display !== 'none';
+  document.getElementById('ps-map').checked = hasMap;
+  document.getElementById('ps-map-lbl').style.opacity = hasMap ? '1' : '.4';
+  document.getElementById('ps-map-lbl').style.pointerEvents = hasMap ? '' : 'none';
+  refreshPreview();
+  document.getElementById('print-preview-overlay').classList.add('active');
+}
+
+function closePrintPreview() {
+  document.getElementById('print-preview-overlay').classList.remove('active');
+}
+
+function refreshPreview() {
+  var hasMap = document.getElementById('ps-map').checked;
+
+  // Show/hide sections in the hidden report-section based on checkboxes
+  PREVIEW_SECTIONS.forEach(function(s) {
+    var el = document.getElementById(s.rs);
+    if (!el) return;
+    var checked = document.getElementById(s.cb).checked;
+    el.style.display = checked ? '' : 'none';
+  });
+  renumberReport(hasMap);
+
+  // Clone report-section content into preview pane
+  var src = document.getElementById('report-section');
+  var dest = document.getElementById('preview-content');
+  dest.innerHTML = src.querySelector('.report-page').innerHTML;
+}
+
+function printFromPreview() {
+  refreshPreview();
+  // Apply section visibility to the actual report-section used by @media print
+  PREVIEW_SECTIONS.forEach(function(s) {
+    var el = document.getElementById(s.rs);
+    if (el) el.style.display = document.getElementById(s.cb).checked ? '' : 'none';
+  });
+  closePrintPreview();
+  window.print();
+}
+
+// ── PRINT (legacy direct) ─────────────────────────────
 function printReport() {
   syncReport();
-  var mapAddr = document.getElementById('proj-address').value.trim();
-  if (mapAddr && document.getElementById('map-iframe').style.display !== 'none') {
-    document.getElementById('rpt-map-section').style.display = 'block';
-    renumberReport(true);
-  } else {
-    document.getElementById('rpt-map-section').style.display = 'none';
-    renumberReport(false);
-  }
+  var hasMap = document.getElementById('proj-address').value.trim() &&
+               document.getElementById('map-iframe').style.display !== 'none';
+  document.getElementById('rpt-map-section').style.display = hasMap ? 'block' : 'none';
+  renumberReport(hasMap);
   window.print();
 }
 
@@ -1733,6 +1942,13 @@ function updateSelResult() {
 }
 
 // ── COLLAPSE CARDS ───────────────────────────────────
+function toggleSubSection(header) {
+  var body = header.nextElementSibling;
+  if (!body) return;
+  var collapsed = body.classList.toggle('collapsed');
+  header.classList.toggle('collapsed', collapsed);
+}
+
 function toggleCard(header) {
   var body = header.nextElementSibling;
   if (!body || !body.classList.contains('card-body')) return;
