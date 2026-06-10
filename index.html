@@ -633,11 +633,6 @@
     </div>
   </div>
 
-  <div id="no-qualify" class="notice warn">
-    <span>⚠️</span>
-    <span>No qualifying affordability category has been selected yet. Set at least one affordability percentage above the minimum threshold to calculate the density bonus.</span>
-  </div>
-
   <div id="results-panel" style="display:none">
     <!-- Hidden value holders for report sync — not displayed -->
     <span id="r-bonus-pct"   style="display:none">—</span>
@@ -703,13 +698,17 @@
         </div>
         <div id="parking-zero-notice" class="notice success" style="display:none;margin-top:12px">
           <span>✅</span>
-          <span><strong>Zero Parking Required:</strong> This project may be eligible for zero minimum parking if it meets one of the following: (1) located within ½ mile of a major transit stop; (2) 100% affordable to lower income households; (3) senior housing; (4) special needs housing. (§65915(p)(3))</span>
+          <span>
+            <strong>Zero Parking Required (§65915(p)(3)):</strong> This project qualifies for zero minimum parking because it is located within ½ mile of a major transit stop or high-quality transit corridor. The jurisdiction may not require any off-street parking for this project. On-street parking does not count toward any ratio.<br>
+            <a href="#" onclick="document.getElementById('transit-check').checked=false;updateTransitParking();return false;" style="color:var(--green);font-weight:700;font-size:11px;margin-top:4px;display:inline-block">✕ Remove transit designation</a>
+          </span>
         </div>
         <div style="margin-top:10px">
-          <label style="font-size:12px">
-            <input type="checkbox" id="transit-check" onchange="calculate()" style="width:auto;margin-right:6px">
-            Project is within ½ mile of a major transit stop or high-quality transit corridor
+          <label style="font-size:12px;cursor:pointer">
+            <input type="checkbox" id="transit-check" onchange="updateTransitParking()" style="width:auto;margin-right:6px">
+            Project is within ½ mile of a major transit stop or high-quality transit corridor <span style="color:#6b7280">(§65915(p)(3))</span>
           </label>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;margin-left:22px">When checked, zero off-street parking may be required for the project.</div>
         </div>
       </div>
     </div>
@@ -1118,9 +1117,6 @@ function calculate() {
 
   var qualifies = bonuses.length > 0 && baseUnits > 0;
 
-  document.getElementById('no-qualify').style.display = qualifies ? 'none' : 'flex';
-  document.getElementById('results-panel').style.display = qualifies ? 'block' : 'none';
-
   if (!qualifies) return;
 
   // Per §65915(f): use the MAXIMUM applicable density bonus
@@ -1271,19 +1267,21 @@ function buildIncentivesTable(num, vliPct, liPct, modPct, specialPct, seniorFlag
   document.getElementById('rpt-incentives-body').innerHTML = body;
 }
 
+function updateTransitParking() {
+  var transit    = document.getElementById('transit-check').checked;
+  var seniorFlag = document.getElementById('senior-flag').value;
+  var vliPct     = parseInt(document.getElementById('vli-pct').value) || 0;
+  var liPct      = parseInt(document.getElementById('li-pct').value)  || 0;
+  updateParking(vliPct, liPct, seniorFlag, transit);
+  syncReportParking();
+}
+
 function updateParking(vliPct, liPct, seniorFlag, transit) {
   var zeroNotice = document.getElementById('parking-zero-notice');
-  // AB 2345 parking ratios
-  var ratio2br = 1;
-  var ratio3br = 2;
-
-  if (transit || seniorFlag === 'yes' || (liPct >= 10 && vliPct >= 5)) {
-    zeroNotice.style.display = 'flex';
-  } else {
-    zeroNotice.style.display = 'none';
-  }
-  document.getElementById('pk-2br').textContent = ratio2br;
-  document.getElementById('pk-3br').textContent = ratio3br;
+  var zeroEligible = transit || seniorFlag === 'yes' || (liPct >= 10 && vliPct >= 5);
+  zeroNotice.style.display = zeroEligible ? 'flex' : 'none';
+  document.getElementById('pk-2br').textContent = 1;
+  document.getElementById('pk-3br').textContent = 2;
 }
 
 
@@ -1633,13 +1631,11 @@ function updateSelResult() {
   var tier      = document.getElementById('sel-tier').value;
   var dbVal     = parseFloat(document.getElementById('sel-db').value);
   var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
-  var panel     = document.getElementById('sel-result');
-  var noQual    = document.getElementById('no-qualify');
-  var resPan    = document.getElementById('results-panel');
+  var panel  = document.getElementById('sel-result');
+  var resPan = document.getElementById('results-panel');
 
   if (!tier || isNaN(dbVal)) {
     panel.style.display = 'none';
-    noQual.style.display = 'flex';
     resPan.style.display = 'none';
     return;
   }
@@ -1719,7 +1715,6 @@ function updateSelResult() {
   document.getElementById('sel-calc-steps').innerHTML = steps.join('');
 
   // ── Drive the main results panel and incentives table from this selection ──
-  noQual.style.display = 'none';
   resPan.style.display = 'block';
 
   // Populate main result boxes
