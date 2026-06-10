@@ -614,13 +614,20 @@
   .preview-section-toggle.ps-dragging  { opacity: .35; }
   #preview-frame-wrap {
     flex: 1;
-    overflow-y: auto;
+    overflow: auto;
     padding: 20px;
     background: #e5e7eb;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
-  #preview-frame-wrap .report-page {
-    margin: 0 auto;
-    max-width: 800px;
+  /* preview-content acts as the paper sheet; dimensions + padding set by JS */
+  #preview-content.report-page {
+    margin: 0;
+    max-width: none;
+    padding: 0; /* overridden by applyPrintMargins() inline style */
+    box-shadow: 0 4px 24px rgba(0,0,0,.18);
+    flex-shrink: 0;
   }
 
   /* ═══════════════════════════════════════════════
@@ -2198,12 +2205,52 @@ function onStackToggle() {
   updateStackedResult();
 }
 
+// Paper dimensions at 96 dpi (CSS px): { w, h } for portrait orientation.
+// Landscape simply swaps w/h.
+var PAPER_SIZES = {
+  'letter':  { w: 816,  h: 1056 },  // 8.5 × 11 in
+  'legal':   { w: 816,  h: 1344 },  // 8.5 × 14 in
+  'tabloid': { w: 1056, h: 1632 },  // 11 × 17 in
+  'A4':      { w: 794,  h: 1123 },  // 210 × 297 mm
+  'A3':      { w: 1123, h: 1587 },  // 297 × 420 mm
+};
+
+function getPaperDims() {
+  var val       = (document.getElementById('pm-size') || {}).value || 'letter portrait';
+  var parts     = val.split(' ');
+  var name      = parts[0];
+  var landscape = parts[1] === 'landscape';
+  var dims      = PAPER_SIZES[name] || PAPER_SIZES['letter'];
+  return landscape ? { w: dims.h, h: dims.w } : { w: dims.w, h: dims.h };
+}
+
+function mmToPx(mm) { return Math.round(mm / 25.4 * 96); }
+
 function applyPrintMargins() {
   var m    = getMargins();
   var size = (document.getElementById('pm-size') || {}).value || 'letter portrait';
-  var el   = document.getElementById('dynamic-print-style');
+
+  // 1. Update @page rule for actual printing
+  var el = document.getElementById('dynamic-print-style');
   if (!el) { el = document.createElement('style'); el.id = 'dynamic-print-style'; document.head.appendChild(el); }
   el.textContent = '@media print { @page { size: ' + size + '; margin: ' + m.top + ' ' + m.right + ' ' + m.bottom + ' ' + m.left + '; } }';
+
+  // 2. Resize the visual preview to match the selected paper
+  var dims  = getPaperDims();
+  var mt    = mmToPx(parseInt(m.top)    || 15);
+  var mb    = mmToPx(parseInt(m.bottom) || 15);
+  var ml    = mmToPx(parseInt(m.left)   || 15);
+  var mr    = mmToPx(parseInt(m.right)  || 15);
+
+  var dest = document.getElementById('preview-content');
+  if (dest) {
+    dest.style.width     = dims.w + 'px';
+    dest.style.minHeight = dims.h + 'px';
+    dest.style.maxWidth  = 'none';
+    // Apply margin insets visually as padding so content mirrors print layout
+    dest.style.padding   = mt + 'px ' + mr + 'px ' + mb + 'px ' + ml + 'px';
+    dest.style.boxSizing = 'border-box';
+  }
 }
 
 function refreshPreview() {
