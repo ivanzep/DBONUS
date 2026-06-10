@@ -358,6 +358,8 @@
   .cmp-table td.td-mod { background: #f0fdf4; }
   .cmp-table tr.active-row td { background: #fffbeb !important; }
   .cmp-table tr.active-row td.td-db { border-left: 3px solid var(--gold); }
+  .cmp-table tr.sel-row td { background: #fde68a !important; outline: none; }
+  .cmp-table tr.sel-row { outline: 2px solid #d97706; outline-offset: -1px; }
   .cmp-table td[colspan="3"] { color: #c4c9d1; font-style: italic; background: #f9fafb; }
 
   /* DB% pill */
@@ -592,6 +594,54 @@
 
   <!-- ═══════════════════════════════════════ 3. RESULTS -->
   <div class="section-title"><div class="num">3</div> Density Bonus Calculation Results</div>
+
+  <!-- SCENARIO SELECTOR -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)">🎯 Scenario Selection <div class="badge">Highlights row in comparison matrix<span class="collapse-arrow">▼</span></div></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Income Level</label>
+          <select id="sel-tier" onchange="onTierChange()">
+            <option value="">— Select income level —</option>
+            <option value="vli">Very Low Income (≤50% AMI) §65915(f)(1)</option>
+            <option value="li">Lower Income (≤80% AMI) §65915(f)(2)</option>
+            <option value="mod">Moderate Income (≤120% AMI) §65915(f)(3)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Density Bonus %</label>
+          <select id="sel-db" onchange="buildMatrix()">
+            <option value="">— Select income level first —</option>
+          </select>
+        </div>
+      </div>
+      <div id="sel-result" style="display:none;margin-top:12px">
+        <div class="result-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="result-box">
+            <div class="val" id="sel-r-db">—</div>
+            <div class="lbl">Density Bonus</div>
+            <div class="sub">Selected</div>
+          </div>
+          <div class="result-box green">
+            <div class="val" id="sel-r-bonus">—</div>
+            <div class="lbl">Bonus Units</div>
+            <div class="sub">Rounded up</div>
+          </div>
+          <div class="result-box gold">
+            <div class="val" id="sel-r-total">—</div>
+            <div class="lbl">Total Units</div>
+            <div class="sub">Base + Bonus</div>
+          </div>
+          <div class="result-box">
+            <div class="val" id="sel-r-aff">—</div>
+            <div class="lbl">Affordable Units</div>
+            <div class="sub">Min. required</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="no-qualify" class="notice warn">
     <span>⚠️</span>
@@ -1466,11 +1516,23 @@ function buildMatrix() {
          + '<td style="background:' + bgLight + ';text-align:center">' + inc + '</td>';
   }
 
+  // Read scenario selector
+  var selTier = (document.getElementById('sel-tier') || {}).value || '';
+  var selDB   = parseFloat((document.getElementById('sel-db') || {}).value) || null;
+
   function makeRows(isReport) {
     return rows.map(function(r) {
       var bonusUnits = baseUnits > 0 ? roundUp(baseUnits * r.db / 100) : '—';
       var total      = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * r.db / 100)) : '—';
       var dbLabel    = fmtPct(r.db);
+
+      // Highlight if this row matches the scenario selection
+      var isSelected = selDB !== null && Math.abs(r.db - selDB) < 0.01 && (
+        (selTier === 'vli' && r.vliPct !== null) ||
+        (selTier === 'li'  && r.liPct  !== null) ||
+        (selTier === 'mod' && r.modPct !== null)
+      );
+      var rowCls = isSelected ? ' class="sel-row"' : '';
 
       var baseTd, dbTd, bonusTd, totalTd;
       if (isReport) {
@@ -1485,7 +1547,7 @@ function buildMatrix() {
         totalTd = '<td style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
       }
 
-      return '<tr>'
+      return '<tr' + rowCls + '>'
         + baseTd + dbTd + bonusTd + totalTd
         + tierCells(r.vliPct, true,  false, false, '#be185d', '#fce7f3', isReport)
         + tierCells(r.liPct,  false, true,  false, '#c2410c', '#ffedd5', isReport)
@@ -1496,6 +1558,7 @@ function buildMatrix() {
 
   document.getElementById('matrix-body').innerHTML     = makeRows(false);
   document.getElementById('rpt-matrix-body').innerHTML = makeRows(true);
+  updateSelResult();
 }
 
 // ── PRINT ────────────────────────────────────────────
@@ -1529,6 +1592,72 @@ function resetForm() {
   document.getElementById('transit-check').checked = false;
   document.getElementById('base-units').value = 50;
   calculate();
+}
+
+// ── SCENARIO SELECTOR ────────────────────────────────
+function onTierChange() {
+  var tier = document.getElementById('sel-tier').value;
+  var sel  = document.getElementById('sel-db');
+  sel.innerHTML = '';
+
+  if (!tier) {
+    sel.innerHTML = '<option value="">— Select income level first —</option>';
+    document.getElementById('sel-result').style.display = 'none';
+    buildMatrix();
+    return;
+  }
+
+  var opts = ['<option value="">— Select density bonus % —</option>'];
+  if (tier === 'vli') {
+    for (var p = 5; p <= 15; p++) {
+      var db = calcVLIBonus(p);
+      opts.push('<option value="' + db + '">' + fmtDB(db) + ' (requires ' + p + '% VLI units)</option>');
+    }
+  } else if (tier === 'li') {
+    for (var p = 10; p <= 24; p++) {
+      var db = calcLIBonus(p);
+      opts.push('<option value="' + db + '">' + fmtDB(db) + ' (requires ' + p + '% LI units)</option>');
+    }
+  } else {
+    for (var p = 10; p <= 44; p++) {
+      var db = calcModBonus(p);
+      opts.push('<option value="' + db + '">' + fmtDB(db) + ' (requires ' + p + '% Moderate units)</option>');
+    }
+  }
+  sel.innerHTML = opts.join('');
+  document.getElementById('sel-result').style.display = 'none';
+  buildMatrix();
+}
+
+function fmtDB(db) {
+  return (db % 1 === 0 ? db.toFixed(1) : +db.toFixed(2)) + '%';
+}
+
+function updateSelResult() {
+  var tier     = document.getElementById('sel-tier').value;
+  var dbVal    = parseFloat(document.getElementById('sel-db').value);
+  var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
+  var panel    = document.getElementById('sel-result');
+
+  if (!tier || isNaN(dbVal) || baseUnits < 1) { panel.style.display = 'none'; return; }
+
+  // Find the min affordability % for selected tier+DB
+  var affPct = null;
+  if (tier === 'vli') { for (var p=5;p<=15;p++) { if (Math.abs(calcVLIBonus(p)-dbVal)<0.01){affPct=p;break;} } }
+  else if (tier==='li') { for (var p=10;p<=24;p++) { if (Math.abs(calcLIBonus(p)-dbVal)<0.01){affPct=p;break;} } }
+  else { for (var p=10;p<=44;p++) { if (Math.abs(calcModBonus(p)-dbVal)<0.01){affPct=p;break;} } }
+
+  if (affPct === null) { panel.style.display = 'none'; return; }
+
+  var bonusUnits = roundUp(baseUnits * dbVal / 100);
+  var totalUnits = baseUnits + bonusUnits;
+  var affUnits   = roundUp(baseUnits * affPct / 100);
+
+  document.getElementById('sel-r-db').textContent    = fmtDB(dbVal);
+  document.getElementById('sel-r-bonus').textContent = bonusUnits;
+  document.getElementById('sel-r-total').textContent = totalUnits;
+  document.getElementById('sel-r-aff').textContent   = affUnits + ' (' + affPct + '%)';
+  panel.style.display = 'block';
 }
 
 // ── COLLAPSE CARDS ───────────────────────────────────
