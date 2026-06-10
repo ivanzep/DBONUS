@@ -93,6 +93,19 @@
   }
   .card-header.collapsed .collapse-arrow { transform: rotate(-90deg); }
   .card-header:hover .collapse-arrow { background: rgba(255,255,255,.28); }
+  .card-header .card-num {
+    background: rgba(255,255,255,.25);
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
   .card-body {
     padding: 18px;
     transition: padding .18s;
@@ -273,31 +286,6 @@
   .notice.info { background: var(--blue-light); border-left: 3px solid var(--blue-mid); color: #1e40af; }
   .notice.warn { background: #fffbeb; border-left: 3px solid #d97706; color: #92400e; }
   .notice.success { background: var(--green-light); border-left: 3px solid var(--green); color: var(--green); }
-
-  /* ── SECTION DIVIDER ── */
-  .section-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--blue);
-    border-bottom: 2px solid var(--blue-light);
-    padding-bottom: 8px;
-    margin: 24px 0 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-title .num {
-    background: var(--blue);
-    color: #fff;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
 
   /* ── COMPARISON MATRIX ── */
   .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -483,10 +471,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 1. PROJECT INFO -->
-  <div class="section-title"><div class="num">1</div> Project Information</div>
-
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)">📋 Project Details<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">1</span> Project Information<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -530,10 +516,8 @@
   </div>
 
   <!-- ═══════════════════════════════════════ 2. BASE DENSITY -->
-  <div class="section-title"><div class="num">2</div> Base Density Parameters</div>
-
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)">🏗️ Existing Zoning Entitlement<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">2</span> Base Density Parameters<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="grid-3">
         <div class="form-group">
@@ -590,11 +574,9 @@
   <select id="senior-flag" style="display:none"><option value="no" selected></option></select>
 
   <!-- ═══════════════════════════════════════ 3. RESULTS -->
-  <div class="section-title"><div class="num">3</div> Density Bonus Calculation Results</div>
-
   <!-- SCENARIO SELECTOR -->
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)">🎯 Scenario Selection<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">3</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-row">
         <div class="form-group">
@@ -757,11 +739,9 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════ 5. COMPARISON MATRIX -->
-  <div class="section-title"><div class="num">4</div> Scenario Comparison Matrix</div>
-
+  <!-- ═══════════════════════════════════════ 4. COMPARISON MATRIX -->
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)">📊 Bonus Units vs. Affordable Unit Requirements — All Income Tiers<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">4</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="notice info" style="margin-bottom:12px">
         <span>ℹ️</span>
@@ -801,11 +781,9 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════ 6. PROJECT MAP -->
-  <div class="section-title"><div class="num">5</div> Project Location Map</div>
-
+  <!-- ═══════════════════════════════════════ 5. PROJECT MAP -->
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)">📍 Location Map<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">5</span> Project Location Map<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-group">
         <label>Search / Update Address</label>
@@ -831,11 +809,9 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════ GENERATE REPORT -->
-  <div class="section-title no-print"><div class="num">6</div> Generate Report</div>
-
+  <!-- ═══════════════════════════════════════ 6. GENERATE REPORT -->
   <div class="card no-print">
-    <div class="card-header" onclick="toggleCard(this)">📄 Printable Report<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">6</span> Generate Report<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <p style="font-size:13px;margin-bottom:14px;color:var(--gray)">Generate a formatted, print-ready report summarizing all density bonus calculations, applicable incentives, parking standards, and project information for inclusion in planning submittals.</p>
       <div class="action-row">
