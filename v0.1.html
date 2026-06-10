@@ -1,34 +1,4 @@
 <!DOCTYPE html>
-<!--
-  ============================================================
-  California Density Bonus Law Calculator
-  Government Code §65915 — Chapter 4.3, Title 7
-
-  VERSION HISTORY
-  ───────────────────────────────────────────────────────────
-  v0.2  (2026-06)  AB 1287 Stacked Density Bonus
-        - Added stacking section in Scenario Selection:
-          additional VLI (5–10%) and/or Mod (5–15%) inputs
-          beyond the base affordability commitment
-        - calcStackedVLIBonus() / calcStackedModBonus() per
-          AB 1287 (2023), GC §65915(v)
-        - Combined bonus = base DB% + additional DB% (cap 100%)
-        - Stacked unit mix breakdown (base aff + stacked aff)
-        - Stacked column added to Scenario Comparison Matrix
-        - Print/report updated with stacking details
-        - Version header comment block added
-
-  v0.1  (2026-06)  Initial release
-        - Interactive §65915 calculator (single-file HTML/CSS/JS)
-        - AB 2345 piecewise two-segment bonus scale
-        - Scenario comparison matrix (all DB thresholds)
-        - Print preview with section include/exclude checkboxes
-        - Income tier color toggle, page margin controls
-        - Logo upload (saved to JSON settings)
-        - Save/Load settings as JSON
-        - Drag-to-reorder sections (main page + print preview)
-  ============================================================
--->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -498,10 +468,6 @@
   .no-tier-colors .aff-li,
   .no-tier-colors .aff-mod,
   .no-tier-colors .aff-sr { background: #f1f5f9 !important; color: #374151 !important; }
-  /* Stacked columns in no-color mode */
-  .no-tier-colors .cmp-table td[style*="ede9fe"],
-  .no-tier-colors .cmp-table th[style*="ede9fe"],
-  .no-tier-colors .cmp-table th[style*="7c3aed"] { background: #f1f5f9 !important; color: #374151 !important; border-color: #9ca3af !important; }
 
   /* ── SUB-SECTION COLLAPSE ── */
   .sub-section-header {
@@ -765,7 +731,6 @@
               <th class="th-db"   colspan="2">INCREASE</th>
               <th class="th-total" rowspan="2">TOTAL<br>DENSITY</th>
               <th class="th-mix"  colspan="9" style="text-align:center;letter-spacing:1px">UNIT MIX ALLOCATION</th>
-              <th class="th-stk"  colspan="3" style="text-align:center;letter-spacing:1px;background:#7c3aed;color:#fff">AB 1287 MAX STACKED</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">%</th>
@@ -779,9 +744,6 @@
               <th class="sh-mod" style="background:#fef3c7;color:#92400e;border-left:2px solid #92400e">MODERATE INCOME<br><small>%</small></th>
               <th class="sh-mod" style="background:#fef3c7;color:#92400e">UNITS</th>
               <th class="sh-mod" style="background:#fef3c7;color:#92400e">INCENTIVES</th>
-              <th style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">TOTAL DB%</th>
-              <th style="background:#ede9fe;color:#5b21b6">TOTAL UNITS</th>
-              <th style="background:#ede9fe;color:#5b21b6">AFF. UNITS</th>
             </tr>
           </thead>
           <tbody id="matrix-body"></tbody>
@@ -850,91 +812,6 @@
             <div class="sub">Remaining</div>
           </div>
         </div>
-        <!-- ── AB 1287 STACKING ── -->
-        <div style="margin-top:16px">
-          <div class="sub-section-header" onclick="toggleSubSection(this)" style="background:#fef3c7;border-color:#fcd34d;color:#78350f">
-            AB 1287 Additional Density Bonus (Stacking) — §65915(v)
-            <span class="sub-collapse-arrow" style="color:#78350f">▼</span>
-          </div>
-          <div class="sub-section-body">
-            <div class="notice" style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;margin-bottom:12px">
-              <strong>AB 1287 (2023) — GC §65915(v):</strong> A project that already qualifies for a base density bonus may earn an <em>additional</em> density bonus by committing affordable units <em>beyond</em> the base requirement. Enter the additional units below. The total density bonus = base + additional (both applied to base units).
-            </div>
-            <div class="form-row" style="gap:16px;margin-bottom:10px">
-              <div class="form-group">
-                <label>Additional VLI Units <span class="hint">(beyond base, 5–10%)</span></label>
-                <div class="input-unit">
-                  <input type="number" id="stack-vli" value="" min="0" max="10" placeholder="0" oninput="updateStackedResult()">
-                  <span>% of base</span>
-                </div>
-                <div style="font-size:11px;color:#6b7280;margin-top:3px">5%→+20 bonus% · 10%→+50 bonus%</div>
-              </div>
-              <div class="form-group">
-                <label>Additional Mod Units <span class="hint">(for-sale only, 5–15%)</span></label>
-                <div class="input-unit">
-                  <input type="number" id="stack-mod" value="" min="0" max="15" placeholder="0" oninput="updateStackedResult()">
-                  <span>% of base</span>
-                </div>
-                <div style="font-size:11px;color:#6b7280;margin-top:3px">5%→+20 bonus% · 15%→+50 bonus%</div>
-              </div>
-            </div>
-            <div id="stack-result" style="display:none">
-              <div class="result-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
-                <div class="result-box" style="background:#fffbeb;border-color:#fcd34d">
-                  <div class="val" id="stk-base-db" style="color:#92400e">—</div>
-                  <div class="lbl">Base DB%</div>
-                  <div class="sub">§65915(f)</div>
-                </div>
-                <div class="result-box" style="background:#fef3c7;border-color:#f59e0b">
-                  <div class="val" id="stk-addl-db" style="color:#78350f">—</div>
-                  <div class="lbl">Additional DB%</div>
-                  <div class="sub">AB 1287 §65915(v)</div>
-                </div>
-                <div class="result-box gold">
-                  <div class="val" id="stk-total-db">—</div>
-                  <div class="lbl">Total Stacked DB%</div>
-                  <div class="sub">Base + Additional</div>
-                </div>
-                <div class="result-box green">
-                  <div class="val" id="stk-total-units">—</div>
-                  <div class="lbl">Total Units</div>
-                  <div class="sub">With stacking</div>
-                </div>
-                <div class="result-box">
-                  <div class="val" id="stk-bonus-units">—</div>
-                  <div class="lbl">Total Bonus Units</div>
-                  <div class="sub">Rounded up §65915(f)(4)</div>
-                </div>
-                <div class="result-box">
-                  <div class="val" id="stk-base-aff">—</div>
-                  <div class="lbl">Base Aff. Units</div>
-                  <div class="sub">From base commitment</div>
-                </div>
-                <div class="result-box">
-                  <div class="val" id="stk-addl-aff">—</div>
-                  <div class="lbl">Stacked Aff. Units</div>
-                  <div class="sub">AB 1287 requirement</div>
-                </div>
-                <div class="result-box">
-                  <div class="val" id="stk-market">—</div>
-                  <div class="lbl">Market-Rate Units</div>
-                  <div class="sub">Remaining</div>
-                </div>
-              </div>
-              <div class="sub-section-header" onclick="toggleSubSection(this)" style="background:#fef3c7;border-color:#fcd34d;color:#78350f;font-size:11px">
-                Stacked Calculation Method
-                <span class="sub-collapse-arrow" style="color:#78350f">▼</span>
-              </div>
-              <div class="sub-section-body">
-                <div id="stk-calc-steps" class="calc-steps"></div>
-              </div>
-            </div>
-            <div id="stack-no-base" class="notice" style="background:#f8fafc;border-left:3px solid #94a3b8;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;display:none">
-              Select a base density bonus scenario above before configuring the stacked additional bonus.
-            </div>
-          </div>
-        </div>
-
         <div style="margin-top:16px">
           <div class="sub-section-header" onclick="toggleSubSection(this)">
             Calculation Method
@@ -1240,7 +1117,6 @@
               <th class="th-db"   colspan="2">INCREASE</th>
               <th class="th-total" rowspan="2">TOTAL</th>
               <th class="th-mix"  colspan="9" style="text-align:center">UNIT MIX ALLOCATION</th>
-              <th style="background:#7c3aed;color:#fff;text-align:center" colspan="3">AB 1287 STACKED</th>
             </tr>
             <tr class="sub-head">
               <th class="sh-db">%</th>
@@ -1254,9 +1130,6 @@
               <th class="sh-mod">Mod%</th>
               <th class="sh-mod">Units</th>
               <th class="sh-mod">Inc.</th>
-              <th style="background:#ede9fe;color:#5b21b6;border-left:2px solid #7c3aed">Total DB%</th>
-              <th style="background:#ede9fe;color:#5b21b6">Total Units</th>
-              <th style="background:#ede9fe;color:#5b21b6">Aff. Units</th>
             </tr>
           </thead>
           <tbody id="rpt-matrix-body"></tbody>
@@ -1378,25 +1251,6 @@ function calcModBonus(pct) {
   if (pct < 10) return 0;
   if (pct <= 40) return 5 + (pct - 10) * 1;
   return Math.min(50, 35 + (pct - 40) * 3.75);
-}
-
-// ── AB 1287 (2023) STACKED DENSITY BONUS — GC §65915(v) ──────────────────
-// Requires the project to already qualify for a base density bonus.
-// An ADDITIONAL density bonus is earned by committing units BEYOND the base
-// affordability requirement. The additional bonus is layered on top:
-//   Total DB% = base DB% + additional DB%   (both applied to base units)
-//
-// Additional VLI (beyond base requirement): 5%→+20%, 10%→+50%  (slope 6%/1%)
-// Additional Mod (for-sale, beyond base):   5%→+20%, 15%→+50%  (slope 3%/1%)
-// The higher of the two additional bonuses is used; they cannot be combined.
-function calcStackedVLIBonus(addlPct) {
-  if (addlPct < 5) return 0;
-  return Math.min(50, 20 + (addlPct - 5) * 6);
-}
-
-function calcStackedModBonus(addlPct) {
-  if (addlPct < 5) return 0;
-  return Math.min(50, 20 + (addlPct - 5) * 3);
 }
 
 // (b)(3) Senior Housing: flat 20%
@@ -1845,23 +1699,6 @@ function buildMatrix() {
   var selTier = (document.getElementById('sel-tier') || {}).value || '';
   var selDB   = parseFloat((document.getElementById('sel-db') || {}).value) || null;
 
-  // Compute best AB 1287 stacked scenario for a given row's DB%
-  // Tries all valid additional VLI (5-10) and Mod (5-15) combos; picks max total DB
-  function bestStack(baseDB) {
-    var best = { totalDB: baseDB, addlDB: 0, addlPct: 0, addlType: null };
-    for (var av = 5; av <= 10; av++) {
-      var a = calcStackedVLIBonus(av);
-      var t = Math.min(100, baseDB + a);
-      if (t > best.totalDB) best = { totalDB: t, addlDB: a, addlPct: av, addlType: 'VLI' };
-    }
-    for (var am = 5; am <= 15; am++) {
-      var a2 = calcStackedModBonus(am);
-      var t2 = Math.min(100, baseDB + a2);
-      if (t2 > best.totalDB) best = { totalDB: t2, addlDB: a2, addlPct: am, addlType: 'Mod' };
-    }
-    return best;
-  }
-
   function makeRows() {
     return rows.map(function(r) {
       var bonusUnits = baseUnits > 0 ? roundUp(baseUnits * r.db / 100) : '—';
@@ -1880,30 +1717,11 @@ function buildMatrix() {
       var bonusTd = '<td class="td-bu"   style="text-align:center;font-weight:800;font-size:14px;background:#bfdbfe;color:#1e3a5f">' + bonusUnits + '</td>';
       var totalTd = '<td class="td-tot"  style="text-align:center;font-weight:800;font-size:14px;background:#ccfbf1;color:#0f766e">' + total + '</td>';
 
-      // AB 1287 stacked columns — best possible additional bonus for this row
-      var stk = bestStack(r.db);
-      var stkLabel = fmtPct(stk.totalDB);
-      var stkUnits = baseUnits > 0 ? (baseUnits + roundUp(baseUnits * stk.totalDB / 100)) : '—';
-      // Base aff units: use the SMALLEST qualifying tier affordability requirement
-      var baseAffPct = r.vliPct || r.liPct || r.modPct || 0;
-      var baseAffUnits = (baseUnits > 0 && baseAffPct) ? roundUp(baseUnits * baseAffPct / 100) : 0;
-      var addlAffUnits = (baseUnits > 0 && stk.addlType) ? roundUp(baseUnits * stk.addlPct / 100) : 0;
-      var totalAff = baseAffUnits + addlAffUnits;
-      var stkAffStr = baseUnits > 0
-        ? totalAff + (stk.addlType ? '<br><small style="color:#7c3aed">+' + stk.addlPct + '% ' + stk.addlType + ' (AB1287)</small>' : '')
-        : '—';
-      var stkTds = stk.addlType
-        ? '<td style="background:#ede9fe;color:#5b21b6;font-weight:800;text-align:center;border-left:2px solid #7c3aed">' + stkLabel + '</td>'
-        + '<td style="background:#ede9fe;color:#5b21b6;font-weight:700;text-align:center">' + stkUnits + '</td>'
-        + '<td style="background:#ede9fe;color:#5b21b6;text-align:center">' + stkAffStr + '</td>'
-        : '<td colspan="3" style="background:#f5f3ff;color:#c4b5fd;text-align:center;font-style:italic;font-size:11px">n/a</td>';
-
       return '<tr' + rowCls + '>'
         + baseTd + dbTd + bonusTd + totalTd
         + tierCells(r.vliPct, true,  false, false, '#be185d', '#fce7f3')
         + tierCells(r.liPct,  false, true,  false, '#c2410c', '#ffedd5')
         + tierCells(r.modPct, false, false, true,  '#92400e', '#fef3c7')
-        + stkTds
         + '</tr>';
     }).join('');
   }
@@ -2056,7 +1874,7 @@ function applyLogo(url) {
 var SAVE_FIELDS = ['proj-name','proj-applicant','proj-address','proj-apn','proj-city','proj-zone',
   'proj-gp','proj-desc','proj-date','base-units','lot-size','lot-unit','max-height','base-far',
   'base-stories','proj-type','vli-pct','li-pct','mod-pct','special-pct','land-pct','senior-flag',
-  'transit-check','sel-tier','sel-db','stack-vli','stack-mod'];
+  'transit-check','sel-tier','sel-db'];
 
 function saveSettings() {
   var data = { version: 1, saved: new Date().toISOString() };
@@ -2093,7 +1911,6 @@ function loadSettings(evt) {
       calculate();
       buildMatrix();
       updateSelResult();
-      updateStackedResult();
       if (typeof updateMap === 'function') updateMap();
       if (data['_logo']) { _logoDataURL = data['_logo']; applyLogo(_logoDataURL); }
       else { clearLogo(); }
@@ -2299,103 +2116,6 @@ function updateSelResult() {
   // Populate incentives table (writes to both main + rpt-incentives-body)
   buildIncentivesTable(incNum, vliPct, liPct, modPct, 0, 'no');
 
-  syncReport();
-  updateStackedResult();
-}
-
-// ── AB 1287 STACKED DENSITY BONUS CALCULATOR ──────────────────────────────
-function updateStackedResult() {
-  var tier      = document.getElementById('sel-tier').value;
-  var dbVal     = parseFloat(document.getElementById('sel-db').value);
-  var baseUnits = parseInt(document.getElementById('base-units').value) || 0;
-  var addlVLI   = parseFloat(document.getElementById('stack-vli').value) || 0;
-  var addlMod   = parseFloat(document.getElementById('stack-mod').value) || 0;
-
-  var noBase    = document.getElementById('stack-no-base');
-  var result    = document.getElementById('stack-result');
-
-  // Need a valid base scenario first
-  if (!tier || isNaN(dbVal)) {
-    noBase.style.display = 'block';
-    result.style.display = 'none';
-    return;
-  }
-  noBase.style.display = 'none';
-
-  // No additional input entered — hide result
-  if (addlVLI <= 0 && addlMod <= 0) {
-    result.style.display = 'none';
-    return;
-  }
-
-  // Calculate additional DB% — take the higher of the two (cannot combine)
-  var addlVLIBonus = calcStackedVLIBonus(addlVLI);
-  var addlModBonus = calcStackedModBonus(addlMod);
-  var addlDB = Math.max(addlVLIBonus, addlModBonus);
-  var usedTier = addlVLIBonus >= addlModBonus ? 'vli' : 'mod';
-  var usedPct  = usedTier === 'vli' ? addlVLI : addlMod;
-
-  // Total stacked DB% — cap at 100%
-  var totalDB = Math.min(100, dbVal + addlDB);
-
-  // Unit calculations (all applied to base units)
-  var totalBonusRaw  = baseUnits * totalDB / 100;
-  var totalBonus     = baseUnits > 0 ? roundUp(totalBonusRaw) : 0;
-  var totalUnits     = baseUnits + totalBonus;
-
-  // Find base affordable % from base scenario
-  var baseAffPct = null;
-  if (tier==='vli')     { for (var p=5;  p<=15; p++) { if (Math.abs(calcVLIBonus(p)-dbVal)<0.01){baseAffPct=p;break;} } }
-  else if (tier==='li') { for (var p=10; p<=24; p++) { if (Math.abs(calcLIBonus(p)-dbVal)<0.01){baseAffPct=p;break;} } }
-  else                  { for (var p=10; p<=44; p++) { if (Math.abs(calcModBonus(p)-dbVal)<0.01){baseAffPct=p;break;} } }
-
-  var baseAffUnits   = (baseUnits > 0 && baseAffPct) ? roundUp(baseUnits * baseAffPct / 100) : 0;
-  var addlAffUnits   = baseUnits > 0 ? roundUp(baseUnits * usedPct / 100) : 0;
-  var totalAffUnits  = baseAffUnits + addlAffUnits;
-  var marketUnits    = totalUnits - totalAffUnits;
-
-  // Populate result boxes
-  document.getElementById('stk-base-db').textContent    = fmtDB(dbVal);
-  document.getElementById('stk-addl-db').textContent    = '+' + fmtDB(addlDB);
-  document.getElementById('stk-total-db').textContent   = fmtDB(totalDB);
-  document.getElementById('stk-total-units').textContent= baseUnits > 0 ? totalUnits : '—';
-  document.getElementById('stk-bonus-units').textContent= baseUnits > 0 ? totalBonus : '—';
-  document.getElementById('stk-base-aff').textContent   = baseUnits > 0 ? (baseAffUnits + (baseAffPct ? ' (' + baseAffPct + '%)' : '')) : '—';
-  document.getElementById('stk-addl-aff').textContent   = baseUnits > 0 ? (addlAffUnits + ' (' + usedPct + '% ' + (usedTier==='vli' ? 'VLI' : 'Mod') + ')') : '—';
-  document.getElementById('stk-market').textContent     = baseUnits > 0 ? marketUnits : '—';
-  result.style.display = 'block';
-
-  // Step-by-step calculation
-  var steps = ['<div class="calc-steps">'];
-  var n = 1;
-  var tierLabel = tier==='vli' ? 'VLI' : tier==='li' ? 'LI' : 'Mod';
-  steps.push(mkStep(n++, 'Base Density Bonus — §65915(f)',
-    'Base scenario: <strong>' + tierLabel + ' ' + (baseAffPct || '?') + '%</strong> → Base DB = <strong>' + fmtDB(dbVal) + '</strong>'));
-  steps.push(mkStep(n++, 'AB 1287 Additional Commitment — §65915(v)',
-    (usedTier === 'vli'
-      ? 'Additional VLI = <strong>' + addlVLI + '%</strong> → Additional DB = 20 + (' + addlVLI + ' − 5) × 6 = <strong>' + fmtDB(addlVLIBonus) + '</strong>'
-      : 'Additional Mod = <strong>' + addlMod + '%</strong> → Additional DB = 20 + (' + addlMod + ' − 5) × 3 = <strong>' + fmtDB(addlModBonus) + '</strong>')
-    + (addlVLIBonus > 0 && addlModBonus > 0 ? '<br><small style="color:#6b7280">Both tiers entered; higher additional bonus selected (' + (usedTier==='vli' ? 'VLI' : 'Mod') + ')</small>' : '')
-    + '<br><small style="color:#6b7280">AB 1287 requires ≥5% additional units; additional bonus capped at 50%</small>'));
-  steps.push(mkStep(n++, 'Total Stacked Density Bonus',
-    'Total DB = Base + Additional = ' + fmtDB(dbVal) + ' + ' + fmtDB(addlDB) + ' = <strong>' + fmtDB(totalDB) + '</strong>' +
-    (totalDB === 100 ? ' <span style="color:#b91c1c">(capped at 100%)</span>' : '')));
-  if (baseUnits > 0) {
-    steps.push(mkStep(n++, 'Total Bonus Units — §65915(f)(4) Round Up',
-      'Bonus Units (raw) = ' + baseUnits + ' × ' + fmtDB(totalDB) + ' = ' + totalBonusRaw.toFixed(4) + '<br>' +
-      '⌈' + totalBonusRaw.toFixed(4) + '⌉ = <strong>' + totalBonus + ' total bonus units</strong>'));
-    steps.push(mkStep(n++, 'Total Units Allowed',
-      'Total = Base + Bonus = ' + baseUnits + ' + ' + totalBonus + ' = <strong>' + totalUnits + ' units</strong>'));
-    steps.push(mkStep(n++, 'Combined Affordability Requirement',
-      'Base affordable: ' + baseAffUnits + ' units (' + (baseAffPct||'?') + '% ' + tierLabel + ')<br>' +
-      'AB 1287 additional: ' + addlAffUnits + ' units (' + usedPct + '% ' + (usedTier==='vli'?'VLI':'Mod') + ')<br>' +
-      'Total affordable required: <strong>' + totalAffUnits + ' units</strong><br>' +
-      'Market-rate: <strong>' + marketUnits + ' units</strong>'));
-  }
-  steps.push('</div>');
-  document.getElementById('stk-calc-steps').innerHTML = steps.join('');
-
-  // Sync to report
   syncReport();
 }
 
