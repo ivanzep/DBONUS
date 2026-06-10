@@ -573,10 +573,52 @@
   <input type="hidden" id="land-pct"    value="0">
   <select id="senior-flag" style="display:none"><option value="no" selected></option></select>
 
-  <!-- ═══════════════════════════════════════ 3. RESULTS -->
+  <!-- ═══════════════════════════════════════ 3. COMPARISON MATRIX -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">3</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
+    <div class="card-body">
+      <div class="notice info" style="margin-bottom:12px">
+        <span>ℹ️</span>
+        <span>Each row = one achievable density bonus % under §65915(f). The <strong>INCREASE UNITS</strong> column shows how many bonus units you gain on top of baseline. The income-tier columns show the <em>minimum affordability commitment</em> (min %) required to reach that bonus level and how many affordable units that requires. Units rounded up per §65915(f)(4). AB 2345 piecewise scale.</span>
+      </div>
+      <div class="matrix-wrap">
+        <table class="cmp-table" id="comparison-matrix">
+          <thead>
+            <tr class="grp-head">
+              <th class="th-base" rowspan="2">BASELINE<br>DENSITY</th>
+              <th class="th-db"   colspan="2">INCREASE</th>
+              <th class="th-total" rowspan="2">TOTAL<br>DENSITY</th>
+              <th class="th-mix"  colspan="9" style="text-align:center;letter-spacing:1px">UNIT MIX ALLOCATION</th>
+            </tr>
+            <tr class="sub-head">
+              <th class="sh-db">%</th>
+              <th class="sh-db">UNITS</th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d;border-left:2px solid #be185d">VERY LOW INCOME<br><small>min %</small></th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d">UNITS</th>
+              <th class="sh-vli" style="background:#fce7f3;color:#be185d">INCENTIVES</th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c;border-left:2px solid #c2410c">LOW INCOME<br><small>min %</small></th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">UNITS</th>
+              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">INCENTIVES</th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e;border-left:2px solid #92400e">MODERATE INCOME<br><small>%</small></th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e">UNITS</th>
+              <th class="sh-mod" style="background:#fef3c7;color:#92400e">INCENTIVES</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+      <div class="matrix-legend" style="margin-top:12px">
+        <span style="color:#6b7280;font-size:11px">Each row = one achievable density bonus %. The min % column shows the minimum affordable unit commitment required to reach that bonus for each income tier. Blank = that tier cannot achieve this bonus level.</span>
+        <span style="color:#9ca3af">* Moderate income — for-sale units only (§65915(f)(3)). AB 2345 (eff. 1/1/2021).</span>
+        <span style="color:#9ca3af">All units rounded up per §65915(f)(4)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ 4. DENSITY BONUS RESULTS -->
   <!-- SCENARIO SELECTOR -->
   <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">3</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
+    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">4</span> Density Bonus — Scenario Selection<span class="collapse-arrow">▼</span></div>
     <div class="card-body">
       <div class="form-row">
         <div class="form-group">
@@ -645,7 +687,7 @@
 
     <!-- INCENTIVES & CONCESSIONS -->
     <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">🏛️ Incentives &amp; Concessions<span class="collapse-arrow">▼</span></div>
+      <div class="card-header" onclick="toggleCard(this)">Incentives &amp; Concessions<span class="collapse-arrow">▼</span></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:14px">
           <span>ℹ️</span>
@@ -673,7 +715,7 @@
 
     <!-- PARKING STANDARDS -->
     <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">🚗 Maximum Parking Standards<span class="collapse-arrow">▼</span></div>
+      <div class="card-header" onclick="toggleCard(this)">Maximum Parking Standards<span class="collapse-arrow">▼</span></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:14px">
           <span>ℹ️</span>
@@ -696,13 +738,6 @@
             <div class="label">space per unit</div>
           </div>
         </div>
-        <div id="parking-zero-notice" class="notice success" style="display:none;margin-top:12px">
-          <span>✅</span>
-          <span>
-            <strong>Zero Parking Required (§65915(p)(3)):</strong> This project qualifies for zero minimum parking because it is located within ½ mile of a major transit stop or high-quality transit corridor. The jurisdiction may not require any off-street parking for this project. On-street parking does not count toward any ratio.<br>
-            <a href="#" onclick="document.getElementById('transit-check').checked=false;updateTransitParking();return false;" style="color:var(--green);font-weight:700;font-size:11px;margin-top:4px;display:inline-block">✕ Remove transit designation</a>
-          </span>
-        </div>
         <div style="margin-top:10px">
           <label style="font-size:12px;cursor:pointer">
             <input type="checkbox" id="transit-check" onchange="updateTransitParking()" style="width:auto;margin-right:6px">
@@ -710,12 +745,19 @@
           </label>
           <div style="font-size:11px;color:#6b7280;margin-top:4px;margin-left:22px">When checked, zero off-street parking may be required for the project.</div>
         </div>
+        <div id="parking-zero-notice" class="notice success" style="display:none;margin-top:12px">
+          <span>✅</span>
+          <span>
+            <strong>Zero Parking Required (§65915(p)(3)):</strong> This project qualifies for zero minimum parking because it is located within ½ mile of a major transit stop or high-quality transit corridor. The jurisdiction may not require any off-street parking for this project. On-street parking does not count toward any ratio.<br>
+            <a href="#" onclick="document.getElementById('transit-check').checked=false;updateTransitParking();return false;" style="color:var(--green);font-weight:700;font-size:11px;margin-top:4px;display:inline-block">✕ Remove transit designation</a>
+          </span>
+        </div>
       </div>
     </div>
 
     <!-- WAIVER / REDUCTION -->
     <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">📏 Development Standard Waivers<span class="collapse-arrow">▼</span></div>
+      <div class="card-header" onclick="toggleCard(this)">Development Standard Waivers<span class="collapse-arrow">▼</span></div>
       <div class="card-body">
         <div class="notice info" style="margin-bottom:12px">
           <span>ℹ️</span>
@@ -734,48 +776,6 @@
             <tr><td>Design Standards</td><td>May be waived</td><td>Must not conflict with state building code</td></tr>
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ 4. COMPARISON MATRIX -->
-  <div class="card">
-    <div class="card-header" onclick="toggleCard(this)"><span class="card-num">4</span> Scenario Comparison Matrix<span class="collapse-arrow">▼</span></div>
-    <div class="card-body">
-      <div class="notice info" style="margin-bottom:12px">
-        <span>ℹ️</span>
-        <span>Each row = one achievable density bonus % under §65915(f). The <strong>INCREASE UNITS</strong> column shows how many bonus units you gain on top of baseline. The income-tier columns show the <em>minimum affordability commitment</em> (min %) required to reach that bonus level and how many affordable units that requires. Units rounded up per §65915(f)(4). AB 2345 piecewise scale.</span>
-      </div>
-      <div class="matrix-wrap">
-        <table class="cmp-table" id="comparison-matrix">
-          <thead>
-            <tr class="grp-head">
-              <th class="th-base" rowspan="2">BASELINE<br>DENSITY</th>
-              <th class="th-db"   colspan="2">INCREASE</th>
-              <th class="th-total" rowspan="2">TOTAL<br>DENSITY</th>
-              <th class="th-mix"  colspan="9" style="text-align:center;letter-spacing:1px">UNIT MIX ALLOCATION</th>
-            </tr>
-            <tr class="sub-head">
-              <th class="sh-db">%</th>
-              <th class="sh-db">UNITS</th>
-              <th class="sh-vli" style="background:#fce7f3;color:#be185d;border-left:2px solid #be185d">VERY LOW INCOME<br><small>min %</small></th>
-              <th class="sh-vli" style="background:#fce7f3;color:#be185d">UNITS</th>
-              <th class="sh-vli" style="background:#fce7f3;color:#be185d">INCENTIVES</th>
-              <th class="sh-li"  style="background:#ffedd5;color:#c2410c;border-left:2px solid #c2410c">LOW INCOME<br><small>min %</small></th>
-              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">UNITS</th>
-              <th class="sh-li"  style="background:#ffedd5;color:#c2410c">INCENTIVES</th>
-              <th class="sh-mod" style="background:#fef3c7;color:#92400e;border-left:2px solid #92400e">MODERATE INCOME<br><small>%</small></th>
-              <th class="sh-mod" style="background:#fef3c7;color:#92400e">UNITS</th>
-              <th class="sh-mod" style="background:#fef3c7;color:#92400e">INCENTIVES</th>
-            </tr>
-          </thead>
-          <tbody id="matrix-body"></tbody>
-        </table>
-      </div>
-      <div class="matrix-legend" style="margin-top:12px">
-        <span style="color:#6b7280;font-size:11px">Each row = one achievable density bonus %. The min % column shows the minimum affordable unit commitment required to reach that bonus for each income tier. Blank = that tier cannot achieve this bonus level.</span>
-        <span style="color:#9ca3af">* Moderate income — for-sale units only (§65915(f)(3)). AB 2345 (eff. 1/1/2021).</span>
-        <span style="color:#9ca3af">All units rounded up per §65915(f)(4)</span>
       </div>
     </div>
   </div>
